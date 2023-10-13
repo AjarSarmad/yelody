@@ -9,5 +9,5 @@ public class YelodyApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(YelodyApplication.class, args);
 	}
-
+	
 }

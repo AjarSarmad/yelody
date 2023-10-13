@@ -40,15 +40,10 @@ public class User {
 	@Column(name="registration_date" , nullable=false)
 	private Date registrationDate;
 	
-	@Column(name="yelo_points" , nullable=false)
+	@Column(name="yelo_points" , nullable=true)
 	private double yeloPoints;
 	
-	@Column(name="sung_songs" , nullable=false)
+	@Column(name="sung_songs" , nullable=true)
 	private int sungSongs;
-
-//	@Lob
-//	@Column(name="Image" , nullable=true)
-//	private byte[] image;
-//	
 	
 }

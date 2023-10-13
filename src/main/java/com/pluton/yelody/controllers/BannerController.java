@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.pluton.yelody.models.Banner;
-import com.pluton.yelody.models.BannerViewModel;
+import com.pluton.yelody.models.BannerRequest;
 import com.pluton.yelody.repositories.BannerRepository;
 import com.pluton.yelody.serviceImpl.ImageUtil;
 
@@ -35,8 +35,8 @@ public class BannerController {
 	//Create Banner
 	//http://localhost:8080/yelody/banner/addBanner
 	@CrossOrigin(origins = "*")
-	@PostMapping("addBanner")
-	public ResponseEntity<Object> addBanner(@RequestBody BannerViewModel bannerViewModel){
+	@PostMapping("/addBanner")
+	public ResponseEntity<Object> addBanner(@RequestBody BannerRequest bannerViewModel){
 		try {
 			return new ResponseEntity<Object>(bannerRepository.save(
 						new Banner(
@@ -105,7 +105,7 @@ public class BannerController {
   	//http://localhost:8080/yelody/banner/updateBanner?id=
     @CrossOrigin(origins = "*")
   	@PutMapping("/updateBanner")
-    public ResponseEntity<Object> updateBanner(@RequestParam(name="id") UUID id, @RequestBody BannerViewModel bannerViewModel){
+    public ResponseEntity<Object> updateBanner(@RequestParam(name="id") UUID id, @RequestBody BannerRequest bannerViewModel){
     	try {
     		Optional<Banner> banner = bannerRepository.findById(id);
     		if(banner!=null) {

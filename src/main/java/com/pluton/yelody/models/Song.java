@@ -63,21 +63,23 @@ public class Song {
     @JoinTable(
         name = "SongKeywords",
         joinColumns = @JoinColumn(name = "song_id"),
-        inverseJoinColumns = @JoinColumn(name = "keyword_id")
+        inverseJoinColumns = @JoinColumn(name = "keyword_id",
+        nullable = true)
     )
     private List<Keyword> keywords = new ArrayList<>();
 	
 	
 	@JsonIgnore
 	@ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "genre", nullable = false)
+    @JoinColumn(name = "genre", nullable = true)
     private Genre genre;
 	
 	@ManyToMany
     @JoinTable(
         name = "SongChartMapping",
         joinColumns = @JoinColumn(name = "song_id"),
-        inverseJoinColumns = @JoinColumn(name = "chart_id")
+        inverseJoinColumns = @JoinColumn(name = "chart_id",
+        nullable = true)
     )
     private List<Chart> charts = new ArrayList<>();
 	

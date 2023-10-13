@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class BannerViewModel {
+public class BannerRequest {
 	private String location;
 	private String url;
 	private String language;
