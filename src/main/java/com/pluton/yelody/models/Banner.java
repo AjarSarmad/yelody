@@ -28,7 +28,7 @@ public class Banner {
 	@Column(name="location" , nullable=false)
 	private String location;
 	
-	@Column(name="url" , nullable=false)
+	@Column(name="url" , nullable=false, unique = true)
 	private String url;
 	
 	@Column(name="language" , nullable=false)

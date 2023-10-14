@@ -1,6 +1,8 @@
 package com.pluton.yelody.models;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,16 +12,23 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SongRequest {
-	@NotNull
-	private String name;
-	@NotNull
+	
+	@NotNull(message = "User Name not be NULL")
+	private String userName;
+	
+	@NotNull(message = "Description not be NULL")
 	private String description;
-	@NotNull
+	
+	@Max(10)
+	@Min(1)
 	private int rank;
-	@NotNull
+	
+	@NotNull(message = "ArtistName not be NULL")
 	private String artistName;
-	@NotNull
+	
+	@NotNull(message = "Lyrics not be NULL")
 	private String lyrics;
-	@NotNull
+	
+	@NotNull(message = "Genre not be NULL")
 	private String genre;
 }

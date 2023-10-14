@@ -46,7 +46,7 @@ public class Song {
 	@Column(name="artist_name" , nullable=false)
 	private String artistName;
 
-	@Column(name="lyrics" ,columnDefinition = "LONGTEXT", nullable=false)
+	@Column(name="lyrics" ,columnDefinition = "LONGTEXT", nullable=false, unique=true)
 	private String lyrics;
 	
 	

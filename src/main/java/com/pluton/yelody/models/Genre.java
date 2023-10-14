@@ -32,7 +32,7 @@ public class Genre {
 	@Column(name="genre_id" , nullable=false)
 	private UUID genreId;
 	
-	@Column(name="type" , nullable=false)
+	@Column(name="type" , nullable=false, unique=true)
 	private String type;
 	
 	@JsonIgnore

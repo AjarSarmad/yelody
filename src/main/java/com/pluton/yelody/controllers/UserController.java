@@ -5,13 +5,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import javax.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,28 +20,27 @@ import org.springframework.web.bind.annotation.RestController;
 import com.pluton.yelody.models.User;
 import com.pluton.yelody.models.UserCriteriaModel;
 import com.pluton.yelody.models.UserRequest;
-import com.pluton.yelody.repositories.UserRepository;
 import com.pluton.yelody.services.UserService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/yelody/user")
-@Validated
 public class UserController {
 	
-	@Autowired
-	UserRepository userRepository;
 	@Autowired
 	UserService userService;
 	
 	List<User> userList = null;
-	Optional<User> user = null;
+	Optional<User> userGet = null;
+	User userPost = null;
 	Sort sort = null;
 	
 	//List of Users
 	//http://localhost:8080/yelody/user/listUsers
 	@CrossOrigin(origins = "*")
 	@GetMapping("/listUsers")
-	public ResponseEntity<Object> listUsers(@Valid @RequestBody(required = false) UserCriteriaModel userCriteriaModel) {
+	public ResponseEntity<Object> listUsers( @RequestBody(required = false) @Valid UserCriteriaModel userCriteriaModel) {
 	    try {
 	        userList = new ArrayList<>(); 
 	        
@@ -83,11 +79,12 @@ public class UserController {
   	//http://localhost:8080/yelody/user/getUserDetails?id=
     @CrossOrigin(origins = "*")
   	@GetMapping("/getUserDetails")
-    public ResponseEntity<Object> getUserDetails(@RequestParam(name="id")UUID userId){
+    public ResponseEntity<Object> getUserDetails(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID userId){
+    	userGet = null;
     	try {
-    		user = userRepository.findById(userId);
-    		if(user!=null || !(user.isEmpty()))
-    			return new ResponseEntity<Object>(user, HttpStatus.FOUND);
+    		userGet = userService.getUserByID(userId);
+    		if(userGet!=null || !(userGet.isEmpty()))
+    			return new ResponseEntity<Object>(userGet, HttpStatus.FOUND);
     		else
       			return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
 
@@ -100,20 +97,19 @@ public class UserController {
   	//http://localhost:8080/yelody/user/postUser
     @CrossOrigin(origins = "*")
   	@PostMapping("/postUser")
-    public ResponseEntity<Object> postUser(@RequestBody UserRequest userRequest){
+    public ResponseEntity<Object> postUser(@RequestBody @Valid UserRequest userRequest){
+    	userPost = null;
     	try {
-  			return new ResponseEntity<Object>(userRepository.save(
-  					new User(		UUID.randomUUID(),
-  									userRequest.getUserName(),
-  									userRequest.getEmail(),
-  									userRequest.getPhone(),
-  									 new java.sql.Date(System.currentTimeMillis()),
-  									 new java.sql.Date(System.currentTimeMillis()),
-  									0,
-  									0
-  							)
-  					),HttpStatus.OK);
-
+    		userPost = new User(UUID.randomUUID(),
+						userRequest.getUserName(),
+						userRequest.getEmail(),
+						userRequest.getPhone(),
+						 new java.sql.Date(System.currentTimeMillis()),
+						 new java.sql.Date(System.currentTimeMillis()),
+						0,
+						0);
+    		
+  			return userService.saveUser(userPost);
     	}catch(Exception ex) {
   			return new ResponseEntity<Object>(HttpStatus.BAD_REQUEST);
     	}
@@ -123,7 +119,7 @@ public class UserController {
   	//http://localhost:8080/yelody/user/incrementSingCountById?id=
   	@CrossOrigin(origins = "*")
   	@PostMapping("/incrementSingCountById")
-  	public ResponseEntity<Object> incrementSingCountById(@RequestParam(name="id")UUID id) {
+  	public ResponseEntity<Object> incrementSingCountById(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID id) {
           return new ResponseEntity<Object>(userService.incrementSingCountById(id));
   	}
 	

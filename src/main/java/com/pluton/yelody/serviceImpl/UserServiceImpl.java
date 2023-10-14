@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.pluton.yelody.models.User;
@@ -88,6 +89,10 @@ public class UserServiceImpl implements UserService{
 	}
 	
 	@Override
+	public Optional<User> getUserByID(UUID id){
+		return userRepository.findById(id);
+	}
+	@Override
 	public Specification<User> filterByLastVisitDate(Date date){
 		  return (root, query, criteriaBuilder)-> 
 		      criteriaBuilder.equal(root.get("lastVisitDate"), date);
@@ -120,5 +125,15 @@ public class UserServiceImpl implements UserService{
 		return HttpStatus.OK;
 	}else
 		return HttpStatus.NOT_FOUND;
-}
+	}
+	
+	@Override
+	public ResponseEntity<Object> saveUser(User  user){
+		try {
+			return new ResponseEntity<Object>(userRepository.save(user),HttpStatus.CREATED);
+		}catch(Exception  e) {
+  			return new ResponseEntity<Object>(HttpStatus.FOUND);
+		}
+	}
+
 }

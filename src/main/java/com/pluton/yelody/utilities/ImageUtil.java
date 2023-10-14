@@ -1,4 +1,4 @@
-package com.pluton.yelody.serviceImpl;
+package com.pluton.yelody.utilities;
 import java.io.ByteArrayOutputStream;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;

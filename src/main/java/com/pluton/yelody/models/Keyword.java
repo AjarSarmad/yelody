@@ -21,6 +21,6 @@ public class Keyword {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 	
-	@Column(name="keyword" , nullable=false)
+	@Column(name="keyword" , nullable=false, unique=true)
     private String keyword;
 }	

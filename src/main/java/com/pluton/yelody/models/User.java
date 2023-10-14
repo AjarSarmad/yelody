@@ -25,10 +25,10 @@ public class User {
 	@Column(name="user_id" , nullable=false)
 	private UUID userId;
 	
-	@Column(name="user_name" , nullable=false)
+	@Column(name="user_name" , nullable=false, unique=true)
 	private String userName;
 	
-	@Column(name="email" , nullable=false)
+	@Column(name="email" , nullable=false, unique=true)
 	private String email;
 	
 	@Column(name="phone" , nullable=false)

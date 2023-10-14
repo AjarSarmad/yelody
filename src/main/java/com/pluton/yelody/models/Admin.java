@@ -24,13 +24,13 @@ public class Admin {
 	@Column(name="admin_id" , nullable=false)
 	private UUID adminId;
 	
-	@Column(name="user_name" , nullable=false)
+	@Column(name="user_name" , nullable=false, unique=true)
 	private String userName;
 	
 	@Column(name="password" , nullable=false)
 	private String password;
 	
-	@Column(name="Email" , nullable=false)
+	@Column(name="Email" , nullable=false, unique=true)
 	private String email;
 	
 	@Column(name="phone" , nullable=false)

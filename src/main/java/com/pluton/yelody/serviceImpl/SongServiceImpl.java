@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.pluton.yelody.models.Song;
@@ -27,8 +28,12 @@ public class SongServiceImpl implements SongService{
 	}
 	
 	@Override
-	public Song postSong(Song song) {
-		return songRepository.save(song);
+	public ResponseEntity<Object> postSong(Song song) {
+		try {
+			return new ResponseEntity<Object>(songRepository.save(song),HttpStatus.CREATED);
+		}catch(Exception  e) {
+  			return new ResponseEntity<Object>(HttpStatus.FOUND);
+		}
 	}
 	
 	/** ADD UNIQUE USERS

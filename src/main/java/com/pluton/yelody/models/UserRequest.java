@@ -1,5 +1,8 @@
 package com.pluton.yelody.models;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,7 +11,16 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserRequest {
+	
+	@Size(min=5 , max=15)
+	@NotNull(message="")
 	private String userName;
+	
+	@Email
+	@NotNull(message="Email must not be NULL")
 	private String email;
+	
+	@Size(min = 10, max=10)
+	@NotNull(message="Phone must not be NULL")
 	private String phone;
 }

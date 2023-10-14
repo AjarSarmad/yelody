@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import javax.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,16 +19,17 @@ import org.springframework.web.bind.annotation.RestController;
 import com.pluton.yelody.models.Genre;
 import com.pluton.yelody.models.Song;
 import com.pluton.yelody.models.SongRequest;
-import com.pluton.yelody.repositories.GenreRepository;
 import com.pluton.yelody.services.SongService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/yelody/song")
 public class SongController {
 	@Autowired
 	SongService songService;
-	@Autowired
-	GenreRepository genreRepository;
+//	@Autowired
+//	GenreRepository genreRepository;
 	
 	List<Song> songList = null;
 	Song song = null;
@@ -40,14 +39,15 @@ public class SongController {
 	//http://localhost:8080/yelody/song/postSong
     @CrossOrigin(origins = "*")
   	@PostMapping("/postSong")
-    public ResponseEntity<Object> postUser(@Valid @RequestBody SongRequest songRequest){
+    public ResponseEntity<Object> postUser( @RequestBody @Valid SongRequest songRequest){
+    	song = null;
     	try {
 //    		if(genreRepository.existsByType(songRequest.getGenre())) {
 //    			genre = genreRepository.findByType(songRequest.getGenre());
     		
   				song = new Song(
   						UUID.randomUUID(),
-  						songRequest.getName(),
+  						songRequest.getUserName(),
   						songRequest.getDescription(),
   						songRequest.getRank(),
   						songRequest.getArtistName(),
@@ -59,8 +59,7 @@ public class SongController {
   						null,
   						null);
   				
-  				song = songService.postSong(song);
-  				return new ResponseEntity<Object>(song , HttpStatus.OK);
+  				return songService.postSong(song);
 //    		}else
 //      			return new ResponseEntity<Object>(HttpStatus.BAD_REQUEST);
 
@@ -92,7 +91,7 @@ public class SongController {
 	//http://localhost:8080/yelody/song/incrementViewById?id=
 	@CrossOrigin(origins = "*")
 	@PostMapping("/incrementViewById")
-	public ResponseEntity<Object> incrementViewById(@RequestParam(name="id")UUID id) {
+	public ResponseEntity<Object> incrementViewById( @RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID id) {
         return new ResponseEntity<Object>(songService.incrementViewCount(id));
 	}
 	       
