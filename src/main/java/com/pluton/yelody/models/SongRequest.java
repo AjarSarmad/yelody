@@ -13,8 +13,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SongRequest {
 	
-	@NotNull(message = "User Name not be NULL")
-	private String userName;
+	@NotNull(message = "Song Name Name not be NULL")
+	private String songName;
 	
 	@NotNull(message = "Description not be NULL")
 	private String description;

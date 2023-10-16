@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -53,7 +51,16 @@ public class Song {
 
 	@Column(name="view_count" , nullable=false)
 	private int viewCount;
+	
+//	@ManyToMany(cascade = CascadeType.ALL)
+//    @JoinTable(
+//        name = "song_views",
+//        joinColumns = @JoinColumn(name = "song_id"),
+//        inverseJoinColumns = @JoinColumn(name = "user_id"),
+//        uniqueConstraints = @UniqueConstraint(columnNames = {"song_id", "user_id"}))
+//    private Set<User> viewers = new HashSet<>();
 
+	
 	@Lob
 	@Column(name="song_image" , nullable=true, columnDefinition="BLOB")
 	private byte[] songImage;
@@ -69,18 +76,13 @@ public class Song {
     private List<Keyword> keywords = new ArrayList<>();
 	
 	
-	@JsonIgnore
+//	@JsonIgnore
 	@ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "genre", nullable = true)
     private Genre genre;
 	
-	@ManyToMany
-    @JoinTable(
-        name = "SongChartMapping",
-        joinColumns = @JoinColumn(name = "song_id"),
-        inverseJoinColumns = @JoinColumn(name = "chart_id",
-        nullable = true)
-    )
-    private List<Chart> charts = new ArrayList<>();
+	@ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "chart", nullable = true)
+    private Chart chart;
 	
 }

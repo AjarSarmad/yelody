@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.pluton.yelody.models.User;
-import com.pluton.yelody.models.UserCriteriaModel;
+import com.pluton.yelody.models.UserCriteriaSearch;
 import com.pluton.yelody.models.UserRequest;
 import com.pluton.yelody.services.UserService;
 
@@ -40,7 +40,7 @@ public class UserController {
 	//http://localhost:8080/yelody/user/listUsers
 	@CrossOrigin(origins = "*")
 	@GetMapping("/listUsers")
-	public ResponseEntity<Object> listUsers( @RequestBody(required = false) @Valid UserCriteriaModel userCriteriaModel) {
+	public ResponseEntity<Object> listUsers( @RequestBody(required = false) @Valid UserCriteriaSearch userCriteriaModel) {
 	    try {
 	        userList = new ArrayList<>(); 
 	        
@@ -61,8 +61,11 @@ public class UserController {
 	                default:
 	                    return new ResponseEntity<>("Invalid filterBy value", HttpStatus.BAD_REQUEST);
 	            }
-	        }else
+	        } else if(userCriteriaModel!=null && userCriteriaModel.getSortBy() != null)
 	        	userList = userService.getUserList(userCriteriaModel.getSortBy());
+	        
+	        if (userCriteriaModel == null)
+	        	userList = userService.getUserList();
 
 	        if (userList.isEmpty()) {
 	            return new ResponseEntity<>(HttpStatus.NOT_FOUND);

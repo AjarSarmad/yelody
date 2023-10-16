@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.CascadeType;
@@ -35,10 +34,7 @@ public class Genre {
 	@Column(name="type" , nullable=false, unique=true)
 	private String type;
 	
-	@JsonIgnore
-	@OneToMany(fetch = FetchType.EAGER,
-	cascade =  CascadeType.ALL,
-	mappedBy = "genre")
+	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "genre")
 	@JsonIgnoreProperties("genre")
 	private List<Song> songs = new ArrayList<>();
 	

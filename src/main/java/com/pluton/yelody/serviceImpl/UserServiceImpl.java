@@ -89,6 +89,11 @@ public class UserServiceImpl implements UserService{
 	}
 	
 	@Override
+	public List<User> getUserList(){		
+		return userRepository.findAll();			      
+	}
+	
+	@Override
 	public Optional<User> getUserByID(UUID id){
 		return userRepository.findById(id);
 	}

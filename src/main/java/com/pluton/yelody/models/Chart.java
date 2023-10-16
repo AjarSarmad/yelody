@@ -1,16 +1,20 @@
 package com.pluton.yelody.models;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -28,10 +32,10 @@ public class Chart {
 	@Column(name="chart_id" , nullable=false)
 	private UUID chartId;
 	
-	@Column(name="name" , nullable=false)
+	@Column(name="name" , nullable=false, unique=true)
 	private String name;
 	
-	@Column(name="title" , nullable=false)
+	@Column(name="title" , nullable=false, unique=true)
 	private String title;
 	
 	@Column(name="description" , nullable=false)
@@ -43,7 +47,7 @@ public class Chart {
 	@Column(name="region" , nullable=false)
 	private String region;
 	
-	@Column(name="`rank`" , nullable=false)
+	@Column(name="`rank`" , nullable=false, unique=true)
 	private int rank;
 
 	@Column(name="view_count" , nullable=false)
@@ -53,6 +57,9 @@ public class Chart {
 	@Column(name="cover_image" , nullable=true, columnDefinition="BLOB")
 	private byte[] coverImage;
 	
-	@ManyToMany(mappedBy = "charts")
-    private List<Song> songs = new ArrayList<>();
+	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "chart")
+	@JsonIgnoreProperties("chart")
+    @JsonIdentityReference(alwaysAsId = true)
+    private List<Song> songs;
+
 }

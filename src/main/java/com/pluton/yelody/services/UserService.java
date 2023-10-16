@@ -23,6 +23,8 @@ public interface UserService {
 	
 	public abstract List<User> getUserList(String sortBy);
 	
+	public abstract List<User> getUserList();
+	
 	public abstract Optional<User> getUserByID(UUID id);
 	
 	public abstract Specification<User> filterByLastVisitDate(Date date);
