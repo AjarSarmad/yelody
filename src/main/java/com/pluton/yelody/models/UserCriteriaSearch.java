@@ -13,10 +13,10 @@ public class UserCriteriaSearch {
 		
 	private boolean doFilter;
 	
-	@Pattern(regexp = "^(user_name|email|phone|lastVisitDate|registrationDate)$", message = "Invalid sortBy value")
+	@Pattern(regexp = "^(userName|email|phone|lastVisitDate|registrationDate)$", message = "Invalid sortBy value")
 	private String sortBy;
 	
-	@Pattern(regexp = "^(user_name|email|phone|lastvisitdate|registrationdate)$", message = "Invalid filterBY value")
+	@Pattern(regexp = "^(userName|email|phone|lastvisitdate|registrationdate)$", message = "Invalid filterBY value")
 	private String filterBy;
 	
 	private String filter;

@@ -47,7 +47,7 @@ public class BannerServiceImpl implements BannerService{
 	@Override
 	public Optional<Banner> getBannerByUrl(String url){
 		banner = bannerrepository.findBannerByUrl(url);
-		if(banner.get()!=null)
+		if(banner!=null)
 			return banner;
 		else
 			return null;

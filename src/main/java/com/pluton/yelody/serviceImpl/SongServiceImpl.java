@@ -73,7 +73,7 @@ public class SongServiceImpl implements SongService{
 		song = null;
 		try {
 			song = songRepository.findByName(name);
-			if(song.get()!=null)
+			if(song!=null)
 				return song.get();
 			return null;
 		}catch(Exception ex) {

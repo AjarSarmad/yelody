@@ -46,6 +46,9 @@ public class UserController {
 	        
 	        if (userCriteriaModel!=null && userCriteriaModel.getFilterBy() != null && userCriteriaModel.isDoFilter()) {
 	            switch (userCriteriaModel.getFilterBy().toLowerCase()) {
+	            	case "username":
+	            		userList = userService.getUserByUserName(userCriteriaModel.getFilter(), userCriteriaModel.getSortBy() );
+	            		break;
 	                case "email":
 	                    userList = userService.getUserByEmail(userCriteriaModel.getFilter(), userCriteriaModel.getSortBy() );
 	                    break;

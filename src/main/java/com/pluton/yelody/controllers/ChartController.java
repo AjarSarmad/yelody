@@ -151,4 +151,23 @@ public class ChartController {
   			return new ResponseEntity<Object>(HttpStatus.BAD_REQUEST);
     	}
 	}
+	
+	//GET CHART DETAILS BY ID
+  	//http://localhost:8080/yelody/chart/getChartById?id=
+    @CrossOrigin(origins = "*")
+  	@GetMapping("/getChartById")
+    public ResponseEntity<Object> getChartById(@RequestParam(name="id") UUID id){
+    	chartGet = null;
+    	try {
+    		chartGet = chartService.getChartById(id);
+    		if(chartGet!=null)
+    			return new ResponseEntity<Object>(chartGet.get(), HttpStatus.OK);
+    		else
+      			return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
+
+    	}catch(Exception ex) {
+  			return new ResponseEntity<Object>(HttpStatus.BAD_REQUEST);
+    	}
+    }
+    
 }

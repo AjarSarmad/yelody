@@ -50,7 +50,7 @@ public class SongController {
     		if(genreRepository.existsByType(songRequest.getGenre())) {
     			genre = genreRepository.findByType(songRequest.getGenre());
     		}
-    		if(genre.get()!=null) {
+    		if(genre!=null) {
   				song = new Song(
   						UUID.randomUUID(),
   						songRequest.getSongName(),

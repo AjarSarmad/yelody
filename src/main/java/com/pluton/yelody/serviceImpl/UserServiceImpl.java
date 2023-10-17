@@ -112,13 +112,13 @@ public class UserServiceImpl implements UserService{
 	@Override
 	public Specification<User> filterByEmail(String email){
 		  return (root, query, criteriaBuilder)-> 
-		      criteriaBuilder.equal(root.get("email"), email);
+		      criteriaBuilder.like(root.get("email"),"%" +  email + "%");
 		}
 	
 	@Override
 	public Specification<User> filterByPhone(String phone){
 		  return (root, query, criteriaBuilder)-> 
-		      criteriaBuilder.equal(root.get("phone"), phone);
+		      criteriaBuilder.like(root.get("phone"),"%" +  phone + "%");
 	}
 	
 	@Override
@@ -139,6 +139,22 @@ public class UserServiceImpl implements UserService{
 		}catch(Exception  e) {
   			return new ResponseEntity<Object>(HttpStatus.FOUND);
 		}
+	}
+
+	@Override
+	public List<User> getUserByUserName(String userName, String sortBy) {
+		if(sortBy != null) {
+			sort = Sort.by(Sort.Order.asc(sortBy));
+		}else
+			sort = Sort.unsorted();
+		
+		return userRepository.findAll(filterByUserName(userName),sort);	
+	}
+
+	@Override
+	public Specification<User> filterByUserName(String userName) {	
+		return (root, query, criteriaBuilder)-> 
+			criteriaBuilder.like(root.get("userName"),"%" + userName + "%");
 	}
 
 }

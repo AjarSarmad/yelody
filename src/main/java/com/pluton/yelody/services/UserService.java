@@ -13,6 +13,8 @@ import com.pluton.yelody.models.User;
 
 public interface UserService {
 	
+	public abstract List<User> getUserByUserName(String userName, String sortBy);
+	
 	public abstract List<User> getUserByEmail(String email, String sortBy);
 	
 	public abstract List<User> getUserByPhone(String phone, String sortBy);
@@ -32,6 +34,8 @@ public interface UserService {
 	public abstract Specification<User> filterByRegistrationDate(Date date);
 	
 	public abstract Specification<User> filterByEmail(String email);
+
+	public abstract Specification<User> filterByUserName(String userName);
 	
 	public abstract Specification<User> filterByPhone(String phone);
 	

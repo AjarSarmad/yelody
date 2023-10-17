@@ -108,14 +108,14 @@ public class BannerController {
     	bannerPost = null;
     	try {
     		bannerGet = bannerService.getBannerByID(id);
-    		bannerPost = new Banner(
-    				bannerGet.get().getBannerId(),
-					bannerViewModel.getLocation(),
-					bannerViewModel.getUrl(),
-					bannerViewModel.getLanguage(),
-					bannerGet.get().getBannerImage()
-					);
     		if(bannerGet!=null) {
+    	  		bannerPost = new Banner(
+        				bannerGet.get().getBannerId(),
+    					bannerViewModel.getLocation(),
+    					bannerViewModel.getUrl(),
+    					bannerViewModel.getLanguage(),
+    					bannerGet.get().getBannerImage()
+    					);
     			return new ResponseEntity<Object>(bannerService.saveBanner(bannerPost), HttpStatus.OK);
     			}
     		else

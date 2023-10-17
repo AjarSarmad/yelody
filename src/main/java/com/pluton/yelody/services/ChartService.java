@@ -14,4 +14,5 @@ public interface ChartService {
 	public abstract Optional<Chart> getChartById(UUID id);
 	
 	public abstract List<Chart> getChartList();
+	
 }
