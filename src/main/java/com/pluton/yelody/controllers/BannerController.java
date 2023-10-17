@@ -1,6 +1,5 @@
 package com.pluton.yelody.controllers;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -13,14 +12,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.pluton.yelody.models.Banner;
 import com.pluton.yelody.models.BannerRequest;
@@ -43,42 +41,27 @@ public class BannerController {
 	//http://localhost:8080/yelody/banner/addBanner
 	@CrossOrigin(origins = "*")
 	@PostMapping("/addBanner")
-	public ResponseEntity<Object> addBanner(@RequestBody @Valid BannerRequest bannerViewModel){
+	public ResponseEntity<Object> addBanner(@ModelAttribute @Valid BannerRequest bannerViewModel){
 		bannerPost = null;
 		try {
-			bannerPost = new Banner(
-					UUID.randomUUID(),
-					bannerViewModel.getLocation(),
-					bannerViewModel.getUrl(),
-					bannerViewModel.getLanguage(),
-					null
-					);
+			byte[] compressedImage = null;
+	        if (bannerViewModel.getImage() != null) {
+	            compressedImage = ImageUtil.compressImage(bannerViewModel.getImage().getBytes());
+	        }
+
+	        bannerPost = new Banner(
+	            UUID.randomUUID(),
+	            bannerViewModel.getLocation(),
+	            bannerViewModel.getUrl(),
+	            bannerViewModel.getLanguage(),
+	            compressedImage
+	        );
 			
 			return bannerService.saveBanner(bannerPost);
 		}catch(Exception ex) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex);
 		}
 	}
-	
-	//ADD BANNER IMAGE
-  	//http://localhost:8080/yelody/banner/addBannerImage?id=
-    @CrossOrigin(origins = "*")
-  	@PostMapping("/addBannerImage")
-  	public ResponseEntity<Object> addImage(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID id , @RequestPart("file") MultipartFile file) throws IOException{
-  		bannerGet=null;
-    	try {
-  		bannerGet = bannerService.getBannerByID(id);
-    	if(bannerGet!=null){
-    		bannerGet.get().setBannerImage(ImageUtil.compressImage(file.getBytes()));
-  			return new ResponseEntity<Object>(bannerService.saveBanner(bannerGet.get()),HttpStatus.CREATED);
-  		}
-  		else
-  			return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
-    	}
-    	catch(Exception ex) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex);
-		}
-  	}
     
     //GET BANNER DETAILS BY ID
   	//http://localhost:8080/yelody/banner/getBannerById?id=

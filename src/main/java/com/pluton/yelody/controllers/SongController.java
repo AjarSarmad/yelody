@@ -20,6 +20,7 @@ import com.pluton.yelody.models.Genre;
 import com.pluton.yelody.models.Song;
 import com.pluton.yelody.models.SongCriteriaSearch;
 import com.pluton.yelody.models.SongRequest;
+import com.pluton.yelody.models.SongResponse;
 import com.pluton.yelody.repositories.GenreRepository;
 import com.pluton.yelody.services.SongService;
 
@@ -36,6 +37,7 @@ public class SongController {
 	List<Song> songList = null;
 	Song song = null;
 	Optional<Genre> genre = null;
+	List<SongResponse> songResponseList = null;
 	
 	//POST A SONG
 	//http://localhost:8080/yelody/song/postSong
@@ -109,9 +111,23 @@ public class SongController {
 
 			if(songList.isEmpty())
 	            return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
-			else
-	            return new ResponseEntity<Object>(songList, HttpStatus.OK);
-
+			else {
+				songResponseList = new ArrayList<>();
+				for(Song item: songList) {
+					songResponseList.add(new SongResponse(
+						    item.getSongId(),
+						    item.getName(),
+						    item.getDescription(),
+						    item.getRank(),
+						    item.getArtistName(),
+						    item.getLyrics(),
+						    item.getViewCount(),
+						    (item.getGenre() != null ? item.getGenre().getType() : "null"),
+						    (item.getChart() != null ? item.getChart().getName() : "null")
+						));
+				}
+	            return new ResponseEntity<Object>( songResponseList , HttpStatus.OK);
+			}
 		}catch(Exception ex) {
 	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex);
 		}

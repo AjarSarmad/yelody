@@ -1,6 +1,7 @@
 package com.pluton.yelody.models;
 
 import org.hibernate.validator.constraints.URL;
+import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -20,5 +21,7 @@ public class BannerRequest {
 	
 	@NotNull(message="Language must not be NULL")
 	private String language;
+	
+	private MultipartFile image;
 	
 }

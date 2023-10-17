@@ -1,5 +1,7 @@
 package com.pluton.yelody.models;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -33,5 +35,7 @@ public class ChartRequest {
 	@Min(1)
 	@Max(10)
 	private int rank;
+
+	private MultipartFile image;
 
 }

@@ -35,7 +35,7 @@ public class Banner {
 	private String language;
 
 	@Lob
-	@Column(name="banner_image" , nullable=true, columnDefinition="BLOB")
+	@Column(name="banner_image" , nullable=true, columnDefinition="LONGBLOB")
 	private byte[] bannerImage;
 	
 	

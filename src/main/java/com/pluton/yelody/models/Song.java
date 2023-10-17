@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -38,7 +40,7 @@ public class Song {
 	@Column(name="description" , nullable=false)
 	private String description;
 	
-	@Column(name="`rank`" , nullable=false)
+	@Column(name="`rank`" , nullable=false, unique=true)
 	private int rank;
 	
 	@Column(name="artist_name" , nullable=false)
@@ -62,7 +64,7 @@ public class Song {
 
 	
 	@Lob
-	@Column(name="song_image" , nullable=true, columnDefinition="BLOB")
+	@Column(name="song_image" , nullable=true, columnDefinition="LONGBLOB")
 	private byte[] songImage;
 	
 	
@@ -77,10 +79,12 @@ public class Song {
 	
 	
 //	@JsonIgnore
+    @JsonBackReference
 	@ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "genre", nullable = true)
     private Genre genre;
 	
+    @JsonBackReference
 	@ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "chart", nullable = true)
     private Chart chart;

@@ -1,10 +1,10 @@
 package com.pluton.yelody.models;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import com.fasterxml.jackson.annotation.JsonIdentityReference;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -54,12 +54,12 @@ public class Chart {
 	private int viewCount;
 
 	@Lob
-	@Column(name="cover_image" , nullable=true, columnDefinition="BLOB")
+	@Column(name="cover_image" , nullable=true, columnDefinition="LONGBLOB")
 	private byte[] coverImage;
 	
-	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "chart")
-	@JsonIgnoreProperties("chart")
-    @JsonIdentityReference(alwaysAsId = true)
-    private List<Song> songs;
+	@JsonManagedReference
+	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "chart")
+//	@JsonIgnoreProperties("chart")
+	private List<Song> songs = new ArrayList<>();
 
 }
