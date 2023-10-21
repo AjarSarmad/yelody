@@ -122,8 +122,8 @@ public class UserController {
 							 new java.sql.Date(System.currentTimeMillis()),
 							 new java.sql.Date(System.currentTimeMillis()),
 							0,
-							0,
 							ageGroup.get(),
+							new ArrayList<Song>(),
 							new ArrayList<Song>()
 	    				);
     		}
@@ -133,12 +133,12 @@ public class UserController {
     	}
     }
 	
-    //INCREMENT VIEW_COUNT OF SONG BY ID
-  	//http://localhost:8080/yelody/user/incrementSingCountById?id=
-  	@CrossOrigin(origins = "*")
-  	@PostMapping("/incrementSingCountById")
-  	public ResponseEntity<Object> incrementSingCountById(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID id) {
-          return new ResponseEntity<Object>(userService.incrementSingCountById(id));
-  	}
-	
+//    //INCREMENT VIEW_COUNT OF SONG BY ID
+//  	//http://localhost:8080/yelody/user/incrementSingCountById?id=
+//  	@CrossOrigin(origins = "*")
+//  	@PostMapping("/incrementSingCountById")
+//  	public ResponseEntity<Object> incrementSingCountById(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID id) {
+//          return new ResponseEntity<Object>(userService.incrementSingCountById(id));
+//  	}
+//	
 }

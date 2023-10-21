@@ -6,7 +6,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import com.pluton.yelody.models.User;
@@ -39,7 +38,7 @@ public interface UserService {
 	
 	public abstract Specification<User> filterByPhone(String phone);
 	
-	public abstract HttpStatus incrementSingCountById(UUID id);
+//	public abstract HttpStatus incrementSingCountById(UUID id);
 	
 	public abstract ResponseEntity<Object> saveUser(User  user);
 	

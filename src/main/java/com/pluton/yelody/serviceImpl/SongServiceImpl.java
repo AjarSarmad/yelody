@@ -57,9 +57,7 @@ public class SongServiceImpl implements SongService{
 		}
 	}
 	
-	/** ADD UNIQUE USERS
-	 * 
-	 */
+
 	@Override
 	public ResponseEntity<Object> incrementViewCount(UUID userId, UUID songId) {
 		try {
@@ -191,6 +189,11 @@ public class SongServiceImpl implements SongService{
 	    if (ageGroup == null) {
 	        throw new AgeGroupNotFoundException("Given AgeGroup does not exist");
 	    }
+	}
+
+	@Override
+	public Optional<Song> getSongById(UUID id) {
+		return songRepository.findById(id);
 	}
 	
 //	@Override

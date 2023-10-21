@@ -121,16 +121,16 @@ public class UserServiceImpl implements UserService{
 		      criteriaBuilder.like(root.get("phone"),"%" +  phone + "%");
 	}
 	
-	@Override
-	public HttpStatus incrementSingCountById(UUID id) {
-		if(userRepository.existsById(id)) {
-		user = userRepository.findById(id);
-		user.get().setSungSongs(user.get().getSungSongs()+1);
-		userRepository.save(user.get());
-		return HttpStatus.OK;
-	}else
-		return HttpStatus.NOT_FOUND;
-	}
+//	@Override
+//	public HttpStatus incrementSingCountById(UUID id) {
+//		if(userRepository.existsById(id)) {
+//		user = userRepository.findById(id);
+//		user.get().setSungSongs(user.get().getSungSongs()+1);
+//		userRepository.save(user.get());
+//		return HttpStatus.OK;
+//	}else
+//		return HttpStatus.NOT_FOUND;
+//	}
 	
 	@Override
 	public ResponseEntity<Object> saveUser(User  user){

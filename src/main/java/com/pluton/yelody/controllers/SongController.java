@@ -95,7 +95,8 @@ public class SongController {
   						new ArrayList<User>(), //viewers
   						genre.get(), //genre
   						chart.get(),
-  						ageGroup.get()
+  						ageGroup.get(),
+  						new ArrayList<User>()
   						);
   				song.getKeywordlist().add(keyword.get());
 

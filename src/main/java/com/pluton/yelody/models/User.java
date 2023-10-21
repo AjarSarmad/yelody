@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,9 +15,11 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -50,16 +54,22 @@ public class User {
 	@Column(name="yelo_points" , nullable=true)
 	private double yeloPoints;
 	
-	@Column(name="sung_songs" , nullable=true)
-	private int sungSongs;
-	
 	@JsonBackReference
 	@ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "age_group", nullable = false)
     private AgeGroup ageGroup;
-	
 
 	@JsonBackReference
 	@ManyToMany(mappedBy = "viewers")
     private List<Song> songViews;
+	
+	@JsonIgnore
+	@JsonManagedReference
+	@ManyToMany
+    @JoinTable(name = "user_sing_history",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "song_id"),
+            uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "song_id"})
+    )
+    private List<Song> sungSongs;
 }

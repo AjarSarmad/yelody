@@ -96,4 +96,8 @@ public class Song {
     @JoinColumn(name = "age_group", nullable = false)
     private AgeGroup ageGroup;
 	
+	@JsonBackReference
+	@ManyToMany(mappedBy = "sungSongs")
+    private List<User> users;
+	
 }

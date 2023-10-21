@@ -1,6 +1,7 @@
 package com.pluton.yelody.services;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.domain.Specification;
@@ -46,6 +47,8 @@ public interface SongService {
 	public abstract int getViewCount(UUID songId);
 	
 	public abstract void validateExistence(Genre genre, Keyword keyword, AgeGroup ageGroup, Chart chart);
+	
+	public abstract Optional<Song> getSongById(UUID id);
 
 	
 }
