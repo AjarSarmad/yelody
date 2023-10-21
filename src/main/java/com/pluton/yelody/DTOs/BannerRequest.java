@@ -1,4 +1,4 @@
-package com.pluton.yelody.models;
+package com.pluton.yelody.DTOs;
 
 import org.hibernate.validator.constraints.URL;
 import org.springframework.web.multipart.MultipartFile;

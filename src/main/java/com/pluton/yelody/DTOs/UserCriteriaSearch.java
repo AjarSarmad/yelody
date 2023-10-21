@@ -1,4 +1,4 @@
-package com.pluton.yelody.models;
+package com.pluton.yelody.DTOs;
 
 import jakarta.validation.constraints.Pattern;
 

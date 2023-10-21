@@ -4,9 +4,12 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import com.pluton.yelody.models.AgeGroup;
+import com.pluton.yelody.models.Chart;
+import com.pluton.yelody.models.Genre;
+import com.pluton.yelody.models.Keyword;
 import com.pluton.yelody.models.Song;
 
 public interface SongService {
@@ -14,9 +17,9 @@ public interface SongService {
 	
 	public abstract List<Song> getSongList();
 	
-	public abstract ResponseEntity<Object> postSong(Song song);
+	public abstract Song postSong(Song song);
 	
-	public abstract HttpStatus incrementViewCount(UUID id);
+	public abstract ResponseEntity<Object> incrementViewCount(UUID userId, UUID songId);
 	
 	public abstract List<Song> getSongByName(String filter, String sortBy);
 	
@@ -39,6 +42,10 @@ public interface SongService {
 	public abstract Specification<Song> filterByGenre(String genre);
 
 //	public abstract Specification<Song> filterByKeyword(String keyword);
+	
+	public abstract int getViewCount(UUID songId);
+	
+	public abstract void validateExistence(Genre genre, Keyword keyword, AgeGroup ageGroup, Chart chart);
 
 	
 }

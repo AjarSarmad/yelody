@@ -6,9 +6,10 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.pluton.yelody.models.Keyword;
+import com.pluton.yelody.models.AgeGroup;
 
 @Repository
-public interface KeywordRepository extends JpaRepository<Keyword, UUID>{
-	Optional<Keyword> findByName(String name);
+public interface AgeGroupRepository extends JpaRepository<AgeGroup, UUID>{
+	Optional<AgeGroup> findByName(String name);
+	boolean existsByName(String name);
 }

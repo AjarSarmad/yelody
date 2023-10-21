@@ -13,9 +13,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.pluton.yelody.DTOs.AdminCreateRequest;
+import com.pluton.yelody.DTOs.AdminLoginRequest;
 import com.pluton.yelody.models.Admin;
-import com.pluton.yelody.models.AdminCreateRequest;
-import com.pluton.yelody.models.AdminLoginRequest;
 import com.pluton.yelody.services.AdminAuthService;
 import com.pluton.yelody.services.AdminService;
 import com.pluton.yelody.utilities.HashingUtility;

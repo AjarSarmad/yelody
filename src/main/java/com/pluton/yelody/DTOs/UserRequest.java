@@ -1,4 +1,4 @@
-package com.pluton.yelody.models;
+package com.pluton.yelody.DTOs;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
@@ -23,4 +23,8 @@ public class UserRequest {
 	@Size(min = 10, max=10)
 	@NotNull(message="Phone must not be NULL")
 	private String phone;
+	
+	@NotNull(message="ageGroup must not be NULL")
+	private String ageGroup;
+	
 }

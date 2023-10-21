@@ -17,9 +17,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.pluton.yelody.DTOs.UserCriteriaSearch;
+import com.pluton.yelody.DTOs.UserRequest;
+import com.pluton.yelody.models.AgeGroup;
+import com.pluton.yelody.models.Song;
 import com.pluton.yelody.models.User;
-import com.pluton.yelody.models.UserCriteriaSearch;
-import com.pluton.yelody.models.UserRequest;
+import com.pluton.yelody.services.AgeGroupService;
 import com.pluton.yelody.services.UserService;
 
 import jakarta.validation.Valid;
@@ -30,6 +33,8 @@ public class UserController {
 	
 	@Autowired
 	UserService userService;
+	@Autowired
+	AgeGroupService ageGroupService;
 	
 	List<User> userList = null;
 	Optional<User> userGet = null;
@@ -105,19 +110,26 @@ public class UserController {
   	@PostMapping("/postUser")
     public ResponseEntity<Object> postUser(@RequestBody @Valid UserRequest userRequest){
     	userPost = null;
+    	Optional<AgeGroup> ageGroup = null;
     	try {
-    		userPost = new User(UUID.randomUUID(),
-						userRequest.getUserName(),
-						userRequest.getEmail(),
-						userRequest.getPhone(),
-						 new java.sql.Date(System.currentTimeMillis()),
-						 new java.sql.Date(System.currentTimeMillis()),
-						0,
-						0);
+    		ageGroup = ageGroupService.getAgeGroupByName(userRequest.getAgeGroup());
     		
+    		if(ageGroup!=null) {
+	    		userPost = new User(UUID.randomUUID(),
+							userRequest.getUserName(),
+							userRequest.getEmail(),
+							userRequest.getPhone(),
+							 new java.sql.Date(System.currentTimeMillis()),
+							 new java.sql.Date(System.currentTimeMillis()),
+							0,
+							0,
+							ageGroup.get(),
+							new ArrayList<Song>()
+	    				);
+    		}
   			return userService.saveUser(userPost);
     	}catch(Exception ex) {
-  			return new ResponseEntity<Object>(HttpStatus.BAD_REQUEST);
+  			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("AgeGroup not found");
     	}
     }
 	

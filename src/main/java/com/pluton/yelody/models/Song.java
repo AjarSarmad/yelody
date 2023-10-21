@@ -1,10 +1,11 @@
 package com.pluton.yelody.models;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -18,13 +19,18 @@ import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name="Songs")
 @Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Song {
@@ -49,36 +55,32 @@ public class Song {
 	@Column(name="lyrics" ,columnDefinition = "LONGTEXT", nullable=false, unique=true)
 	private String lyrics;
 	
-	
-
-	@Column(name="view_count" , nullable=false)
-	private int viewCount;
-	
-//	@ManyToMany(cascade = CascadeType.ALL)
-//    @JoinTable(
-//        name = "song_views",
-//        joinColumns = @JoinColumn(name = "song_id"),
-//        inverseJoinColumns = @JoinColumn(name = "user_id"),
-//        uniqueConstraints = @UniqueConstraint(columnNames = {"song_id", "user_id"}))
-//    private Set<User> viewers = new HashSet<>();
-
-	
 	@Lob
 	@Column(name="song_image" , nullable=true, columnDefinition="LONGBLOB")
 	private byte[] songImage;
 	
-	
+	@JsonIgnore
+	@JsonManagedReference
 	@ManyToMany
     @JoinTable(
-        name = "SongKeywords",
+        name = "song_keyword",
         joinColumns = @JoinColumn(name = "song_id"),
-        inverseJoinColumns = @JoinColumn(name = "keyword_id",
-        nullable = true)
+        inverseJoinColumns = @JoinColumn(name = "keyword_id"),
+        uniqueConstraints = @UniqueConstraint(columnNames = {"song_id", "keyword_id"})
     )
-    private List<Keyword> keywords = new ArrayList<>();
+    private List<Keyword> keywordlist;
 	
 	
-//	@JsonIgnore
+	@JsonIgnore
+	@JsonManagedReference
+	@ManyToMany
+    @JoinTable(
+    name = "song_views",
+    joinColumns = @JoinColumn(name = "song_id"),
+    inverseJoinColumns = @JoinColumn(name = "user_id"),
+    uniqueConstraints = @UniqueConstraint(columnNames = {"song_id", "user_id"}))
+	private List<User> viewers;
+	
     @JsonBackReference
 	@ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "genre", nullable = true)
@@ -88,5 +90,10 @@ public class Song {
 	@ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "chart", nullable = true)
     private Chart chart;
+    
+	@JsonBackReference
+	@ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "age_group", nullable = false)
+    private AgeGroup ageGroup;
 	
 }

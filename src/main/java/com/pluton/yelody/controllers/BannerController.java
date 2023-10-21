@@ -20,8 +20,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.pluton.yelody.DTOs.BannerRequest;
 import com.pluton.yelody.models.Banner;
-import com.pluton.yelody.models.BannerRequest;
 import com.pluton.yelody.services.BannerService;
 import com.pluton.yelody.utilities.ImageUtil;
 

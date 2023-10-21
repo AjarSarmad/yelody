@@ -1,5 +1,7 @@
-package com.pluton.yelody.models;
+package com.pluton.yelody.DTOs;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import lombok.AllArgsConstructor;
@@ -18,7 +20,9 @@ public class SongResponse {
 	private String lyrics;
 	private int viewCount;
 //	private byte[] songImage;
-//    private List<Keyword> keywords = new ArrayList<>();
+	private String ageGroup;
+    private List<String> keywords = new ArrayList<>();
     private String genre;
     private String chart;
+    private String file;
 }

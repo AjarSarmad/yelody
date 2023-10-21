@@ -52,6 +52,11 @@ public class ChartServiceImpl implements ChartService {
 			return null;
 		}
 	}
+
+	@Override
+	public Optional<Chart> getChartByName(String name) {
+		return chartRepository.findChartByName(name);
+	}
 	
 	
 }

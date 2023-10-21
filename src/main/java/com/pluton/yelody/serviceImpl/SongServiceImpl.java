@@ -1,5 +1,6 @@
 package com.pluton.yelody.serviceImpl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -11,8 +12,18 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.pluton.yelody.exceptions.SongRequestExceptions.AgeGroupNotFoundException;
+import com.pluton.yelody.exceptions.SongRequestExceptions.ChartNotFoundException;
+import com.pluton.yelody.exceptions.SongRequestExceptions.GenreNotFoundException;
+import com.pluton.yelody.exceptions.SongRequestExceptions.KeywordNotFoundException;
+import com.pluton.yelody.models.AgeGroup;
+import com.pluton.yelody.models.Chart;
+import com.pluton.yelody.models.Genre;
+import com.pluton.yelody.models.Keyword;
 import com.pluton.yelody.models.Song;
+import com.pluton.yelody.models.User;
 import com.pluton.yelody.repositories.SongRepository;
+import com.pluton.yelody.repositories.UserRepository;
 import com.pluton.yelody.services.SongService;
 
 @Service
@@ -20,6 +31,8 @@ public class SongServiceImpl implements SongService{
 	
 	@Autowired
 	SongRepository songRepository;
+	@Autowired
+	UserRepository userRepository;
 	
 	List<Song> songList = null;
 	Optional<Song> song = null;
@@ -36,11 +49,11 @@ public class SongServiceImpl implements SongService{
 	}
 	
 	@Override
-	public ResponseEntity<Object> postSong(Song song) {
+	public Song postSong(Song song) {
 		try {
-			return new ResponseEntity<Object>(songRepository.save(song),HttpStatus.CREATED);
+			return songRepository.save(song);
 		}catch(Exception  e) {
-  			return new ResponseEntity<Object>(HttpStatus.FOUND);
+  			return null;
 		}
 	}
 	
@@ -48,14 +61,19 @@ public class SongServiceImpl implements SongService{
 	 * 
 	 */
 	@Override
-	public HttpStatus incrementViewCount(UUID id) {
-		if(songRepository.existsById(id)) {
-			song = songRepository.findById(id);
-			song.get().setViewCount(song.get().getViewCount()+1);
-			songRepository.save(song.get());
-			return HttpStatus.OK;
-		}else
-			return HttpStatus.NOT_FOUND;
+	public ResponseEntity<Object> incrementViewCount(UUID userId, UUID songId) {
+		try {
+			if(songRepository.existsById(songId) && userRepository.existsById(userId)) {
+				song = songRepository.findById(songId);
+				song.get().getViewers().add(userRepository.findById(userId).get());
+				songRepository.save(song.get());
+				 ResponseEntity.status(HttpStatus.OK).body("CREATED");
+			}else
+				 ResponseEntity.status(HttpStatus.NOT_FOUND).body("NOT_FOUND");
+		}catch(Exception ex) {
+			return ResponseEntity.status(HttpStatus.FOUND).body("VIEW ALREADY EXISTS");
+		}
+		return null;
 	}
 	
 	@Override
@@ -138,6 +156,42 @@ public class SongServiceImpl implements SongService{
 		  return (root, query, criteriaBuilder)-> 
 	        criteriaBuilder.equal(root.get("genre").get("type"), genre);
 		}
+
+	@Override
+	public int getViewCount(UUID songId) {
+		song = null;
+		List<User> userList = new ArrayList<>();
+		try {
+			song = songRepository.findById(songId);
+			if(song!=null) {
+				userList = userRepository.findBySongViews(song.get());
+				if(!(userList.isEmpty()))
+					return userList.size();
+			}
+		}catch(Exception ex) {
+			System.err.print(ex);
+		}
+		return 0;
+	}
+
+	@Override
+	public void validateExistence(Genre genre, Keyword keyword, AgeGroup ageGroup, Chart chart) throws RuntimeException{
+		if (genre == null) {
+	        throw new GenreNotFoundException("Given Genre does not exist");
+	    }
+
+	    if (keyword == null) {
+	        throw new KeywordNotFoundException("Given Keyword does not exist");
+	    }
+
+	    if (chart == null) {
+	        throw new ChartNotFoundException("Given Chart does not exist");
+	    }
+
+	    if (ageGroup == null) {
+	        throw new AgeGroupNotFoundException("Given AgeGroup does not exist");
+	    }
+	}
 	
 //	@Override
 //	public Specification<Song> filterByKeyword(String keyword){

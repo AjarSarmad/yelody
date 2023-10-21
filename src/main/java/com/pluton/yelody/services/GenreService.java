@@ -17,5 +17,6 @@ public interface GenreService {
 	public abstract HttpStatus deleteGenre(Genre genre);
 
 	public abstract ResponseEntity<Object> createGenre(Genre genre);
-
+	
+	public abstract Optional<Genre> getGenreByType(String type);
 }

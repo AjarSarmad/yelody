@@ -43,5 +43,10 @@ public class GenreServiceImpl implements GenreService{
   			return new ResponseEntity<Object>(HttpStatus.FOUND);
 		}
 	}
+
+	@Override
+	public Optional<Genre> getGenreByType(String type) {
+		return genreRepository.findByType(type);
+	}
 	
 }

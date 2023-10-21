@@ -18,10 +18,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.pluton.yelody.DTOs.ChartRequest;
+import com.pluton.yelody.DTOs.SongtoChartRequest;
 import com.pluton.yelody.models.Chart;
-import com.pluton.yelody.models.ChartRequest;
 import com.pluton.yelody.models.Song;
-import com.pluton.yelody.models.SongtoChartRequest;
 import com.pluton.yelody.services.ChartService;
 import com.pluton.yelody.services.SongService;
 import com.pluton.yelody.utilities.ImageUtil;
@@ -86,7 +86,10 @@ public class ChartController {
 
 	    		if(songGet!=null && chartGet!=null) {
     				songGet.setChart(chartGet.get());
-    				return songService.postSong(songGet);
+				
+    			Song songPost = songService.postSong(songGet);
+    			if(songPost!=null)
+    	  			return new ResponseEntity<Object>(songPost, HttpStatus.CREATED);
     			}
   			return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
 

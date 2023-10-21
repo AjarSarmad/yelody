@@ -13,6 +13,11 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
+import com.pluton.yelody.exceptions.SongRequestExceptions.AgeGroupNotFoundException;
+import com.pluton.yelody.exceptions.SongRequestExceptions.ChartNotFoundException;
+import com.pluton.yelody.exceptions.SongRequestExceptions.GenreNotFoundException;
+import com.pluton.yelody.exceptions.SongRequestExceptions.KeywordNotFoundException;
+
 @RestControllerAdvice
 public class ValidationExceptionHandler {
 	
@@ -45,5 +50,24 @@ public class ValidationExceptionHandler {
 	    return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 	}
 	
+	@ExceptionHandler(GenreNotFoundException.class)
+    public ResponseEntity<Object> handleGenreNotFoundException(GenreNotFoundException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
 
+    @ExceptionHandler(KeywordNotFoundException.class)
+    public ResponseEntity<Object> handleKeywordNotFoundException(KeywordNotFoundException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ChartNotFoundException.class)
+    public ResponseEntity<Object> handleChartNotFoundException(ChartNotFoundException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(AgeGroupNotFoundException.class)
+    public ResponseEntity<Object> handleAgeGroupNotFoundException(AgeGroupNotFoundException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+	
 }

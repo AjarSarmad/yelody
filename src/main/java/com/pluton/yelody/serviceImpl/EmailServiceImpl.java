@@ -6,7 +6,7 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
-import com.pluton.yelody.models.Email;
+import com.pluton.yelody.DTOs.Email;
 import com.pluton.yelody.services.EmailService;
  
 @Service

@@ -5,8 +5,8 @@ import java.util.Date;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.pluton.yelody.DTOs.Email;
 import com.pluton.yelody.models.Admin;
-import com.pluton.yelody.models.Email;
 import com.pluton.yelody.repositories.AdminRepository;
 import com.pluton.yelody.services.AdminAuthService;
 import com.pluton.yelody.services.AdminService;

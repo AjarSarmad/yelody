@@ -1,6 +1,6 @@
 package com.pluton.yelody.services;
  
-import com.pluton.yelody.models.Email;
+import com.pluton.yelody.DTOs.Email;
  
 public interface EmailService {
  

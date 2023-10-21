@@ -24,11 +24,21 @@
 		</dependency>
 -->
 
+		<dependency>
+		    <groupId>com.backblaze.b2</groupId>
+		    <artifactId>b2-sdk-core</artifactId>
+		    <version>6.1.1</version>
+		</dependency>
+		<dependency>
+		    <groupId>com.backblaze.b2</groupId>
+		    <artifactId>b2-sdk-httpclient</artifactId>
+		    <version>6.1.1</version>
+		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.hibernate.validator/hibernate-validator -->
 		<dependency>
 		    <groupId>org.hibernate.validator</groupId>
 		    <artifactId>hibernate-validator</artifactId>
-    		<version>8.0.1.Final</version>
+    		<version>8.0.1.Final</version><!--$NO-MVN-MAN-VER$-->
 		</dependency>
 		<dependency>
    			 <groupId>org.hibernate</groupId>
@@ -84,13 +94,13 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.best.spring</groupId>
-			<artifactId>learn</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
-		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-mail</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>net.bytebuddy</groupId>
+			<artifactId>byte-buddy</artifactId>
+			<version>1.12.13</version><!--$NO-MVN-MAN-VER$-->
 		</dependency>
 	</dependencies>
 
