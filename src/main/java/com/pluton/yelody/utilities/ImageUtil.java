@@ -1,9 +1,36 @@
 package com.pluton.yelody.utilities;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
+
+
 public class ImageUtil {
+	
+	public static String saveFile(String path, String fileName, MultipartFile multipartFile)
+            throws IOException {          
+		Path uploadPath = Paths.get(path);
+
+        if (!Files.exists(uploadPath)) {
+            Files.createDirectories(uploadPath);
+        }
+        String extension = StringUtils.getFilenameExtension(multipartFile.getOriginalFilename());
+
+        Path filePath = uploadPath.resolve(fileName + "." + extension);
+        try {
+            Files.write(filePath, multipartFile.getBytes());
+            System.out.println("\n\n"+filePath);
+        } catch (IOException e) {
+            throw new IOException("Could not save file: " + fileName, e);
+        }
+        return filePath.toString();
+    }
 	
 	public static byte[] compressImage(byte[] data) {
         Deflater deflater = new Deflater();

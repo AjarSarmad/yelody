@@ -13,7 +13,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -53,13 +52,12 @@ public class Chart {
 	@Column(name="view_count" , nullable=false)
 	private int viewCount;
 
-	@Lob
-	@Column(name="cover_image" , nullable=true, columnDefinition="LONGBLOB")
-	private byte[] coverImage;
+	@Column(name="image" , nullable=false)
+	private String image;
 	
 	@JsonManagedReference
 	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "chart")
 //	@JsonIgnoreProperties("chart")
-	private List<Song> songs = new ArrayList<>();
+	private List<Song> songs;
 
 }

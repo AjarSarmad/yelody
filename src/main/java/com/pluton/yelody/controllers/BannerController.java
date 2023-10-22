@@ -7,7 +7,6 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,6 +31,7 @@ public class BannerController {
 	@Autowired
 	BannerService bannerService;
 	
+	final String imagePath = "ImageResources/BANNER";
 	Optional<Banner> bannerGet = null;
 	Banner bannerPost = null;
 	List<Banner> bannerList = null;
@@ -41,23 +40,31 @@ public class BannerController {
 	//http://localhost:8080/yelody/banner/addBanner
 	@CrossOrigin(origins = "*")
 	@PostMapping("/addBanner")
-	public ResponseEntity<Object> addBanner(@ModelAttribute @Valid BannerRequest bannerViewModel){
+	public ResponseEntity<Object> addBanner(@ModelAttribute @Valid BannerRequest bannerRequest){
 		bannerPost = null;
+		String imageResponse = null;
 		try {
-			byte[] compressedImage = null;
-	        if (bannerViewModel.getImage() != null) {
-	            compressedImage = ImageUtil.compressImage(bannerViewModel.getImage().getBytes());
-	        }
+			UUID id = UUID.randomUUID();
+			if(!bannerRequest.getImage().isEmpty())
+				imageResponse = ImageUtil.saveFile(imagePath, id.toString(), bannerRequest.getImage());
+			else
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("IMAGE CANNOT BE NULL");
 
+			
 	        bannerPost = new Banner(
-	            UUID.randomUUID(),
-	            bannerViewModel.getLocation(),
-	            bannerViewModel.getUrl(),
-	            bannerViewModel.getLanguage(),
-	            compressedImage
+	        		id,
+	            bannerRequest.getLocation(),
+	            bannerRequest.getUrl(),
+	            bannerRequest.getLanguage(),
+	            imageResponse
 	        );
 			
-			return bannerService.saveBanner(bannerPost);
+			Banner response = bannerService.saveBanner(bannerPost);
+			if(response!=null ) {
+				return new ResponseEntity<Object>(response, HttpStatus.CREATED);
+			}else{
+				return ResponseEntity.status(HttpStatus.FOUND).body("BANNER ALREADY EXISTS");
+			}
 		}catch(Exception ex) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex);
 		}
@@ -103,48 +110,33 @@ public class BannerController {
   	//http://localhost:8080/yelody/banner/updateBanner?id=
     @CrossOrigin(origins = "*")
   	@PutMapping("/updateBanner")
-    public ResponseEntity<Object> updateBanner(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID id, @RequestBody @Valid BannerRequest bannerViewModel){
+    public ResponseEntity<Object> updateBanner(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID id, @ModelAttribute @Valid BannerRequest bannerViewModel){
     	bannerGet = null;
     	bannerPost = null;
+    	String imageResponse = null;
     	try {
     		bannerGet = bannerService.getBannerByID(id);
+    		if(!bannerViewModel.getImage().isEmpty())
+				imageResponse = ImageUtil.saveFile(imagePath, bannerGet.get().getBannerId().toString(), bannerViewModel.getImage());
+    		
     		if(bannerGet!=null) {
     	  		bannerPost = new Banner(
         				bannerGet.get().getBannerId(),
     					bannerViewModel.getLocation(),
     					bannerViewModel.getUrl(),
     					bannerViewModel.getLanguage(),
-    					bannerGet.get().getBannerImage()
+    					bannerViewModel.getImage().isEmpty()?bannerGet.get().getImage():imageResponse
     					);
     			return new ResponseEntity<Object>(bannerService.saveBanner(bannerPost), HttpStatus.OK);
     			}
     		else
-    			return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
+    			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("BANNER NOT FOUND");
 
     	}catch(Exception ex) {
 			ex.printStackTrace();
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex);
     	}
     }
-    
-    
-    //GET BANNER IMAGE
-  	//http://localhost:8080/yelody/banner/getBannerImage?id=
-    @CrossOrigin(origins = "*")
-  	@GetMapping("/getBannerImage")
-    public ResponseEntity<Object> getImage(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID id){
-  		bannerGet = null;
-    	try {
-    	bannerGet = bannerService.getBannerByID(id);
-    	if(bannerGet!=null) {
-    		byte[] image = ImageUtil.decompressImage(bannerGet.get().getBannerImage());
-    		return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.valueOf("image/jpeg")).body(image);
-    	}else
-  			return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
-    	}catch(Exception ex) {
-  			return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
-    	}
-  	}
     
     //DELETE BANNER DETAILS
   	//http://localhost:8080/yelody/banner/deleteBanner?id=

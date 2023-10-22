@@ -36,6 +36,7 @@ public class ChartController {
 	@Autowired
 	SongService songService;
 	
+	final String imagePath = "ImageResources/CHART";
 	List<Chart> chartList = null;
 	Chart chartPost = null;
 	Optional<Chart> chartGet = null;
@@ -48,14 +49,16 @@ public class ChartController {
   	@PostMapping("/postChart")
      public ResponseEntity<Object> postChart( @ModelAttribute @Valid ChartRequest chartRequest){
 	    	chartPost = null;
+			String imageResponse = null;
 	    	try {
-	    		byte[] compressedImage = null;
-		        if (chartRequest.getImage() != null) {
-		            compressedImage = ImageUtil.compressImage(chartRequest.getImage().getBytes());
-		        }
-		        
+				UUID id = UUID.randomUUID();
+				if(!chartRequest.getImage().isEmpty())
+					imageResponse = ImageUtil.saveFile(imagePath, id.toString(), chartRequest.getImage());
+				else
+					return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("IMAGE CANNOT BE NULL");
+				
 	    		chartPost = new Chart(
-	    				UUID.randomUUID(),
+	    				id,
 	    				chartRequest.getName(),
 	    				chartRequest.getTitle(),
 	    				chartRequest.getDescription(),
@@ -63,8 +66,8 @@ public class ChartController {
 	    				chartRequest.getRegion(),
 	    				chartRequest.getRank(),
 	    				0,
-	    				compressedImage,
-	    				null
+	    				imageResponse,
+	    				new ArrayList<Song>()
 	    				);
 	    		return chartService.postChart(chartPost);
 	    	}catch(Exception ex) {
@@ -105,13 +108,12 @@ public class ChartController {
      public ResponseEntity<Object> updateChart(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID id, @ModelAttribute @Valid ChartRequest chartRequest){
      	chartGet = null;
      	chartPost = null;
+    	String imageResponse = null;
      	try {
-     		byte[] compressedImage = null;
-	        if (chartRequest.getImage() != null) {
-	            compressedImage = ImageUtil.compressImage(chartRequest.getImage().getBytes());
-	        }
-	        
      		chartGet = chartService.getChartById(id);
+     		if(!chartRequest.getImage().isEmpty())
+				imageResponse = ImageUtil.saveFile(imagePath, chartGet.get().getChartId().toString(), chartRequest.getImage());
+     		
      		chartPost = new Chart(
      				chartGet.get().getChartId(),
      				chartRequest.getName(),
@@ -121,7 +123,7 @@ public class ChartController {
      				chartRequest.getRegion(),
      				chartRequest.getRank(),
      				chartGet.get().getViewCount(),
-     				compressedImage,
+     				chartRequest.getImage().isEmpty()?chartGet.get().getImage():imageResponse,
      				chartGet.get().getSongs()
  					);
      		if(chartGet!=null) {

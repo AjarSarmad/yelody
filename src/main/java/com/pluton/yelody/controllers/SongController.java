@@ -1,5 +1,6 @@
 package com.pluton.yelody.controllers;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -33,6 +34,7 @@ import com.pluton.yelody.services.GenreService;
 import com.pluton.yelody.services.KeywordService;
 import com.pluton.yelody.services.SongService;
 import com.pluton.yelody.services.UserService;
+import com.pluton.yelody.utilities.ImageUtil;
 
 import jakarta.validation.Valid;
 
@@ -54,6 +56,7 @@ public class SongController {
 	@Autowired
 	BackblazeService backblazeService;
 	
+	String imagePath = "ImageResources/SONG";
 	List<Song> songList = null;
 	Song song = null;
 	Optional<Genre> genre = null;
@@ -68,29 +71,35 @@ public class SongController {
 	//http://localhost:8080/yelody/song/postSong
     @CrossOrigin(origins = "*")
   	@PostMapping("/postSong")
-    public ResponseEntity<Object> postSong( @ModelAttribute @Valid SongRequest songRequest){
+    public ResponseEntity<Object> postSong( @ModelAttribute @Valid SongRequest songRequest) throws IOException{
     	song = null;
     	genre = null;
     	keyword = null;
     	ageGroup = null;
     	chart = null;
+		String imageResponse = null;
+
     	try {
-    			genre = genreService.getGenreByType(songRequest.getGenre());
-    			keyword = keywordService.getKeywordByName(songRequest.getKeyword());
-    			chart = chartService.getChartByName(songRequest.getChart());
-    			ageGroup = ageGroupService.getAgeGroupByName(songRequest.getAgeGroup());
+			genre = genreService.getGenreByType(songRequest.getGenre());
+			keyword = keywordService.getKeywordByName(songRequest.getKeyword());
+			chart = chartService.getChartByName(songRequest.getChart());
+			ageGroup = ageGroupService.getAgeGroupByName(songRequest.getAgeGroup());
     			
-//    			songService.validateExistence(genre.get(), keyword.get(), ageGroup.get(), chart.get());
-    			
+			UUID id = UUID.randomUUID();
+			if(!songRequest.getImage().isEmpty())
+				imageResponse = ImageUtil.saveFile(imagePath, id.toString(), songRequest.getImage());
+			else
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("IMAGE CANNOT BE NULL");	
+			
     		if(genre!=null && keyword!=null && chart!=null && ageGroup!=null) {
   				song = new Song(
-  						UUID.randomUUID(),
+  						id,
   						songRequest.getSongName(),
   						songRequest.getDescription(),
   						songRequest.getRank(),
   						songRequest.getArtistName(),
   						songRequest.getLyrics(),
-  						null, //image
+  						imageResponse, //image
   						new ArrayList<Keyword>(), //keywords
   						new ArrayList<User>(), //viewers
   						genre.get(), //genre
@@ -111,8 +120,8 @@ public class SongController {
       			return new ResponseEntity<>("Given Genre is not existed",HttpStatus.BAD_REQUEST);
 
     	}catch(Exception ex) {
-    		ex.printStackTrace();
-  			return new ResponseEntity<Object>(HttpStatus.BAD_REQUEST);
+    		ex.getMessage();
+  			return new ResponseEntity<>(ex.getMessage(),HttpStatus.NOT_FOUND);
     	}
 		return null;
     }
@@ -175,6 +184,7 @@ public class SongController {
 						    keywordNames,
 						    (item.getGenre() != null ? item.getGenre().getType() : "null"),
 						    (item.getChart() != null ? item.getChart().getName() : "null"),
+						    item.getImage(),
 						    songFile
 						));
 				}
@@ -194,10 +204,10 @@ public class SongController {
         return songService.incrementViewCount(userId, songId);
 	}
 	
-		//http://localhost:8080/yelody/song/tester
-		@CrossOrigin(origins = "*")
-		@PostMapping("/tester")
-		public boolean tester(@RequestParam(name="id") UUID id) {
-            return backblazeService.deleteSongById(false, id.toString());
-		}
+	//http://localhost:8080/yelody/song/tester
+//	@CrossOrigin(origins = "*")
+//	@PostMapping("/tester")
+//	public String tester() throws IOException {
+//        return ImageUtil.downloadFile(null,null);
+//	}
 }

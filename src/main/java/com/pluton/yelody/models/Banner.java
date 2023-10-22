@@ -7,7 +7,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -33,10 +32,13 @@ public class Banner {
 	
 	@Column(name="language" , nullable=false)
 	private String language;
-
-	@Lob
-	@Column(name="banner_image" , nullable=true, columnDefinition="LONGBLOB")
-	private byte[] bannerImage;
+	
+	@Column(name="image" , nullable=false)
+	private String image;
+	
+//	@Lob
+//	@Column(name="banner_image" , nullable=true, columnDefinition="LONGBLOB")
+//	private byte[] bannerImage;
 	
 	
 }

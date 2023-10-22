@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.pluton.yelody.exceptions.SongRequestExceptions;
 import com.pluton.yelody.models.Chart;
 import com.pluton.yelody.repositories.ChartRepository;
 import com.pluton.yelody.services.ChartService;
@@ -34,7 +35,7 @@ public class ChartServiceImpl implements ChartService {
 	public Optional<Chart> getChartById(UUID id) {
 		chartGet = null;
 		try {
-			chartGet = chartRepository.findById(id);
+			chartGet = Optional.ofNullable(chartRepository.findById(id).orElseThrow(() -> new SongRequestExceptions("CHART ID: " + id + " NOT FOUND")));
 			if(chartGet!=null)
 				return chartGet;
 
@@ -55,7 +56,7 @@ public class ChartServiceImpl implements ChartService {
 
 	@Override
 	public Optional<Chart> getChartByName(String name) {
-		return chartRepository.findChartByName(name);
+		return Optional.ofNullable(chartRepository.findChartByName(name).orElseThrow(() -> new SongRequestExceptions("CHART NAME: " + name + " NOT FOUND")));
 	}
 	
 	

@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.pluton.yelody.exceptions.SongRequestExceptions;
 import com.pluton.yelody.models.AgeGroup;
 import com.pluton.yelody.repositories.AgeGroupRepository;
 import com.pluton.yelody.services.AgeGroupService;
@@ -29,7 +30,7 @@ public class AgeGroupServiceImpl implements AgeGroupService {
 
 	@Override
 	public Optional<AgeGroup> getAgeGroupById(UUID id) {
-		return ageGroupRepository.findById(id);
+		return Optional.ofNullable(ageGroupRepository.findById(id).orElseThrow(() -> new SongRequestExceptions("AGEGROUP ID: " + id + " NOT FOUND")));
 
 	}
 
@@ -47,7 +48,7 @@ public class AgeGroupServiceImpl implements AgeGroupService {
 
 	@Override
 	public Optional<AgeGroup> getAgeGroupByName(String name) {
-		return ageGroupRepository.findByName(name);
+		return Optional.ofNullable(ageGroupRepository.findByName(name).orElseThrow(() -> new SongRequestExceptions("AGEGROUP NAME: " + name + " NOT FOUND")));
 	}
 
 	@Override

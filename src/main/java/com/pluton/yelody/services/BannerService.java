@@ -5,12 +5,11 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import com.pluton.yelody.models.Banner;
 
 public interface BannerService {
-	public abstract ResponseEntity<Object> saveBanner(Banner banner);
+	public abstract Banner saveBanner(Banner banner);
 	
 	public abstract Optional<Banner> getBannerByID(UUID id);
 	

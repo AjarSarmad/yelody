@@ -19,10 +19,10 @@ public class SongResponse {
 	private String artistName;
 	private String lyrics;
 	private int viewCount;
-//	private byte[] songImage;
 	private String ageGroup;
     private List<String> keywords = new ArrayList<>();
     private String genre;
     private String chart;
-    private String file;
+    private String imageFile;
+    private String songFile;
 }

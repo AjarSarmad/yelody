@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,6 +25,7 @@ import com.pluton.yelody.models.Song;
 import com.pluton.yelody.models.User;
 import com.pluton.yelody.services.AgeGroupService;
 import com.pluton.yelody.services.UserService;
+import com.pluton.yelody.utilities.ImageUtil;
 
 import jakarta.validation.Valid;
 
@@ -36,6 +38,7 @@ public class UserController {
 	@Autowired
 	AgeGroupService ageGroupService;
 	
+	final String imagePath = "ImageResources/USER";
 	List<User> userList = null;
 	Optional<User> userGet = null;
 	User userPost = null;
@@ -108,14 +111,23 @@ public class UserController {
   	//http://localhost:8080/yelody/user/postUser
     @CrossOrigin(origins = "*")
   	@PostMapping("/postUser")
-    public ResponseEntity<Object> postUser(@RequestBody @Valid UserRequest userRequest){
+    public ResponseEntity<Object> postUser(@ModelAttribute @Valid UserRequest userRequest){
     	userPost = null;
     	Optional<AgeGroup> ageGroup = null;
+		String imageResponse = null;
     	try {
     		ageGroup = ageGroupService.getAgeGroupByName(userRequest.getAgeGroup());
     		
     		if(ageGroup!=null) {
-	    		userPost = new User(UUID.randomUUID(),
+    			
+    			UUID id = UUID.randomUUID();
+    			if(!userRequest.getImage().isEmpty())
+    				imageResponse = ImageUtil.saveFile(imagePath, id.toString(), userRequest.getImage());
+    			else
+    				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("IMAGE CANNOT BE NULL");
+    			
+	    		userPost = new User(
+	    					id,
 							userRequest.getUserName(),
 							userRequest.getEmail(),
 							userRequest.getPhone(),
@@ -124,7 +136,8 @@ public class UserController {
 							0,
 							ageGroup.get(),
 							new ArrayList<Song>(),
-							new ArrayList<Song>()
+							new ArrayList<Song>(),
+							imageResponse
 	    				);
     		}
   			return userService.saveUser(userPost);

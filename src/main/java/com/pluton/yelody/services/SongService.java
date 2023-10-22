@@ -7,10 +7,6 @@ import java.util.UUID;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 
-import com.pluton.yelody.models.AgeGroup;
-import com.pluton.yelody.models.Chart;
-import com.pluton.yelody.models.Genre;
-import com.pluton.yelody.models.Keyword;
 import com.pluton.yelody.models.Song;
 
 public interface SongService {
@@ -46,9 +42,6 @@ public interface SongService {
 	
 	public abstract int getViewCount(UUID songId);
 	
-	public abstract void validateExistence(Genre genre, Keyword keyword, AgeGroup ageGroup, Chart chart);
-	
 	public abstract Optional<Song> getSongById(UUID id);
-
 	
 }

@@ -72,4 +72,7 @@ public class User {
             uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "song_id"})
     )
     private List<Song> sungSongs;
+	
+	@Column(name="image" , nullable=false)
+	private String image;
 }

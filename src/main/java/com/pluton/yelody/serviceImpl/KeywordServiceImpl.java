@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.pluton.yelody.exceptions.SongRequestExceptions;
 import com.pluton.yelody.models.Keyword;
 import com.pluton.yelody.repositories.KeywordRepository;
 import com.pluton.yelody.services.KeywordService;
@@ -29,7 +30,7 @@ public class KeywordServiceImpl implements KeywordService{
 
 	@Override
 	public Optional<Keyword> getKeywordById(UUID id) {
-		return keywordRepository.findById(id);
+		return Optional.ofNullable(keywordRepository.findById(id).orElseThrow(() -> new SongRequestExceptions("KEYWORD ID: " + id + " NOT FOUND")));
 	}
 
 	@Override
@@ -45,7 +46,7 @@ public class KeywordServiceImpl implements KeywordService{
 
 	@Override
 	public Optional<Keyword> getKeywordByName(String name) {
-		return keywordRepository.findByName(name);
+		return Optional.ofNullable(keywordRepository.findByName(name).orElseThrow(() -> new SongRequestExceptions("KEYWORD NAME: " + name + " NOT FOUND")));
 	}
 
 }

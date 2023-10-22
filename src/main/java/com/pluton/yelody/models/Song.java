@@ -15,7 +15,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
-import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -27,7 +26,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name="Songs")
+@Table(name="Songs",
+uniqueConstraints = @UniqueConstraint(columnNames = { "lyrics" }))
 @Data
 @Getter
 @Setter
@@ -52,12 +52,11 @@ public class Song {
 	@Column(name="artist_name" , nullable=false)
 	private String artistName;
 
-	@Column(name="lyrics" ,columnDefinition = "LONGTEXT", nullable=false, unique=true)
+	@Column(name="lyrics" ,columnDefinition = "LONGTEXT", nullable=false)
 	private String lyrics;
 	
-	@Lob
-	@Column(name="song_image" , nullable=true, columnDefinition="LONGBLOB")
-	private byte[] songImage;
+	@Column(name="image" , nullable=false)
+	private String image;
 	
 	@JsonIgnore
 	@JsonManagedReference

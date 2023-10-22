@@ -6,7 +6,6 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.pluton.yelody.models.Banner;
@@ -20,11 +19,11 @@ public class BannerServiceImpl implements BannerService{
 	Optional<Banner> banner = null;
 	
 	@Override
-	public ResponseEntity<Object> saveBanner(Banner banner) {
+	public Banner saveBanner(Banner banner) {
 		try {
-			return new ResponseEntity<Object>(bannerrepository.save(banner),HttpStatus.CREATED);
+			return bannerrepository.save(banner);
 		}catch(Exception  e) {
-  			return new ResponseEntity<Object>(HttpStatus.FOUND);
+  			return null;
 		}
 	}
 	

@@ -44,4 +44,7 @@ public class SongRequest {
 	
 	@NotNull(message = "Mp3 File not be NULL")
 	private MultipartFile file;
+	
+	@NotNull(message = "SONG IMAGE not be NULL")
+	private MultipartFile image;
 }

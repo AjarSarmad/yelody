@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -12,14 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import com.pluton.yelody.exceptions.SongRequestExceptions.AgeGroupNotFoundException;
-import com.pluton.yelody.exceptions.SongRequestExceptions.ChartNotFoundException;
-import com.pluton.yelody.exceptions.SongRequestExceptions.GenreNotFoundException;
-import com.pluton.yelody.exceptions.SongRequestExceptions.KeywordNotFoundException;
-import com.pluton.yelody.models.AgeGroup;
-import com.pluton.yelody.models.Chart;
-import com.pluton.yelody.models.Genre;
-import com.pluton.yelody.models.Keyword;
+import com.pluton.yelody.exceptions.UniqueEntityException;
 import com.pluton.yelody.models.Song;
 import com.pluton.yelody.models.User;
 import com.pluton.yelody.repositories.SongRepository;
@@ -49,11 +43,18 @@ public class SongServiceImpl implements SongService{
 	}
 	
 	@Override
-	public Song postSong(Song song) {
+	public Song postSong(Song song){
 		try {
 			return songRepository.save(song);
-		}catch(Exception  e) {
-  			return null;
+			
+		}catch(Exception e) {
+		 if (e.getCause() instanceof ConstraintViolationException) {
+	            ConstraintViolationException constraintViolationException = (ConstraintViolationException) e.getCause();
+	            String duplicateValue = constraintViolationException.getSQLException().getMessage();
+	            throw new UniqueEntityException("Duplicate entry", duplicateValue);
+	        } else {
+	            throw new UniqueEntityException(e.getMessage());
+	        }
 		}
 	}
 	
@@ -170,25 +171,6 @@ public class SongServiceImpl implements SongService{
 			System.err.print(ex);
 		}
 		return 0;
-	}
-
-	@Override
-	public void validateExistence(Genre genre, Keyword keyword, AgeGroup ageGroup, Chart chart) throws RuntimeException{
-		if (genre == null) {
-	        throw new GenreNotFoundException("Given Genre does not exist");
-	    }
-
-	    if (keyword == null) {
-	        throw new KeywordNotFoundException("Given Keyword does not exist");
-	    }
-
-	    if (chart == null) {
-	        throw new ChartNotFoundException("Given Chart does not exist");
-	    }
-
-	    if (ageGroup == null) {
-	        throw new AgeGroupNotFoundException("Given AgeGroup does not exist");
-	    }
 	}
 
 	@Override
