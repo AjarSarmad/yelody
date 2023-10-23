@@ -26,7 +26,7 @@ public class UserRequest {
 	@NotNull(message="Phone must not be NULL")
 	private String phone;
 	
-	@NotNull(message="ageGroup must not be NULL")
+//	@NotNull(message="ageGroup must not be NULL")
 	private String ageGroup;
 	
 	private MultipartFile image;

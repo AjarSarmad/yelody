@@ -13,12 +13,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.pluton.yelody.exceptions.EntityNotFoundException;
 import com.pluton.yelody.exceptions.UniqueEntityException;
 import com.pluton.yelody.models.Song;
 import com.pluton.yelody.models.User;
 import com.pluton.yelody.repositories.SongRepository;
 import com.pluton.yelody.repositories.UserRepository;
+import com.pluton.yelody.services.BackblazeService;
 import com.pluton.yelody.services.SongService;
+import com.pluton.yelody.utilities.ImageUtil;
 
 @Service
 public class SongServiceImpl implements SongService{
@@ -27,6 +30,8 @@ public class SongServiceImpl implements SongService{
 	SongRepository songRepository;
 	@Autowired
 	UserRepository userRepository;
+	@Autowired
+	BackblazeService backblazeService;
 	
 	List<Song> songList = null;
 	Optional<Song> song = null;
@@ -175,7 +180,19 @@ public class SongServiceImpl implements SongService{
 
 	@Override
 	public Optional<Song> getSongById(UUID id) {
-		return songRepository.findById(id);
+		return Optional.ofNullable(songRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("SONG ID: " + id + " NOT FOUND")));
+	}
+
+	@Override
+	public ResponseEntity<?> deleteSong(Song song) {
+		try {
+			songRepository.delete(song);
+			backblazeService.deleteSongById(false, song.getSongId().toString());
+			ImageUtil.deleteFile(song.getImage());
+			return ResponseEntity.status(HttpStatus.OK).body("SONG " + song.getName() + " HAS BEEN DELETED SUCCESSFULLY");
+		}catch(Exception ex){
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("");
+		}
 	}
 	
 //	@Override

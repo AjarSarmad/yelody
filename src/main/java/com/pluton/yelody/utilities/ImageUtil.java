@@ -32,6 +32,16 @@ public class ImageUtil {
         return filePath.toString();
     }
 	
+	public static void deleteFile(String filePath) throws IOException {
+	    try {
+	        Path fileToDelete = Paths.get(filePath);
+	        Files.delete(fileToDelete);
+	    } catch (IOException e) {
+	        throw new IOException("Could not delete file: " + filePath, e);
+	    }
+	}
+	
+	
 	public static byte[] compressImage(byte[] data) {
         Deflater deflater = new Deflater();
         deflater.setLevel(Deflater.BEST_COMPRESSION);

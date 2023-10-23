@@ -9,10 +9,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import com.pluton.yelody.exceptions.SongRequestExceptions;
+import com.pluton.yelody.exceptions.EntityNotFoundException;
 import com.pluton.yelody.models.Chart;
 import com.pluton.yelody.repositories.ChartRepository;
 import com.pluton.yelody.services.ChartService;
+import com.pluton.yelody.utilities.ImageUtil;
 
 @Service
 public class ChartServiceImpl implements ChartService {
@@ -35,7 +36,7 @@ public class ChartServiceImpl implements ChartService {
 	public Optional<Chart> getChartById(UUID id) {
 		chartGet = null;
 		try {
-			chartGet = Optional.ofNullable(chartRepository.findById(id).orElseThrow(() -> new SongRequestExceptions("CHART ID: " + id + " NOT FOUND")));
+			chartGet = Optional.ofNullable(chartRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("CHART ID: " + id + " NOT FOUND")));
 			if(chartGet!=null)
 				return chartGet;
 
@@ -56,7 +57,18 @@ public class ChartServiceImpl implements ChartService {
 
 	@Override
 	public Optional<Chart> getChartByName(String name) {
-		return Optional.ofNullable(chartRepository.findChartByName(name).orElseThrow(() -> new SongRequestExceptions("CHART NAME: " + name + " NOT FOUND")));
+		return Optional.ofNullable(chartRepository.findChartByName(name).orElseThrow(() -> new EntityNotFoundException("CHART NAME: " + name + " NOT FOUND")));
+	}
+
+	@Override
+	public ResponseEntity<?> deleteChart(Chart chart) {
+		try {
+			chartRepository.delete(chart);
+			ImageUtil.deleteFile(chart.getImage());
+			return ResponseEntity.status(HttpStatus.OK).body("CHART " + chart.getName() + " HAS BEEN DELETED SUCCESSFULLY");
+		}catch(Exception ex){
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("");
+		}
 	}
 	
 	

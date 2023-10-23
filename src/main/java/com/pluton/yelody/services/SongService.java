@@ -43,5 +43,7 @@ public interface SongService {
 	public abstract int getViewCount(UUID songId);
 	
 	public abstract Optional<Song> getSongById(UUID id);
+
+	public abstract ResponseEntity<?> deleteSong(Song song);
 	
 }

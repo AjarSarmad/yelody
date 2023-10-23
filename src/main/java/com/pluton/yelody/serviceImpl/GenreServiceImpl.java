@@ -9,7 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import com.pluton.yelody.exceptions.SongRequestExceptions;
+import com.pluton.yelody.exceptions.EntityNotFoundException;
 import com.pluton.yelody.models.Genre;
 import com.pluton.yelody.repositories.GenreRepository;
 import com.pluton.yelody.services.GenreService;
@@ -22,7 +22,7 @@ public class GenreServiceImpl implements GenreService{
 
 	@Override
 	public Optional<Genre> getGenreByID(UUID id) {
-		return Optional.ofNullable(genreRepository.findById(id).orElseThrow(() -> new SongRequestExceptions("GENRE ID: " + id + " NOT FOUND")));
+		return Optional.ofNullable(genreRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("GENRE ID: " + id + " NOT FOUND")));
 	}
 
 	@Override
@@ -47,7 +47,7 @@ public class GenreServiceImpl implements GenreService{
 
 	@Override
 	public Optional<Genre> getGenreByType(String type) {
-		return Optional.ofNullable(genreRepository.findByType(type).orElseThrow(() -> new SongRequestExceptions("GENRE TYPE: " + type + " NOT FOUND")));
+		return Optional.ofNullable(genreRepository.findByType(type).orElseThrow(() -> new EntityNotFoundException("GENRE TYPE: " + type + " NOT FOUND")));
 	}
 	
 }

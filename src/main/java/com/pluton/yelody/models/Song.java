@@ -10,8 +10,6 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
@@ -26,8 +24,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name="Songs",
-uniqueConstraints = @UniqueConstraint(columnNames = { "lyrics" }))
+@Table(name="Songs")
 @Data
 @Getter
 @Setter
@@ -36,7 +33,6 @@ uniqueConstraints = @UniqueConstraint(columnNames = { "lyrics" }))
 public class Song {
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.UUID)
 	@Column(name="song_id" , nullable=false)
 	private UUID songId;
 	

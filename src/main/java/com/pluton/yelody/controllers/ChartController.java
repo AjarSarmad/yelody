@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -172,6 +173,22 @@ public class ChartController {
 
     	}catch(Exception ex) {
   			return new ResponseEntity<Object>(HttpStatus.BAD_REQUEST);
+    	}
+    }
+    
+    //DELETE CHART
+    //http://localhost:8080/yelody/chart/deleteChart?id=
+    @CrossOrigin(origins = "*")
+  	@DeleteMapping("/deleteChart")
+    public ResponseEntity<?> deleteChart(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID id){
+    	chartGet = null;
+    	try {
+    		chartGet = chartService.getChartById(id);
+    		if(chartGet!=null)
+    			return chartService.deleteChart(chartGet.get());
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("CHART " + id + " NOT FOUND");
+    	}catch(Exception ex) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("CHART " + id + " NOT FOUND");
     	}
     }
     

@@ -38,8 +38,8 @@ public interface UserService {
 	
 	public abstract Specification<User> filterByPhone(String phone);
 	
-//	public abstract HttpStatus incrementSingCountById(UUID id);
-	
 	public abstract ResponseEntity<Object> saveUser(User  user);
+
+	public abstract ResponseEntity<?> deleteUser(User user);
 	
 }

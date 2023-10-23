@@ -10,9 +10,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -116,6 +118,9 @@ public class UserController {
     	Optional<AgeGroup> ageGroup = null;
 		String imageResponse = null;
     	try {
+    		if(userRequest.getAgeGroup()==null)
+    			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("AGE GROUP MUST NOT BE NULL");
+
     		ageGroup = ageGroupService.getAgeGroupByName(userRequest.getAgeGroup());
     		
     		if(ageGroup!=null) {
@@ -146,12 +151,58 @@ public class UserController {
     	}
     }
 	
-//    //INCREMENT VIEW_COUNT OF SONG BY ID
-//  	//http://localhost:8080/yelody/user/incrementSingCountById?id=
-//  	@CrossOrigin(origins = "*")
-//  	@PostMapping("/incrementSingCountById")
-//  	public ResponseEntity<Object> incrementSingCountById(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID id) {
-//          return new ResponseEntity<Object>(userService.incrementSingCountById(id));
-//  	}
-//	
+    //UPDATE USER DETAILS
+  	//http://localhost:8080/yelody/user/updateUser?id=
+    @CrossOrigin(origins = "*")
+  	@PutMapping("/updateUser")
+    public ResponseEntity<Object> updateUser(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID id, @ModelAttribute @Valid UserRequest userRequest){
+    	userGet = null;
+    	userPost = null;
+    	String imageResponse = null;
+    	try {
+    		userGet = userService.getUserByID(id);
+    		if(!userRequest.getImage().isEmpty())
+				imageResponse = ImageUtil.saveFile(imagePath, userGet.get().getUserId().toString(), userRequest.getImage());
+    		
+    		if(userGet!=null) {
+    			userPost = new User(
+        				userGet.get().getUserId(),
+        				userRequest.getUserName(),
+        				userRequest.getEmail(),
+        				userRequest.getPhone(),
+        				userGet.get().getLastVisitDate(),
+        				userGet.get().getRegistrationDate(),
+        				userGet.get().getYeloPoints(),
+        				userGet.get().getAgeGroup(),
+        				userGet.get().getSongViews(),
+        				userGet.get().getSungSongs(),
+    					userRequest.getImage().isEmpty()?userGet.get().getImage():imageResponse
+    					);
+    			return new ResponseEntity<Object>(userService.saveUser(userPost), HttpStatus.OK);
+    			}
+    		else
+    			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("USER NOT FOUND");
+
+    	}catch(Exception ex) {
+			ex.printStackTrace();
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex);
+    	}
+    }
+    
+    //DELETE USER
+    //http://localhost:8080/yelody/user/deleteUser?id=
+    @CrossOrigin(origins = "*")
+  	@DeleteMapping("/deleteUser")
+    public ResponseEntity<?> deleteUser(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID id){
+    	userGet = null;
+    	try {
+    		userGet = userService.getUserByID(id);
+    		if(userGet!=null)
+    			return userService.deleteUser(userGet.get());
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("USER " + id + " NOT FOUND");
+    	}catch(Exception ex) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("USER " + id + " NOT FOUND");
+    	}
+    }
+    
 }

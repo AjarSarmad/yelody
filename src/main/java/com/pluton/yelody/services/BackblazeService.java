@@ -9,5 +9,4 @@ public interface BackblazeService {
     public abstract String getSongById(boolean isUserRecordedSong, String songId);
     
     public abstract boolean deleteSongById(boolean isUserRecordedSong, String songId);
-//    public abstract boolean uploadUserSong(String userId, MultipartFile file);
 }

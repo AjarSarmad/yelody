@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -59,6 +60,7 @@ public class SongController {
 	String imagePath = "ImageResources/SONG";
 	List<Song> songList = null;
 	Song song = null;
+	Optional<Song> songGet = null;
 	Optional<Genre> genre = null;
 	Optional<Keyword> keyword = null;
 	Optional<Chart> chart = null;
@@ -203,6 +205,22 @@ public class SongController {
 			@RequestParam(name="songId") @org.hibernate.validator.constraints.UUID UUID songId) {
         return songService.incrementViewCount(userId, songId);
 	}
+	
+	//DELETE SONG
+    //http://localhost:8080/yelody/song/deleteSong?id=
+    @CrossOrigin(origins = "*")
+  	@DeleteMapping("/deleteSong")
+    public ResponseEntity<?> deleteSong(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID id){
+    	songGet = null;
+    	try {
+    		songGet = songService.getSongById(id);
+    		if(songGet!=null)
+    			return songService.deleteSong(songGet.get());
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("SONG " + id + " NOT FOUND");
+    	}catch(Exception ex) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("SONG " + id + " NOT FOUND");
+    	}
+    }
 	
 	//http://localhost:8080/yelody/song/tester
 //	@CrossOrigin(origins = "*")

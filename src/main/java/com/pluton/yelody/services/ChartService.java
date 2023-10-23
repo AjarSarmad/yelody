@@ -16,5 +16,7 @@ public interface ChartService {
 	public abstract List<Chart> getChartList();
 	
 	public abstract Optional<Chart> getChartByName(String name);
+
+	public abstract ResponseEntity<?> deleteChart(Chart chart);
 	
 }

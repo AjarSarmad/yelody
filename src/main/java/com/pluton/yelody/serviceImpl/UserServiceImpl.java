@@ -14,9 +14,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.pluton.yelody.exceptions.EntityNotFoundException;
 import com.pluton.yelody.models.User;
 import com.pluton.yelody.repositories.UserRepository;
 import com.pluton.yelody.services.UserService;
+import com.pluton.yelody.utilities.ImageUtil;
 
 @Service
 public class UserServiceImpl implements UserService{
@@ -95,7 +97,7 @@ public class UserServiceImpl implements UserService{
 	
 	@Override
 	public Optional<User> getUserByID(UUID id){
-		return userRepository.findById(id);
+		return Optional.ofNullable(userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("USER ID: " + id + " NOT FOUND")));
 	}
 	@Override
 	public Specification<User> filterByLastVisitDate(Date date){
@@ -121,16 +123,6 @@ public class UserServiceImpl implements UserService{
 		      criteriaBuilder.like(root.get("phone"),"%" +  phone + "%");
 	}
 	
-//	@Override
-//	public HttpStatus incrementSingCountById(UUID id) {
-//		if(userRepository.existsById(id)) {
-//		user = userRepository.findById(id);
-//		user.get().setSungSongs(user.get().getSungSongs()+1);
-//		userRepository.save(user.get());
-//		return HttpStatus.OK;
-//	}else
-//		return HttpStatus.NOT_FOUND;
-//	}
 	
 	@Override
 	public ResponseEntity<Object> saveUser(User  user){
@@ -155,6 +147,17 @@ public class UserServiceImpl implements UserService{
 	public Specification<User> filterByUserName(String userName) {	
 		return (root, query, criteriaBuilder)-> 
 			criteriaBuilder.like(root.get("userName"),"%" + userName + "%");
+	}
+
+	@Override
+	public ResponseEntity<?> deleteUser(User user) {
+		try {
+			userRepository.delete(user);
+			ImageUtil.deleteFile(user.getImage());
+			return ResponseEntity.status(HttpStatus.OK).body("USER " + user.getUserName() + " HAS BEEN DELETED SUCCESSFULLY");
+		}catch(Exception ex){
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("");
+		}
 	}
 
 }
