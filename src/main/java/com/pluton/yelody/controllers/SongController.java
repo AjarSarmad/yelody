@@ -9,6 +9,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -80,20 +81,24 @@ public class SongController {
     	ageGroup = null;
     	chart = null;
 		String imageResponse = null;
-
+		
     	try {
 			genre = genreService.getGenreByType(songRequest.getGenre());
 			keyword = keywordService.getKeywordByName(songRequest.getKeyword());
-			chart = chartService.getChartByName(songRequest.getChart());
+//			chart = chartService.getChartByName(songRequest.getChart());
 			ageGroup = ageGroupService.getAgeGroupByName(songRequest.getAgeGroup());
     			
 			UUID id = UUID.randomUUID();
-			if(!songRequest.getImage().isEmpty())
+			
+			if(!StringUtils.getFilenameExtension(songRequest.getFile().getOriginalFilename()).equalsIgnoreCase("mp3"))
+    			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("SONG FILE FORMAT SHOULD BE .MP3");
+			
+			if(songRequest.getImage()!=null  && !songRequest.getImage().isEmpty())
 				imageResponse = ImageUtil.saveFile(imagePath, id.toString(), songRequest.getImage());
 			else
 				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("IMAGE CANNOT BE NULL");	
 			
-    		if(genre!=null && keyword!=null && chart!=null && ageGroup!=null) {
+    		if(genre!=null && keyword!=null && ageGroup!=null) {
   				song = new Song(
   						id,
   						songRequest.getSongName(),
@@ -105,7 +110,7 @@ public class SongController {
   						new ArrayList<Keyword>(), //keywords
   						new ArrayList<User>(), //viewers
   						genre.get(), //genre
-  						chart.get(),
+  						null,
   						ageGroup.get(),
   						new ArrayList<User>()
   						);
@@ -118,12 +123,10 @@ public class SongController {
   			  			return new ResponseEntity<Object>(songPost, HttpStatus.CREATED); 
   					}
   				}
-    		}else
-      			return new ResponseEntity<>("Given Genre is not existed",HttpStatus.BAD_REQUEST);
-
+    		}
     	}catch(Exception ex) {
     		ex.getMessage();
-  			return new ResponseEntity<>(ex.getMessage(),HttpStatus.NOT_FOUND);
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
     	}
 		return null;
     }
@@ -193,7 +196,7 @@ public class SongController {
 	            return new ResponseEntity<Object>( songResponseList , HttpStatus.OK);
 			}
 		}catch(Exception ex) {
-	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex);
+  			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
 		}
 	}
 	
@@ -218,7 +221,7 @@ public class SongController {
     			return songService.deleteSong(songGet.get());
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("SONG " + id + " NOT FOUND");
     	}catch(Exception ex) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("SONG " + id + " NOT FOUND");
+  			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
     	}
     }
 	

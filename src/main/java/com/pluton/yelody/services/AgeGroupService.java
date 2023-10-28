@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import com.pluton.yelody.exceptions.ConstraintViolationHandler;
 import com.pluton.yelody.models.AgeGroup;
 
 public interface AgeGroupService {
@@ -16,7 +17,7 @@ public interface AgeGroupService {
 	
 	public abstract List<AgeGroup> getAgeGroupList();
 	
-	public abstract HttpStatus deleteAgeGroup(AgeGroup ageGroup);
+	public abstract HttpStatus deleteAgeGroup(AgeGroup ageGroup) throws ConstraintViolationHandler;
 	
 	public abstract Optional<AgeGroup> getAgeGroupByName(String name);
 	

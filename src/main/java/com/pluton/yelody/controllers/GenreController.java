@@ -40,7 +40,7 @@ public class GenreController {
 	    		genrePost = new Genre(UUID.randomUUID(),type, null);
 	  			return genreService.createGenre(genrePost);
 	    	}catch(Exception ex) {
-	  			return new ResponseEntity<Object>(HttpStatus.BAD_REQUEST);
+	  			return ResponseEntity.status(HttpStatus.FOUND).body(ex.getLocalizedMessage());
 	    	}
 	    }
 	    
@@ -58,7 +58,7 @@ public class GenreController {
 	    		else
 	      			return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
 	    	}catch(Exception ex) {
-	  			return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
+	  			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getLocalizedMessage());
 	    	}
 	    }
 	    
@@ -80,7 +80,7 @@ public class GenreController {
 
 	    	}catch(Exception ex) {
 				ex.printStackTrace();
-				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex);
+	  			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getLocalizedMessage());
 	    	}
 	    }
 	    
@@ -95,13 +95,13 @@ public class GenreController {
 	    		genreGet = genreService.getGenreByID(id);
 	    		if(genreGet!=null) {
 	    			genreService.deleteGenre(genreGet.get());
-	    			return new ResponseEntity<Object>(HttpStatus.OK);
+	    			return ResponseEntity.status(HttpStatus.OK).body("GENRE ID:" + id + " Deleted Successfully");
 	    		}
 	    		else
-	    			return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
+	    			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("GENRE ID: " + id + " NOT FOUND");
 
 	    	}catch(Exception ex) {
-	  			return new ResponseEntity<Object>(HttpStatus.BAD_REQUEST);
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
 	    	}
 	    }	
 }

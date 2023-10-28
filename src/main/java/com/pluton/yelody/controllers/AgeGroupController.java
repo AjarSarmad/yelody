@@ -13,14 +13,16 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.pluton.yelody.DTOs.AgeGroupUpdateRequest;
 import com.pluton.yelody.models.AgeGroup;
 import com.pluton.yelody.services.AgeGroupService;
 
-import jakarta.validation.constraints.Pattern;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/yelody/ageGroup")
@@ -37,10 +39,12 @@ public class AgeGroupController {
 	@CrossOrigin(origins = "*")
 	@PostMapping("/addAgeGroup")
 	public ResponseEntity<Object> addAgeGroup(
-			@Pattern(regexp = "^[0-9]+-[0-9]+$", message = "Invalid age group format")
 			@RequestParam(name="ageGroup")
 			final String ageGroup){
 		ageGroupPost = null;
+		if(!ageGroup.matches("^[0-9]+-[0-9]+$"))
+  			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("INVALID AGE GROUP PATTERN");
+ 
 		if(!ageGroupService.existsByName(ageGroup)) {
 		try {
 				ageGroupPost = new AgeGroup(
@@ -52,9 +56,9 @@ public class AgeGroupController {
 			
 			return ageGroupService.saveAgeGroup(ageGroupPost);
 		}catch(Exception ex) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex);
+  			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
 		}}
-		return ResponseEntity.status(HttpStatus.FOUND).body("Age Group Already Exists");
+		return null;
 	}
 	
 	//GET AGE GROUP DETAILS BY ID
@@ -71,7 +75,7 @@ public class AgeGroupController {
       			return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
 
     	}catch(Exception ex) {
-  			return new ResponseEntity<Object>(HttpStatus.BAD_REQUEST);
+  			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getLocalizedMessage());
     	}
     }
     
@@ -98,17 +102,15 @@ public class AgeGroupController {
 	//http://localhost:8080/yelody/ageGroup/updateAgeGroup?
     @CrossOrigin(origins = "*")
   	@PutMapping("/updateAgeGroup")
-    public ResponseEntity<Object> updateAgeGroup(@RequestParam(name="id")
-    @org.hibernate.validator.constraints.UUID UUID id,
-    @RequestParam(name="ageGroup") @Pattern(regexp = "^[0-9]+-[0-9]+$", message = "Invalid age group format")  String ageGroup){
+    public ResponseEntity<Object> updateAgeGroup(@RequestBody @Valid AgeGroupUpdateRequest ageGroupUpdateRequest){
     	ageGroupGet = null;
     	ageGroupPost = null;
     	try {
-    		ageGroupGet = ageGroupService.getAgeGroupById(id);
+    		ageGroupGet = ageGroupService.getAgeGroupById(ageGroupUpdateRequest.getId());
     		if(ageGroupGet!=null) {
     			ageGroupPost = new AgeGroup(
     	  				ageGroupGet.get().getAgeGroupId(),
-    	  				ageGroup,
+    	  				ageGroupUpdateRequest.getAgeGroup(),
     	  				ageGroupGet.get().getSongs(),
     	  				ageGroupGet.get().getUsers()
     					);
@@ -119,7 +121,7 @@ public class AgeGroupController {
 
     	}catch(Exception ex) {
 			ex.printStackTrace();
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex);
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getLocalizedMessage());
     	}
     }
     
@@ -138,7 +140,7 @@ public class AgeGroupController {
     		else
     			return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
     	}catch(Exception ex) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Age Group not found");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getLocalizedMessage());
     	}
     }
     

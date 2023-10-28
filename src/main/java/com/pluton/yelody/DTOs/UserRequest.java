@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 public class UserRequest {
 	
 	@Size(min=5 , max=15)
-	@NotNull(message="")
+	@NotNull(message="userName must not be NULL")
 	private String userName;
 	
 	@Email

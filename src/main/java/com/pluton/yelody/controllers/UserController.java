@@ -86,7 +86,7 @@ public class UserController {
 	            return new ResponseEntity<>(userList, HttpStatus.OK);
 	        }
 	    } catch (Exception ex) {
-	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex);
+  			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
 	    }
 	}
 
@@ -105,7 +105,7 @@ public class UserController {
       			return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
 
     	}catch(Exception ex) {
-  			return new ResponseEntity<Object>(HttpStatus.BAD_REQUEST);
+  			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
     	}
     }
 	
@@ -118,15 +118,13 @@ public class UserController {
     	Optional<AgeGroup> ageGroup = null;
 		String imageResponse = null;
     	try {
-    		if(userRequest.getAgeGroup()==null)
-    			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("AGE GROUP MUST NOT BE NULL");
-
+    		
     		ageGroup = ageGroupService.getAgeGroupByName(userRequest.getAgeGroup());
     		
     		if(ageGroup!=null) {
     			
     			UUID id = UUID.randomUUID();
-    			if(!userRequest.getImage().isEmpty())
+    			if(userRequest.getImage()!=null  && !userRequest.getImage().isEmpty())
     				imageResponse = ImageUtil.saveFile(imagePath, id.toString(), userRequest.getImage());
     			else
     				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("IMAGE CANNOT BE NULL");
@@ -147,7 +145,7 @@ public class UserController {
     		}
   			return userService.saveUser(userPost);
     	}catch(Exception ex) {
-  			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("AgeGroup not found");
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
     	}
     }
 	
@@ -161,7 +159,7 @@ public class UserController {
     	String imageResponse = null;
     	try {
     		userGet = userService.getUserByID(id);
-    		if(!userRequest.getImage().isEmpty())
+			if(userRequest.getImage()!=null  && !userRequest.getImage().isEmpty())
 				imageResponse = ImageUtil.saveFile(imagePath, userGet.get().getUserId().toString(), userRequest.getImage());
     		
     		if(userGet!=null) {
@@ -176,7 +174,7 @@ public class UserController {
         				userGet.get().getAgeGroup(),
         				userGet.get().getSongViews(),
         				userGet.get().getSungSongs(),
-    					userRequest.getImage().isEmpty()?userGet.get().getImage():imageResponse
+    					userRequest.getImage()==null?userGet.get().getImage():imageResponse
     					);
     			return new ResponseEntity<Object>(userService.saveUser(userPost), HttpStatus.OK);
     			}
@@ -185,7 +183,7 @@ public class UserController {
 
     	}catch(Exception ex) {
 			ex.printStackTrace();
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex);
+  			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
     	}
     }
     
@@ -197,11 +195,13 @@ public class UserController {
     	userGet = null;
     	try {
     		userGet = userService.getUserByID(id);
-    		if(userGet!=null)
-    			return userService.deleteUser(userGet.get());
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("USER " + id + " NOT FOUND");
+    		if(userGet!=null) {
+    			userService.deleteUser(userGet.get());
+    			return ResponseEntity.status(HttpStatus.OK).body("USER ID:" + id + " Deleted Successfully");
+    		}
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("USER ID: " + id + " NOT FOUND");
     	}catch(Exception ex) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("USER " + id + " NOT FOUND");
+  			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
     	}
     }
     

@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 
@@ -12,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 
 public class ImageUtil {
+	public static final List<String> extensions = new ArrayList<>(Arrays.asList("png", "jpeg", "jpg", "webp", "gif", "svg", "avif"));
 	
 	public static String saveFile(String path, String fileName, MultipartFile multipartFile)
             throws IOException {          
@@ -21,6 +25,8 @@ public class ImageUtil {
             Files.createDirectories(uploadPath);
         }
         String extension = StringUtils.getFilenameExtension(multipartFile.getOriginalFilename());
+        if(!extensions.contains(extension))
+            throw new IOException("Unsupported Extension: " + extension);
 
         Path filePath = uploadPath.resolve(fileName + "." + extension);
         try {
@@ -31,6 +37,8 @@ public class ImageUtil {
         }
         return filePath.toString();
     }
+	
+	
 	
 	public static void deleteFile(String filePath) throws IOException {
 	    try {

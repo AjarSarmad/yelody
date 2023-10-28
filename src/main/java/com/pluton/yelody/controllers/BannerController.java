@@ -1,5 +1,6 @@
 package com.pluton.yelody.controllers;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.pluton.yelody.DTOs.BannerRequest;
+import com.pluton.yelody.exceptions.EntityNotFoundException;
 import com.pluton.yelody.models.Banner;
 import com.pluton.yelody.services.BannerService;
 import com.pluton.yelody.utilities.ImageUtil;
@@ -40,17 +42,15 @@ public class BannerController {
 	//http://localhost:8080/yelody/banner/addBanner
 	@CrossOrigin(origins = "*")
 	@PostMapping("/addBanner")
-	public ResponseEntity<Object> addBanner(@ModelAttribute @Valid BannerRequest bannerRequest){
+	public ResponseEntity<Object> addBanner(@ModelAttribute @Valid BannerRequest bannerRequest) throws IOException{
 		bannerPost = null;
 		String imageResponse = null;
 		try {
 			UUID id = UUID.randomUUID();
-//			if(bannerRequest.getImage()!=null) {
-			if(!bannerRequest.getImage().isEmpty())
+			if(bannerRequest.getImage()!=null  && !bannerRequest.getImage().isEmpty())
 				imageResponse = ImageUtil.saveFile(imagePath, id.toString(), bannerRequest.getImage());
 			else
 				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("IMAGE CANNOT BE NULL");
-//			}
 			
 	        bannerPost = new Banner(
 	        		id,
@@ -84,7 +84,7 @@ public class BannerController {
       			return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
 
     	}catch(Exception ex) {
-  			return new ResponseEntity<Object>(HttpStatus.BAD_REQUEST);
+  			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
     	}
     }
     	
@@ -102,7 +102,7 @@ public class BannerController {
       			return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
 
     	}catch(Exception ex) {
-  			return new ResponseEntity<Object>(HttpStatus.BAD_REQUEST);
+  			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
     	}
     }
     
@@ -116,7 +116,7 @@ public class BannerController {
     	String imageResponse = null;
     	try {
     		bannerGet = bannerService.getBannerByID(id);
-    		if(!bannerViewModel.getImage().isEmpty())
+			if(bannerViewModel.getImage()!=null  && !bannerViewModel.getImage().isEmpty())
 				imageResponse = ImageUtil.saveFile(imagePath, bannerGet.get().getBannerId().toString(), bannerViewModel.getImage());
     		
     		if(bannerGet!=null) {
@@ -124,7 +124,7 @@ public class BannerController {
         				bannerGet.get().getBannerId(),
     					bannerViewModel.getLocation(),
     					bannerViewModel.getLanguage(),
-    					bannerViewModel.getImage().isEmpty()?bannerGet.get().getImage():imageResponse
+    					bannerViewModel.getImage()==null?bannerGet.get().getImage():imageResponse
     					);
     			return new ResponseEntity<Object>(bannerService.saveBanner(bannerPost), HttpStatus.OK);
     			}
@@ -133,7 +133,7 @@ public class BannerController {
 
     	}catch(Exception ex) {
 			ex.printStackTrace();
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex);
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getLocalizedMessage());
     	}
     }
     
@@ -141,19 +141,19 @@ public class BannerController {
   	//http://localhost:8080/yelody/banner/deleteBanner?id=
     @CrossOrigin(origins = "*")
   	@DeleteMapping("/deleteBanner")
-    public ResponseEntity<Object> deleteBanner(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID id){
+    public ResponseEntity<Object> deleteBanner(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID id) throws EntityNotFoundException {
     	bannerGet = null;
     	try {
         	bannerGet = bannerService.getBannerByID(id);
     		if(bannerGet!=null) {
     			bannerService.deleteBanner(bannerGet.get());
-    			return new ResponseEntity<Object>(HttpStatus.OK);
+    			return ResponseEntity.status(HttpStatus.OK).body("Banner ID:" + id + " Deleted Successfully");
     		}
     		else
-    			return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
+    			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Banner ID:" + id + " NOT FOUND");
 
     	}catch(Exception ex) {
-  			return new ResponseEntity<Object>(HttpStatus.BAD_REQUEST);
+  			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
     	}
     }
     

@@ -18,8 +18,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.pluton.yelody.models.Keyword;
+import com.pluton.yelody.models.Song;
 import com.pluton.yelody.services.KeywordService;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 @RestController
@@ -38,17 +40,21 @@ public class KeywordController {
 	@PostMapping("/addKeyword")
 	public ResponseEntity<Object> addKeyword(@RequestParam(name="keyword")
 	@NotNull(message = "Keyword must not be null") 
+	@NotBlank
 	String keyword){
 		keywordPost = null;
+		if(keyword.isEmpty())
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("KEYWORD MUST NOT BE EMPTY");
 		try {
 				keywordPost = new Keyword(
 	            UUID.randomUUID(),
 	            keyword,
-	            null); //NEW ARRAYLIST MAY BE REQUIRED
+	            new ArrayList<Song>()
+	            ); 
 			
 			return keywordService.saveKeyword(keywordPost);
 		}catch(Exception ex) {
-			return ResponseEntity.status(HttpStatus.FOUND).body("KEYWORD Already Exists");
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
 		}
 	}
 	
@@ -66,7 +72,7 @@ public class KeywordController {
       			return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
 
     	}catch(Exception ex) {
-  			return new ResponseEntity<Object>(HttpStatus.BAD_REQUEST);
+  			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
     	}
     }
     
@@ -85,7 +91,7 @@ public class KeywordController {
 	    			return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
 	
 	  	}catch(Exception ex) {
-				return new ResponseEntity<Object>(HttpStatus.BAD_REQUEST);
+  			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
 	  	}
 	  }
       
@@ -115,8 +121,7 @@ public class KeywordController {
       		else
       			return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
       	}catch(Exception ex) {
-  			ex.printStackTrace();
-  			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("KEYWORD NOT FOUND");
+  			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
       	}
       }
     
@@ -131,12 +136,12 @@ public class KeywordController {
       		keywordGet = keywordService.getKeywordById(id);
       		if(keywordGet!=null) {
       			keywordService.deleteKeyword(keywordGet.get());
-      			return new ResponseEntity<Object>(HttpStatus.OK);
+    			return ResponseEntity.status(HttpStatus.OK).body("KEYWORD Id: " + id + " deleted Successfully");
       		}
       		else
       			return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
       	}catch(Exception ex) {
-  			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("KEYWORD NOT FOUND");
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
       	}
       }
 }

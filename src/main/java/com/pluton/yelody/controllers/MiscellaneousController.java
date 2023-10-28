@@ -55,7 +55,7 @@ public class MiscellaneousController {
 					HttpStatus.OK
 					);
 		}catch(Exception ex) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+  			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
 		}
 	}
 }

@@ -21,7 +21,6 @@ import com.pluton.yelody.repositories.SongRepository;
 import com.pluton.yelody.repositories.UserRepository;
 import com.pluton.yelody.services.BackblazeService;
 import com.pluton.yelody.services.SongService;
-import com.pluton.yelody.utilities.ImageUtil;
 
 @Service
 public class SongServiceImpl implements SongService{
@@ -56,7 +55,7 @@ public class SongServiceImpl implements SongService{
 		 if (e.getCause() instanceof ConstraintViolationException) {
 	            ConstraintViolationException constraintViolationException = (ConstraintViolationException) e.getCause();
 	            String duplicateValue = constraintViolationException.getSQLException().getMessage();
-	            throw new UniqueEntityException("Duplicate entry", duplicateValue);
+	            throw new UniqueEntityException(duplicateValue);
 	        } else {
 	            throw new UniqueEntityException(e.getMessage());
 	        }
@@ -91,17 +90,10 @@ public class SongServiceImpl implements SongService{
 	}
 	
 	@Override
-	public Song getSongByName(String name){
-		song = null;
-		try {
-			song = songRepository.findByName(name);
-			if(song!=null)
-				return song.get();
-			return null;
-		}catch(Exception ex) {
-			return null;
-		}
+	public Optional<Song> getSongByName(String name) {
+			return Optional.ofNullable(songRepository.findByName(name).orElseThrow(() -> new EntityNotFoundException("SONG NAME: " + name + " NOT FOUND")));
 	}
+	
 	@Override
 	public List<Song> getSongByArtistName(String filter, String sortBy){
 		if(sortBy != null) {
@@ -203,7 +195,7 @@ public class SongServiceImpl implements SongService{
 		try {
 			songRepository.delete(song);
 			backblazeService.deleteSongById(false, song.getSongId().toString());
-			ImageUtil.deleteFile(song.getImage());
+//			ImageUtil.deleteFile(song.getImage());
 			return ResponseEntity.status(HttpStatus.OK).body("SONG " + song.getName() + " HAS BEEN DELETED SUCCESSFULLY");
 		}catch(Exception ex){
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("");

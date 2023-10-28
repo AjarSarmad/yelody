@@ -4,12 +4,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.pluton.yelody.exceptions.ConstraintViolationHandler;
 import com.pluton.yelody.exceptions.EntityNotFoundException;
+import com.pluton.yelody.exceptions.UniqueEntityException;
 import com.pluton.yelody.models.Keyword;
 import com.pluton.yelody.repositories.KeywordRepository;
 import com.pluton.yelody.services.KeywordService;
@@ -24,8 +27,14 @@ public class KeywordServiceImpl implements KeywordService{
 		try {
 			return new ResponseEntity<Object>(keywordRepository.save(keyword),HttpStatus.CREATED);
 		}catch(Exception e) {
-  			return ResponseEntity.status(HttpStatus.FOUND).body("KEYWORD ALREADY EXISTS");
-		}
+			 if (e.getCause() instanceof ConstraintViolationException) {
+		            ConstraintViolationException constraintViolationException = (ConstraintViolationException) e.getCause();
+		            String duplicateValue = constraintViolationException.getSQLException().getMessage();
+		            throw new UniqueEntityException(duplicateValue);
+		        } else {
+		            throw new UniqueEntityException(e.getMessage());
+		        }
+			}
 	}
 
 	@Override
@@ -40,6 +49,9 @@ public class KeywordServiceImpl implements KeywordService{
 
 	@Override
 	public HttpStatus deleteKeyword(Keyword keyword) {
+		if(keyword.getSongs()!=null && !keyword.getSongs().isEmpty())
+			throw new ConstraintViolationHandler("Constraint violation: This KEYWORD is associated with SONG(s) and cannot be deleted.");
+
 		keywordRepository.delete(keyword);
 		return HttpStatus.OK;
 	}

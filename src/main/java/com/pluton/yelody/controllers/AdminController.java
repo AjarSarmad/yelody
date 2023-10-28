@@ -20,6 +20,8 @@ import com.pluton.yelody.services.AdminAuthService;
 import com.pluton.yelody.services.AdminService;
 import com.pluton.yelody.utilities.HashingUtility;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/yelody/admin")
 public class AdminController {
@@ -37,7 +39,7 @@ public class AdminController {
 	  	//http://localhost:8080/yelody/admin/postAdmin
 		@CrossOrigin(origins = "*")
 	    @PostMapping("/postAdmin")
-	    public ResponseEntity<Object> postAdmin(@RequestBody AdminCreateRequest adminCreateRequest){
+	    public ResponseEntity<Object> postAdmin(@RequestBody @Valid AdminCreateRequest adminCreateRequest){
 			adminGet = null;
 	    	try {
 	    		adminGet = adminService.findByEmail(adminCreateRequest.getEmail());
@@ -56,7 +58,7 @@ public class AdminController {
 		    		return ResponseEntity.status(HttpStatus.FOUND).body("EMAIL ALREADY EXISTS");
 		    	}
 	    	catch(Exception ex) {
-	    		return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not Found");
+	    		return ResponseEntity.status(HttpStatus.FOUND).body(ex.getLocalizedMessage());
 	    	}
 	    }
 
@@ -64,7 +66,7 @@ public class AdminController {
 	  	//http://localhost:8080/yelody/admin/loginAdmin
 		@CrossOrigin(origins = "*")
 	    @PostMapping("/loginAdmin")
-	    public ResponseEntity<Object> loginAdmin(@RequestBody AdminLoginRequest adminLoginRequest){
+	    public ResponseEntity<Object> loginAdmin(@RequestBody @Valid AdminLoginRequest adminLoginRequest){
 			adminGet = null;
 			String pass;
 	    	try {
@@ -77,7 +79,7 @@ public class AdminController {
 		    		return ResponseEntity.status(HttpStatus.NOT_FOUND).body("EMAIL OR PASSWORD IS INCORRECT");
 		    	}
 	    	catch(Exception ex) {
-	    		return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not Found");
+	    		return ResponseEntity.status(HttpStatus.NOT_FOUND).body("EMAIL OR PASSWORD IS INCORRECT");
 	    	}
 	    }
 	
@@ -99,7 +101,7 @@ public class AdminController {
 	    		return new ResponseEntity<Object>(HttpStatus.BAD_REQUEST);
 	    	}
 	    	catch(Exception ex) {
-	    		return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not Found");
+	    		return ResponseEntity.status(HttpStatus.NOT_FOUND).body("INCORRECT EMAIL");
 	    	}
 	    }
 	    

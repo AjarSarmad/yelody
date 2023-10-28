@@ -12,7 +12,6 @@ import com.pluton.yelody.exceptions.EntityNotFoundException;
 import com.pluton.yelody.models.Banner;
 import com.pluton.yelody.repositories.BannerRepository;
 import com.pluton.yelody.services.BannerService;
-import com.pluton.yelody.utilities.ImageUtil;
 
 @Service
 public class BannerServiceImpl implements BannerService{
@@ -43,7 +42,7 @@ public class BannerServiceImpl implements BannerService{
 	public HttpStatus deleteBanner(Banner banner) {
 		try {
 			bannerRepository.delete(banner);
-			ImageUtil.deleteFile(banner.getImage());
+//			ImageUtil.deleteFile(banner.getImage());
 			return HttpStatus.OK;
 		}catch(Exception ex) {
 			return HttpStatus.NOT_FOUND;

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import com.pluton.yelody.models.Chart;
@@ -17,6 +18,6 @@ public interface ChartService {
 	
 	public abstract Optional<Chart> getChartByName(String name);
 
-	public abstract ResponseEntity<?> deleteChart(Chart chart);
+	public abstract HttpStatus deleteChart(Chart chart);
 	
 }

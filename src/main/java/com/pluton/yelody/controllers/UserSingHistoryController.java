@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -50,6 +51,9 @@ public class UserSingHistoryController {
 		boolean backblazeResponse = false;
 
     	try {
+    		if(!StringUtils.getFilenameExtension(userSingHistoryRequest.getFile().getOriginalFilename()).equalsIgnoreCase("mp3"))
+    			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("SONG FILE FORMAT SHOULD BE .MP3");
+
     		userSingHistoryPost = new UserSingHistory(
     				UUID.randomUUID(),
     				userService.getUserByID(userSingHistoryRequest.getUserId()).get(),
@@ -66,7 +70,7 @@ public class UserSingHistoryController {
     		}
     	}catch(Exception ex) {
     		ex.printStackTrace();
-  			return new ResponseEntity<Object>(HttpStatus.BAD_REQUEST);
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
     	}
     	return null;
 	}

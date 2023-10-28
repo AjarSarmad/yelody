@@ -41,7 +41,7 @@ public class ChartController {
 	List<Chart> chartList = null;
 	Chart chartPost = null;
 	Optional<Chart> chartGet = null;
-	Song songGet = null;
+	Optional<Song> songGet = null;
 	List<Song> songList = null;
 	
 	//POST A BILLBOARD CHART
@@ -53,7 +53,7 @@ public class ChartController {
 			String imageResponse = null;
 	    	try {
 				UUID id = UUID.randomUUID();
-				if(!chartRequest.getImage().isEmpty())
+				if(chartRequest.getImage()!=null  && !chartRequest.getImage().isEmpty())
 					imageResponse = ImageUtil.saveFile(imagePath, id.toString(), chartRequest.getImage());
 				else
 					return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("IMAGE CANNOT BE NULL");
@@ -72,7 +72,7 @@ public class ChartController {
 	    				);
 	    		return chartService.postChart(chartPost);
 	    	}catch(Exception ex) {
-	  			return new ResponseEntity<Object>(HttpStatus.BAD_REQUEST);
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
 	    	}
     }
     
@@ -89,16 +89,16 @@ public class ChartController {
     			chartGet = chartService.getChartById(songtoChartRequest.getChartId());
 
 	    		if(songGet!=null && chartGet!=null) {
-    				songGet.setChart(chartGet.get());
+    				songGet.get().setChart(chartGet.get());
 				
-    			Song songPost = songService.postSong(songGet);
+    			Song songPost = songService.postSong(songGet.get());
     			if(songPost!=null)
     	  			return new ResponseEntity<Object>(songPost, HttpStatus.CREATED);
     			}
   			return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
 
 	    	}catch(Exception ex) {
-	  			return new ResponseEntity<Object>(HttpStatus.BAD_REQUEST);
+	  			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getLocalizedMessage());
 	    	}
     }
     
@@ -112,7 +112,7 @@ public class ChartController {
     	String imageResponse = null;
      	try {
      		chartGet = chartService.getChartById(id);
-     		if(!chartRequest.getImage().isEmpty())
+			if(chartRequest.getImage()!=null  && !chartRequest.getImage().isEmpty())
 				imageResponse = ImageUtil.saveFile(imagePath, chartGet.get().getChartId().toString(), chartRequest.getImage());
      		
      		chartPost = new Chart(
@@ -124,18 +124,18 @@ public class ChartController {
      				chartRequest.getRegion(),
      				chartRequest.getRank(),
      				chartGet.get().getViewCount(),
-     				chartRequest.getImage().isEmpty()?chartGet.get().getImage():imageResponse,
+     				chartRequest.getImage()==null?chartGet.get().getImage():imageResponse,
      				chartGet.get().getSongs()
  					);
      		if(chartGet!=null) {
      			return new ResponseEntity<Object>(chartService.postChart(chartPost), HttpStatus.OK);
      			}
      		else
-     			return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
+    			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("CHART NOT FOUND");
 
      	}catch(Exception ex) {
  			ex.printStackTrace();
- 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex);
+ 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
      	}
      }
      
@@ -154,7 +154,7 @@ public class ChartController {
   			return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
 
 		}catch(Exception ex) {
-  			return new ResponseEntity<Object>(HttpStatus.BAD_REQUEST);
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
     	}
 	}
 	
@@ -172,7 +172,7 @@ public class ChartController {
       			return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
 
     	}catch(Exception ex) {
-  			return new ResponseEntity<Object>(HttpStatus.BAD_REQUEST);
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
     	}
     }
     
@@ -184,11 +184,13 @@ public class ChartController {
     	chartGet = null;
     	try {
     		chartGet = chartService.getChartById(id);
-    		if(chartGet!=null)
-    			return chartService.deleteChart(chartGet.get());
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("CHART " + id + " NOT FOUND");
+    		if(chartGet!=null) {
+    			chartService.deleteChart(chartGet.get());
+				return ResponseEntity.status(HttpStatus.OK).body("CHART ID:" + id + " Deleted Successfully");
+    		}else
+    			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("CHART ID: " + id + " NOT FOUND");
     	}catch(Exception ex) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("CHART " + id + " NOT FOUND");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getLocalizedMessage());
     	}
     }
     

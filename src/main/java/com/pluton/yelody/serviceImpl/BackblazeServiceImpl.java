@@ -24,10 +24,10 @@ import com.pluton.yelody.services.BackblazeService;
 public class BackblazeServiceImpl implements BackblazeService {
 	@Autowired
 	BackblazeConfigProperties backblazeProperties;
-    
 	B2ClientConfig config = null;
-	
 	B2StorageClient b2StorageClient = null;
+	public static final String fileFormat = ".mp3";
+	
 		
 	public void initBackblaze() {
 		try {

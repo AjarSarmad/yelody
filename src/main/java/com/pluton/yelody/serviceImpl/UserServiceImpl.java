@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -14,11 +15,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.pluton.yelody.exceptions.ConstraintViolationHandler;
 import com.pluton.yelody.exceptions.EntityNotFoundException;
+import com.pluton.yelody.exceptions.UniqueEntityException;
 import com.pluton.yelody.models.User;
 import com.pluton.yelody.repositories.UserRepository;
 import com.pluton.yelody.services.UserService;
-import com.pluton.yelody.utilities.ImageUtil;
 
 @Service
 public class UserServiceImpl implements UserService{
@@ -128,9 +130,15 @@ public class UserServiceImpl implements UserService{
 	public ResponseEntity<Object> saveUser(User  user){
 		try {
 			return new ResponseEntity<Object>(userRepository.save(user),HttpStatus.CREATED);
-		}catch(Exception  e) {
-  			return new ResponseEntity<Object>(HttpStatus.FOUND);
-		}
+		}catch(Exception e) {
+			 if (e.getCause() instanceof ConstraintViolationException) {
+		            ConstraintViolationException constraintViolationException = (ConstraintViolationException) e.getCause();
+		            String duplicateValue = constraintViolationException.getSQLException().getMessage();
+		            throw new UniqueEntityException(duplicateValue);
+		        } else {
+		            throw new UniqueEntityException(e.getMessage());
+		        }
+			}
 	}
 
 	@Override
@@ -152,8 +160,12 @@ public class UserServiceImpl implements UserService{
 	@Override
 	public ResponseEntity<?> deleteUser(User user) {
 		try {
+			if(user.getSungSongs()!=null && !user.getSungSongs().isEmpty())
+				throw new ConstraintViolationHandler("Constraint violation: This USER is associated with USER SING HISTORY(s) and cannot be deleted.");
+			
+			
 			userRepository.delete(user);
-			ImageUtil.deleteFile(user.getImage());
+//			ImageUtil.deleteFile(user.getImage());
 			return ResponseEntity.status(HttpStatus.OK).body("USER " + user.getUserName() + " HAS BEEN DELETED SUCCESSFULLY");
 		}catch(Exception ex){
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("");

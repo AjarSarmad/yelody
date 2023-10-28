@@ -4,12 +4,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.pluton.yelody.exceptions.ConstraintViolationHandler;
 import com.pluton.yelody.exceptions.EntityNotFoundException;
+import com.pluton.yelody.exceptions.UniqueEntityException;
 import com.pluton.yelody.models.Genre;
 import com.pluton.yelody.repositories.GenreRepository;
 import com.pluton.yelody.services.GenreService;
@@ -32,6 +35,9 @@ public class GenreServiceImpl implements GenreService{
 
 	@Override
 	public HttpStatus deleteGenre(Genre genre) {
+		if(genre.getSongs()!=null && !genre.getSongs().isEmpty())
+			throw new ConstraintViolationHandler("Constraint violation: This GENRE is associated with SONG(s) and cannot be deleted.");
+
 		genreRepository.delete(genre);
 		return HttpStatus.OK;
 	}
@@ -40,9 +46,15 @@ public class GenreServiceImpl implements GenreService{
 	public ResponseEntity<Object> createGenre(Genre genre) {
 		try {
 			return new ResponseEntity<Object>(genreRepository.save(genre),HttpStatus.CREATED);
-		}catch(Exception  e) {
-  			return new ResponseEntity<Object>(HttpStatus.FOUND);
-		}
+		}catch(Exception e) {
+			 if (e.getCause() instanceof ConstraintViolationException) {
+		            ConstraintViolationException constraintViolationException = (ConstraintViolationException) e.getCause();
+		            String duplicateValue = constraintViolationException.getSQLException().getMessage();
+		            throw new UniqueEntityException(duplicateValue);
+		        } else {
+		            throw new UniqueEntityException(e.getMessage());
+		        }
+			}
 	}
 
 	@Override

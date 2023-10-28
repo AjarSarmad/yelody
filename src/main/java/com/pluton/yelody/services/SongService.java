@@ -20,7 +20,7 @@ public interface SongService {
 	
 	public abstract List<Song> getSongByName(String filter, String sortBy);
 	
-	public abstract Song getSongByName(String name);
+	public abstract Optional<Song> getSongByName(String name);
 	
 	public abstract List<Song> getSongByArtistName(String filter, String sortBy);
 	

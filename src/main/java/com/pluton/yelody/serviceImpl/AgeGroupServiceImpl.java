@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.pluton.yelody.exceptions.ConstraintViolationHandler;
 import com.pluton.yelody.exceptions.EntityNotFoundException;
 import com.pluton.yelody.models.AgeGroup;
 import com.pluton.yelody.repositories.AgeGroupRepository;
@@ -41,7 +42,12 @@ public class AgeGroupServiceImpl implements AgeGroupService {
 	}
 
 	@Override
-	public HttpStatus deleteAgeGroup(AgeGroup ageGroup) {
+	public HttpStatus deleteAgeGroup(AgeGroup ageGroup) throws ConstraintViolationHandler {
+		if(ageGroup.getSongs()!=null && !ageGroup.getSongs().isEmpty())
+			throw new ConstraintViolationHandler("Constraint violation: This AGEGROUP is associated with SONG(s) and cannot be deleted.");
+		if(ageGroup.getUsers()!=null && !ageGroup.getUsers().isEmpty())
+			throw new ConstraintViolationHandler("Constraint violation: This AGEGROUP is associated with USER(s) and cannot be deleted.");
+
 		ageGroupRepository.delete(ageGroup);
 		return HttpStatus.OK;
 	}

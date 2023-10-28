@@ -33,8 +33,8 @@ public class SongRequest {
 	@NotNull(message = "Genre not be NULL")
 	private String genre;
 	
-	@NotNull(message = "chart not be NULL")
-	private String chart;
+//	@NotNull(message = "chart not be NULL")
+//	private String chart;
 	
 	@NotNull(message = "ageGroup not be NULL")
 	private String ageGroup;
