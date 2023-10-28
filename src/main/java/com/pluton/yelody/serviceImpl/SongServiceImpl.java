@@ -136,6 +136,15 @@ public class SongServiceImpl implements SongService{
 		return songRepository.findAll(filterByGenre(filter), sort);
 	}
 	
+	@Override
+	public List<Song> getSongByKeyword(String filter, String sortBy){
+		if(sortBy != null) {
+			sort = Sort.by(Sort.Order.asc(sortBy));
+		}else
+			sort = Sort.unsorted();
+		
+		return songRepository.findAll(filterByKeyword(filter), sort);
+	}
 	
 	@Override
 	public Specification<Song> filterByName(String name){
@@ -160,7 +169,13 @@ public class SongServiceImpl implements SongService{
 		  return (root, query, criteriaBuilder)-> 
 	        criteriaBuilder.equal(root.get("genre").get("type"), genre);
 		}
-
+	
+	@Override
+	public Specification<Song> filterByKeyword(String keyword){
+		return (root, query, criteriaBuilder)-> 
+        criteriaBuilder.equal(root.get("keywordlist").get("name"), keyword);
+		}
+	
 	@Override
 	public int getViewCount(UUID songId) {
 		song = null;
@@ -195,11 +210,4 @@ public class SongServiceImpl implements SongService{
 		}
 	}
 	
-//	@Override
-//	public Specification<Song> filterByKeyword(String keyword){
-//		  return (root, query, criteriaBuilder)-> 
-//		  {   root.join("s");
-//		      criteriaBuilder.equal(root.get("keyword"), keyword);
-//		  };
-//		}
 }

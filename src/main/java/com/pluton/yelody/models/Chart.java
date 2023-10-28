@@ -3,6 +3,7 @@ package com.pluton.yelody.models;
 import java.util.List;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.CascadeType;
@@ -53,7 +54,7 @@ public class Chart {
 	
 	@JsonManagedReference
 	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "chart")
-//	@JsonIgnoreProperties("chart")
+	@JsonIgnore
 	private List<Song> songs;
 
 }

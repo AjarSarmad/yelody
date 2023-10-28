@@ -44,7 +44,7 @@ public class KeywordController {
 				keywordPost = new Keyword(
 	            UUID.randomUUID(),
 	            keyword,
-	            null);
+	            null); //NEW ARRAYLIST MAY BE REQUIRED
 			
 			return keywordService.saveKeyword(keywordPost);
 		}catch(Exception ex) {

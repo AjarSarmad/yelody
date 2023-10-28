@@ -45,16 +45,16 @@ public class BannerController {
 		String imageResponse = null;
 		try {
 			UUID id = UUID.randomUUID();
+//			if(bannerRequest.getImage()!=null) {
 			if(!bannerRequest.getImage().isEmpty())
 				imageResponse = ImageUtil.saveFile(imagePath, id.toString(), bannerRequest.getImage());
 			else
 				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("IMAGE CANNOT BE NULL");
-
+//			}
 			
 	        bannerPost = new Banner(
 	        		id,
 	            bannerRequest.getLocation(),
-	            bannerRequest.getUrl(),
 	            bannerRequest.getLanguage(),
 	            imageResponse
 	        );
@@ -66,7 +66,7 @@ public class BannerController {
 				return ResponseEntity.status(HttpStatus.FOUND).body("BANNER ALREADY EXISTS");
 			}
 		}catch(Exception ex) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex);
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
 		}
 	}
     
@@ -123,7 +123,6 @@ public class BannerController {
     	  		bannerPost = new Banner(
         				bannerGet.get().getBannerId(),
     					bannerViewModel.getLocation(),
-    					bannerViewModel.getUrl(),
     					bannerViewModel.getLanguage(),
     					bannerViewModel.getImage().isEmpty()?bannerGet.get().getImage():imageResponse
     					);

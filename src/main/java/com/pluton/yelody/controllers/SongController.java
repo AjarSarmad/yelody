@@ -150,9 +150,9 @@ public class SongController {
 	                case "genre":
 	                	songList = songService.getSongByGenre(songCriteriaSearch.getFilter(), songCriteriaSearch.getSortBy());
 	                    break;
-//	                case "keyword":
-//	                	songList = songService.getSongByKeyword(songCriteriaSearch.getFilter(), songCriteriaSearch.getSortBy());
-//	                    break;
+	                case "keyword":
+	                	songList = songService.getSongByKeyword(songCriteriaSearch.getFilter(), songCriteriaSearch.getSortBy());
+	                    break;
 	                default:
 	                    return new ResponseEntity<>("Invalid filterBy value", HttpStatus.BAD_REQUEST);
 	            }

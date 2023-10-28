@@ -24,18 +24,10 @@ public class Banner {
 	@Column(name="location" , nullable=false)
 	private String location;
 	
-	@Column(name="url" , nullable=false, unique = true)
-	private String url;
-	
 	@Column(name="language" , nullable=false)
 	private String language;
 	
 	@Column(name="image" , nullable=false)
 	private String image;
-	
-//	@Lob
-//	@Column(name="banner_image" , nullable=true, columnDefinition="LONGBLOB")
-//	private byte[] bannerImage;
-	
 	
 }

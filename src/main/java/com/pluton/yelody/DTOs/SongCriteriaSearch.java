@@ -12,10 +12,10 @@ public class SongCriteriaSearch {
 	
 	private boolean doFilter;
 	
-	@Pattern(regexp = "^(name|artistname|rank|genre|keywords)$", message = "Invalid sortBy value")
+	@Pattern(regexp = "^(name|artistname|rank|genre|keyword)$", message = "Invalid sortBy value")
 	private String sortBy;
 	
-	@Pattern(regexp = "^(name|artistname|rank|genre|keywords)$", message = "Invalid filterBY value")
+	@Pattern(regexp = "^(name|artistname|rank|genre|keyword)$", message = "Invalid filterBY value")
 	private String filterBy;
 	
 	private String filter; 

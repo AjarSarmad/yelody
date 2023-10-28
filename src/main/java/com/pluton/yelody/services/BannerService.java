@@ -16,6 +16,4 @@ public interface BannerService {
 	public abstract List<Banner> getBannerList();
 	
 	public abstract HttpStatus deleteBanner(Banner banner);
-	
-	public abstract Optional<Banner> getBannerByUrl(String url);
 }

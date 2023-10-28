@@ -49,9 +49,4 @@ public class BannerServiceImpl implements BannerService{
 			return HttpStatus.NOT_FOUND;
 		}
 	}
-	
-	@Override
-	public Optional<Banner> getBannerByUrl(String url){
-		return Optional.ofNullable(bannerRepository.findBannerByUrl(url).orElseThrow(() -> new EntityNotFoundException("BANNER URL: " + url + " NOT FOUND")));
-	}
 }

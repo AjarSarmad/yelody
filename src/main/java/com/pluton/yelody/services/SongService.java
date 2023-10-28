@@ -28,7 +28,7 @@ public interface SongService {
 	
 	public abstract List<Song> getSongByGenre(String filter, String sortBy);
 	
-//	public abstract List<Song> getSongByKeyword(String filter, String sortBy);
+	public abstract List<Song> getSongByKeyword(String filter, String sortBy);
 	
 	public abstract Specification<Song> filterByName(String name);
 	
@@ -38,7 +38,7 @@ public interface SongService {
 	
 	public abstract Specification<Song> filterByGenre(String genre);
 
-//	public abstract Specification<Song> filterByKeyword(String keyword);
+	public abstract Specification<Song> filterByKeyword(String keyword);
 	
 	public abstract int getViewCount(UUID songId);
 	
