@@ -1,5 +1,6 @@
 package com.pluton.yelody.controllers;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -10,13 +11,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.pluton.yelody.DTOs.DeleteUserSingHistoryRequest;
 import com.pluton.yelody.DTOs.UserSingHistoryRequest;
+import com.pluton.yelody.models.User;
 import com.pluton.yelody.models.UserSingHistory;
 import com.pluton.yelody.services.BackblazeService;
 import com.pluton.yelody.services.SongService;
@@ -76,19 +81,50 @@ public class UserSingHistoryController {
 	}
 	
 	//DELETE USER SING HISTORY
-    //http://localhost:8080/yelody/singHistory/deleteSingHistory?id=
+    //http://localhost:8080/yelody/singHistory/deleteSingHistory
     @CrossOrigin(origins = "*")
   	@DeleteMapping("/deleteSingHistory")
-    public ResponseEntity<?> deleteSingHistory(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID id){
-    	userSingHistoryGet = null;
+    public ResponseEntity<?> deleteSingHistory(@RequestBody DeleteUserSingHistoryRequest deleteUserSingHistoryRequest){
     	try {
-    		userSingHistoryGet = userSingHistoryService.getSingHistoryById(id);
-    		if(userSingHistoryGet!=null)
-    			return userSingHistoryService.deleteSingHistory(userSingHistoryGet.get());
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("SING HISTORY " + id + " NOT FOUND");
+    		if(deleteUserSingHistoryRequest!=null)
+    			userSingHistoryService.deleteSingHistory(deleteUserSingHistoryRequest.getSingHistoryIds());
+			return ResponseEntity.status(HttpStatus.OK).body("SING HISTORY HAS BEEN DELETED SUCCESSFULLY");
     	}catch(Exception ex) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("SING HISTORY " + id + " NOT FOUND");
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getLocalizedMessage());
     	}
     }
+    
+    //GET LIST OF SING HISTORY
+	//http://localhost:8080/yelody/singHistory/getAllSingHistories
+	@CrossOrigin(origins = "*")
+		@GetMapping("/getAllSingHistories")
+	  public ResponseEntity<Object> getAllSingHistories() {
+		userSingHistoryList = new ArrayList<>();
+		try {
+			userSingHistoryList = userSingHistoryService.getSingHistoryList();
+			if(userSingHistoryList!=null)
+				return new ResponseEntity<Object>(userSingHistoryList, HttpStatus.OK);
+			return null;
+		}catch(Exception ex) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
+		}
+	}
+	
+	//GET LIST OF SING HISTORY BY USER ID
+	//http://localhost:8080/yelody/singHistory/getUserSingHistories?id=
+	@CrossOrigin(origins = "*")
+	@GetMapping("/getUserSingHistories")
+    public ResponseEntity<Object> getUserSingHistories(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID userId) {
+		userSingHistoryList = new ArrayList<>();
+		Optional<User> userGet = null;
+		try {
+			userGet = userService.getUserByID(userId);
+			if(userGet!=null)
+				userSingHistoryList = userSingHistoryService.getUserSingHistories(userGet.get());
+			return new ResponseEntity<Object>(userSingHistoryList, HttpStatus.OK);
+		}catch(Exception ex) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getLocalizedMessage());
+		}
+	}
 	
 }

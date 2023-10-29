@@ -95,4 +95,9 @@ public class Song {
 	@ManyToMany(mappedBy = "sungSongs")
     private List<User> users;
 	
+	@JsonBackReference
+	@ManyToMany(mappedBy = "songs")
+    private List<Playlist> playlists;
+	
+	
 }

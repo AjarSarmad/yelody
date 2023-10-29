@@ -27,6 +27,7 @@ import com.pluton.yelody.models.AgeGroup;
 import com.pluton.yelody.models.Chart;
 import com.pluton.yelody.models.Genre;
 import com.pluton.yelody.models.Keyword;
+import com.pluton.yelody.models.Playlist;
 import com.pluton.yelody.models.Song;
 import com.pluton.yelody.models.User;
 import com.pluton.yelody.services.AgeGroupService;
@@ -112,7 +113,8 @@ public class SongController {
   						genre.get(), //genre
   						null,
   						ageGroup.get(),
-  						new ArrayList<User>()
+  						new ArrayList<User>(),
+  						new ArrayList<Playlist>()
   						);
   				song.getKeywordlist().add(keyword.get());
 

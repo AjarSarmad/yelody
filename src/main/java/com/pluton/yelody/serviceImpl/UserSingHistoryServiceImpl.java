@@ -1,15 +1,17 @@
 package com.pluton.yelody.serviceImpl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.pluton.yelody.exceptions.EntityNotFoundException;
+import com.pluton.yelody.exceptions.UniqueEntityException;
+import com.pluton.yelody.models.User;
 import com.pluton.yelody.models.UserSingHistory;
 import com.pluton.yelody.repositories.UserSingHistoryRepository;
 import com.pluton.yelody.services.BackblazeService;
@@ -33,12 +35,17 @@ public class UserSingHistoryServiceImpl implements UserSingHistoryService{
 
 	@Override
 	public UserSingHistory postSingHistory(UserSingHistory userSingHistory) {
-		singHistoryPost = null;
 		try {
 			return userSingHistoryRepo.save(userSingHistory);
-		}catch(Exception ex) {
-			return null;
-		}
+		}catch(Exception e) {
+			 if (e.getCause() instanceof ConstraintViolationException) {
+		            ConstraintViolationException constraintViolationException = (ConstraintViolationException) e.getCause();
+		            String duplicateValue = constraintViolationException.getSQLException().getMessage();
+		            throw new UniqueEntityException(duplicateValue);
+		        } else {
+		            throw new UniqueEntityException(e.getMessage());
+		        }
+			}
 	}
 
 	@Override
@@ -47,14 +54,17 @@ public class UserSingHistoryServiceImpl implements UserSingHistoryService{
 	}
 
 	@Override
-	public ResponseEntity<?> deleteSingHistory(UserSingHistory userSingHistory) {
-		try {
-			userSingHistoryRepo.delete(userSingHistory);
-			backblazeService.deleteSongById(true, userSingHistory.getSingHistoryId().toString());
-			return ResponseEntity.status(HttpStatus.OK).body("SING HISTORY ID: " + userSingHistory.getSingHistoryId() + " HAS BEEN DELETED SUCCESSFULLY");
-		}catch(Exception ex){
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("");
+	public void deleteSingHistory(List<UUID> userSingHistoryIds) {
+		singHistoryList = new ArrayList<>();
+		for(UUID singHistoryId: userSingHistoryIds) {
+			singHistoryList.add(getSingHistoryById(singHistoryId).get());
 		}
+		userSingHistoryRepo.deleteAll(singHistoryList);
+	}
+
+	@Override
+	public List<UserSingHistory> getUserSingHistories(User user) {
+		return userSingHistoryRepo.findByUser(user);
 	}
 
 }

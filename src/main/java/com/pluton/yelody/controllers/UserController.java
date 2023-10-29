@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.pluton.yelody.DTOs.UserCriteriaSearch;
 import com.pluton.yelody.DTOs.UserRequest;
 import com.pluton.yelody.models.AgeGroup;
+import com.pluton.yelody.models.Playlist;
 import com.pluton.yelody.models.Song;
 import com.pluton.yelody.models.User;
 import com.pluton.yelody.services.AgeGroupService;
@@ -140,7 +141,8 @@ public class UserController {
 							ageGroup.get(),
 							new ArrayList<Song>(),
 							new ArrayList<Song>(),
-							imageResponse
+							imageResponse,
+							new ArrayList<Playlist>()
 	    				);
     		}
   			return userService.saveUser(userPost);
@@ -174,7 +176,8 @@ public class UserController {
         				userGet.get().getAgeGroup(),
         				userGet.get().getSongViews(),
         				userGet.get().getSungSongs(),
-    					userRequest.getImage()==null?userGet.get().getImage():imageResponse
+    					userRequest.getImage()==null?userGet.get().getImage():imageResponse,
+    					userGet.get().getPlaylists()
     					);
     			return new ResponseEntity<Object>(userService.saveUser(userPost), HttpStatus.OK);
     			}

@@ -4,8 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.http.ResponseEntity;
-
+import com.pluton.yelody.models.User;
 import com.pluton.yelody.models.UserSingHistory;
 
 public interface UserSingHistoryService {
@@ -15,5 +14,7 @@ public interface UserSingHistoryService {
 	
 	public abstract Optional<UserSingHistory> getSingHistoryById(UUID id);
 
-	public abstract ResponseEntity<?> deleteSingHistory(UserSingHistory userSingHistory);
+	public abstract void deleteSingHistory(List<UUID> userSingHistoryIds);
+	
+	public abstract List<UserSingHistory> getUserSingHistories(User user);
 }

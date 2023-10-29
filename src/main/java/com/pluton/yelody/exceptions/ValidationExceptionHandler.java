@@ -57,4 +57,15 @@ public class ValidationExceptionHandler {
 
 	    return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 	}
+	
+	@ExceptionHandler(InvalidUUIDFormatException.class)
+	@ResponseStatus(HttpStatus.BAD_REQUEST) 
+    public ResponseEntity<Object> handleInvalidUUIDFormatException(InvalidUUIDFormatException ex) {
+		String error = "NOT VALID UUID FORMAT";
+	    
+	    Map<String, Object> response = new HashMap<>();
+	    response.put("message", "Validation failed");
+	    response.put("error", error);
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
 }
