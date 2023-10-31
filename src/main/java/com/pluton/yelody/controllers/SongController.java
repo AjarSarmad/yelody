@@ -36,8 +36,10 @@ import com.pluton.yelody.services.ChartService;
 import com.pluton.yelody.services.GenreService;
 import com.pluton.yelody.services.KeywordService;
 import com.pluton.yelody.services.SongService;
+import com.pluton.yelody.services.UserPreferenceService;
 import com.pluton.yelody.services.UserService;
 import com.pluton.yelody.utilities.ImageUtil;
+import com.pluton.yelody.utilities.SongSpecifications;
 
 import jakarta.validation.Valid;
 
@@ -58,6 +60,8 @@ public class SongController {
 	ChartService chartService;
 	@Autowired
 	BackblazeService backblazeService;
+	@Autowired
+	UserPreferenceService userPreferenceService;
 	
 	String imagePath = "ImageResources/SONG";
 	List<Song> songList = null;
@@ -133,75 +137,58 @@ public class SongController {
 		return null;
     }
 
-    
-	//List of SONGS
-	//http://localhost:8080/yelody/song/listSongs
-	@CrossOrigin(origins = "*")
-	@GetMapping("/listSongs")
-	public ResponseEntity<Object> listSongs(@RequestBody(required = false) @Valid SongCriteriaSearch songCriteriaSearch) {
-		songList = new ArrayList<>();
-		try {
-			if (songCriteriaSearch!=null && songCriteriaSearch.getFilterBy() != null && songCriteriaSearch.isDoFilter()) {
-	            switch (songCriteriaSearch.getFilterBy().toLowerCase()) {
-	                case "name":
-	                	songList = songService.getSongByName(songCriteriaSearch.getFilter(), songCriteriaSearch.getSortBy() );
-	                    break;
-	                case "artistname":
-	                	songList = songService.getSongByArtistName(songCriteriaSearch.getFilter(), songCriteriaSearch.getSortBy());
-	                    break;
-	                case "rank":
-	                	songList = songService.getSongByRank(songCriteriaSearch.getFilter(), songCriteriaSearch.getSortBy());
-	                    break;
-	                case "genre":
-	                	songList = songService.getSongByGenre(songCriteriaSearch.getFilter(), songCriteriaSearch.getSortBy());
-	                    break;
-	                case "keyword":
-	                	songList = songService.getSongByKeyword(songCriteriaSearch.getFilter(), songCriteriaSearch.getSortBy());
-	                    break;
-	                default:
-	                    return new ResponseEntity<>("Invalid filterBy value", HttpStatus.BAD_REQUEST);
-	            }
-	        }
-			else if(songCriteriaSearch!=null && songCriteriaSearch.getSortBy() != null )
-	        	songList = songService.getSongList(songCriteriaSearch.getSortBy());
-			
-			if(songCriteriaSearch==null)
-	        	songList = songService.getSongList();
-
-			if(songList.isEmpty())
-	            return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
-			else {
-				songResponseList = new ArrayList<>();
-				for(Song item: songList) {
-					int views = songService.getViewCount(item.getSongId());
-					String songFile = backblazeService.getSongById(false, item.getSongId().toString());
-					List<String> keywordNames = new ArrayList<>();
-				    for (Keyword keyword : item.getKeywordlist()) {
-				        keywordNames.add(keyword.getName());
-				    }
-					songResponseList.add(new SongResponse(
-						    item.getSongId(),
-						    item.getName(),
-						    item.getDescription(),
-						    item.getRank(),
-						    item.getArtistName(),
-						    item.getLyrics(),
-						    views,
-						    item.getAgeGroup().getName(),
-						    keywordNames,
-						    (item.getGenre() != null ? item.getGenre().getType() : "null"),
-						    (item.getChart() != null ? item.getChart().getName() : "null"),
-						    item.getImage(),
-						    songFile
-						));
-				}
-	            return new ResponseEntity<Object>( songResponseList , HttpStatus.OK);
-			}
-		}catch(Exception ex) {
-  			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
-		}
-	}
+    //List of SONGS
+  	//http://localhost:8080/yelody/song/listSongs
+  	@CrossOrigin(origins = "*")
+    @GetMapping("/listSongs")
+    public ResponseEntity<Object> listSongs(@RequestBody(required = false) @Valid SongCriteriaSearch songCriteriaSearch) {
+        List<SongResponse> songResponseList = new ArrayList<>();
+        List<Song> songList = new ArrayList<>();
+  		try {
+  			if(songCriteriaSearch.hasFilters())
+  				songList = songService.getSongsBySpecifications(songCriteriaSearch);
+  			else
+  				songList = songService.getSongList(SongSpecifications.getSortOrder(songCriteriaSearch.getSortBy(), songCriteriaSearch.getOrder()));
+  			if(songList!=null && !songList.isEmpty()) {
+	            for(Song item: songList) {
+	                int views = songService.getViewCount(item.getSongId());
+//	                String songFile = backblazeService.getSongById(false, item.getSongId().toString());
+	                List<String> keywordNames = new ArrayList<>();
+	                
+	                for (Keyword keyword : item.getKeywordlist()) {
+	                    keywordNames.add(keyword.getName());
+	                }
 	
+	                songResponseList.add(new SongResponse(
+	                    item.getSongId(),
+	                    item.getName(),
+	                    item.getDescription(),
+	                    item.getRank(),
+	                    item.getArtistName(),
+	                    item.getLyrics(),
+	                    views,
+	                    item.getAgeGroup().getName(),
+	                    keywordNames,
+	                    (item.getGenre() != null ? item.getGenre().getType() : "null"),
+	                    (item.getChart() != null ? item.getChart().getName() : "null"),
+	                    item.getImage(),
+//	                    songFile
+	                    null
+	                ));
+	            }
+  			}
+
+            if (songResponseList.isEmpty()) {
+                return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
+            } else {
+                return new ResponseEntity<Object>(songResponseList, HttpStatus.OK);
+            }
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
+        }
+    }
+    
+    
 	//INCREMENT VIEW_COUNT OF SONG BY ID
 	//http://localhost:8080/yelody/song/incrementViewById?userId=&&songId=
 	@CrossOrigin(origins = "*")
@@ -227,6 +214,23 @@ public class SongController {
     	}
     }
 	
+    // GET RECOMMENDED SONGS BASED ON USER PREFERENCES
+    // http://localhost:8080/yelody/song/getRecommendedSongs?userId=xxx
+    @CrossOrigin(origins = "*")
+    @GetMapping("/getRecommendedSongs")
+    public ResponseEntity<Object> getRecommendedSongs(@RequestParam(name="userId") @org.hibernate.validator.constraints.UUID UUID userId) {
+    	try {
+            User user = userService.getUserByID(userId).get();
+            List<Song> recommendedSongs = songService.getRecommendedSongsForUser(user);
+            if (!recommendedSongs.isEmpty()) {
+                return new ResponseEntity<Object>(recommendedSongs, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<Object>("No songs found based on user preferences.", HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
+        }
+    }
 	//http://localhost:8080/yelody/song/tester
 //	@CrossOrigin(origins = "*")
 //	@PostMapping("/tester")

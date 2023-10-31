@@ -41,4 +41,9 @@ public class Genre {
 	@JsonIgnore
 	private List<Song> songs = new ArrayList<>();
 	
+	@JsonIgnore
+	@JsonManagedReference
+	@OneToMany(mappedBy = "genre", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserPreferences> userPreferences = new ArrayList<>();
+
 }

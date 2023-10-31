@@ -142,7 +142,8 @@ public class UserController {
 							new ArrayList<Song>(),
 							new ArrayList<Song>(),
 							imageResponse,
-							new ArrayList<Playlist>()
+							new ArrayList<Playlist>(),
+							null
 	    				);
     		}
   			return userService.saveUser(userPost);
@@ -177,7 +178,8 @@ public class UserController {
         				userGet.get().getSongViews(),
         				userGet.get().getSungSongs(),
     					userRequest.getImage()==null?userGet.get().getImage():imageResponse,
-    					userGet.get().getPlaylists()
+    					userGet.get().getPlaylists(),
+    					userGet.get().getPreferences()
     					);
     			return new ResponseEntity<Object>(userService.saveUser(userPost), HttpStatus.OK);
     			}

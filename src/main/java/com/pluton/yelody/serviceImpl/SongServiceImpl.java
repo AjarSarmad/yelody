@@ -1,9 +1,11 @@
 package com.pluton.yelody.serviceImpl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,14 +15,21 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.pluton.yelody.DTOs.SongCriteriaSearch;
 import com.pluton.yelody.exceptions.EntityNotFoundException;
 import com.pluton.yelody.exceptions.UniqueEntityException;
+import com.pluton.yelody.models.Genre;
+import com.pluton.yelody.models.Keyword;
 import com.pluton.yelody.models.Song;
 import com.pluton.yelody.models.User;
+import com.pluton.yelody.models.UserPreferences;
 import com.pluton.yelody.repositories.SongRepository;
 import com.pluton.yelody.repositories.UserRepository;
 import com.pluton.yelody.services.BackblazeService;
 import com.pluton.yelody.services.SongService;
+import com.pluton.yelody.services.UserPreferenceService;
+import com.pluton.yelody.services.UserService;
+import com.pluton.yelody.utilities.SongSpecifications;
 
 @Service
 public class SongServiceImpl implements SongService{
@@ -31,14 +40,18 @@ public class SongServiceImpl implements SongService{
 	UserRepository userRepository;
 	@Autowired
 	BackblazeService backblazeService;
+	@Autowired
+	UserService userService;
+	@Autowired
+	UserPreferenceService userPreferenceService;
 	
 	List<Song> songList = null;
 	Optional<Song> song = null;
 	Sort sort = null;
 	
 	@Override
-	public List<Song> getSongList(String sortBy){
-		return songRepository.findAll(Sort.by(Sort.Order.asc(sortBy)));			      
+	public List<Song> getSongList(Sort sortBy){
+		return songRepository.findAll(sortBy);			      
 	}
 	
 	@Override
@@ -80,93 +93,9 @@ public class SongServiceImpl implements SongService{
 	}
 	
 	@Override
-	public List<Song> getSongByName(String filter, String sortBy){
-		if(sortBy != null) {
-			sort = Sort.by(Sort.Order.asc(sortBy));
-		}else
-			sort = Sort.unsorted();
-		
-		return songRepository.findAll(filterByName(filter), sort);
-	}
-	
-	@Override
 	public Optional<Song> getSongByName(String name) {
 			return Optional.ofNullable(songRepository.findByName(name).orElseThrow(() -> new EntityNotFoundException("SONG NAME: " + name + " NOT FOUND")));
 	}
-	
-	@Override
-	public List<Song> getSongByArtistName(String filter, String sortBy){
-		if(sortBy != null) {
-			sort = Sort.by(Sort.Order.asc(sortBy));
-		}else
-			sort = Sort.unsorted();
-		
-		return songRepository.findAll(filterByArtistName(filter), sort);
-	}
-	
-	@Override
-	public List<Song> getSongByRank(String filter, String sortBy){
-		if(sortBy != null) {
-			sort = Sort.by(Sort.Order.asc(sortBy));
-		}else
-			sort = Sort.unsorted();
-		try {
-			int rankFilter = Integer.parseInt(filter);
-			return songRepository.findAll(filterByRank(rankFilter), sort);
-		
-		}catch(Exception ex) {
-			return null;
-		}
-	}
-	@Override
-	public List<Song> getSongByGenre(String filter, String sortBy){
-		if(sortBy != null) {
-			sort = Sort.by(Sort.Order.asc(sortBy));
-		}else
-			sort = Sort.unsorted();
-		
-		return songRepository.findAll(filterByGenre(filter), sort);
-	}
-	
-	@Override
-	public List<Song> getSongByKeyword(String filter, String sortBy){
-		if(sortBy != null) {
-			sort = Sort.by(Sort.Order.asc(sortBy));
-		}else
-			sort = Sort.unsorted();
-		
-		return songRepository.findAll(filterByKeyword(filter), sort);
-	}
-	
-	@Override
-	public Specification<Song> filterByName(String name){
-		  return (root, query, criteriaBuilder)-> 
-		      criteriaBuilder.equal(root.get("name"), name);
-		}
-	
-	@Override
-	public Specification<Song> filterByArtistName(String artistName){
-		  return (root, query, criteriaBuilder)-> 
-		      criteriaBuilder.equal(root.get("artistName"), artistName);
-		}
-	
-	@Override
-	public Specification<Song> filterByRank(int rank){
-		  return (root, query, criteriaBuilder)-> 
-		      criteriaBuilder.equal(root.get("rank"), rank);
-		}
-	
-	@Override
-	public Specification<Song> filterByGenre(String genre){
-		  return (root, query, criteriaBuilder)-> 
-	        criteriaBuilder.equal(root.get("genre").get("type"), genre);
-		}
-	
-	@Override
-	public Specification<Song> filterByKeyword(String keyword){
-		return (root, query, criteriaBuilder)-> 
-        criteriaBuilder.equal(root.get("keywordlist").get("name"), keyword);
-		}
 	
 	@Override
 	public int getViewCount(UUID songId) {
@@ -202,4 +131,62 @@ public class SongServiceImpl implements SongService{
 		}
 	}
 	
+	@Override
+	public List<Song> getRecommendedSongsForUser(User user) {
+        List<UserPreferences> preferences = userPreferenceService.getUserPreferencesByUserId(user);
+        
+        List<Genre> genres = preferences.stream()
+            .filter(p -> p.getGenre() != null)
+            .map(UserPreferences::getGenre)
+            .collect(Collectors.toList());
+
+        List<Keyword> keywords = preferences.stream()
+            .filter(p -> p.getKeyword() != null)
+            .map(UserPreferences::getKeyword)
+            .collect(Collectors.toList());
+
+        Specification<Song> spec = Specification.where(null);
+
+        for (Genre genre : genres) {
+            spec = spec.or(SongSpecifications.hasGenre(genre));
+        }
+
+        for (Keyword keyword : keywords) {
+            spec = spec.or(SongSpecifications.hasKeyword(keyword));
+        }
+
+        List<Song> songs = songRepository.findAll(spec);
+
+        Collections.shuffle(songs);
+        return songs.stream().limit(15).collect(Collectors.toList());
+    }
+
+	@Override
+	public List<Song> getSongsBySpecifications(SongCriteriaSearch songCriteriaSearch) {
+		Specification<Song> spec = Specification.where(null);
+
+        if (songCriteriaSearch.getName() != null) {
+            spec = spec.and(SongSpecifications.hasName(songCriteriaSearch.getName()));
+        }
+
+        if (songCriteriaSearch.getArtistName() != null) {
+            spec = spec.and(SongSpecifications.hasArtistName(songCriteriaSearch.getArtistName()));
+        }
+
+        if (songCriteriaSearch.getRank() != null) {
+            spec = spec.and(SongSpecifications.hasRank(songCriteriaSearch.getRank()));
+        }
+        
+        if (songCriteriaSearch.getGenre() != null) {
+            spec = spec.and(SongSpecifications.hasGenre(songCriteriaSearch.getGenre()));
+        }
+        
+        if (songCriteriaSearch.getKeyword() != null) {
+            spec = spec.and(SongSpecifications.hasKeyword(songCriteriaSearch.getKeyword()));
+        }
+        Sort sort = SongSpecifications.getSortOrder(songCriteriaSearch.getSortBy(), songCriteriaSearch.getOrder());
+
+        return songRepository.findAll(spec, sort);
+	}
+
 }

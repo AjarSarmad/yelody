@@ -37,7 +37,7 @@ public class GenreController {
 	    public ResponseEntity<Object> postGenre(@RequestParam(name="type") String type){
 	    	genrePost = null;
 	    	try {
-	    		genrePost = new Genre(UUID.randomUUID(),type, null);
+	    		genrePost = new Genre(UUID.randomUUID(),type, null, null);
 	  			return genreService.createGenre(genrePost);
 	    	}catch(Exception ex) {
 	  			return ResponseEntity.status(HttpStatus.FOUND).body(ex.getLocalizedMessage());
@@ -72,7 +72,7 @@ public class GenreController {
 	    	try {
 	    		genreGet = genreService.getGenreByID(id);
 	    		if(genreGet!=null) {
-		    		genrePost = new Genre(genreGet.get().getGenreId() , type , genreGet.get().getSongs());
+		    		genrePost = new Genre(genreGet.get().getGenreId() , type , genreGet.get().getSongs(), genreGet.get().getUserPreferences());
 		    		return new ResponseEntity<Object>(genreService.createGenre(genrePost), HttpStatus.OK);
     			}
 	    		else

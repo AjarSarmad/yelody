@@ -49,7 +49,8 @@ public class KeywordController {
 				keywordPost = new Keyword(
 	            UUID.randomUUID(),
 	            keyword,
-	            new ArrayList<Song>()
+	            new ArrayList<Song>(),
+	            null
 	            ); 
 			
 			return keywordService.saveKeyword(keywordPost);
@@ -114,7 +115,8 @@ public class KeywordController {
       			keywordPost = new Keyword(
       					keywordGet.get().getKeywordId(),
       	  				keyword,
-      	  				keywordGet.get().getSongs()
+      	  				keywordGet.get().getSongs(),
+      	  				keywordGet.get().getUserPreferences()
       					);
       			return new ResponseEntity<Object>(keywordService.saveKeyword(keywordPost), HttpStatus.OK);
       			}

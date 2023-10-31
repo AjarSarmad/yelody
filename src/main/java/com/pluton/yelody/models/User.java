@@ -1,6 +1,7 @@
 package com.pluton.yelody.models;
 
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -79,4 +80,10 @@ public class User {
 	@JsonManagedReference
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Playlist> playlists;
+	
+	@JsonIgnore
+	@JsonManagedReference
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserPreferences> preferences = new ArrayList<>();
+
 }
