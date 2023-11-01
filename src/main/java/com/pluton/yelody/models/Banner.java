@@ -27,6 +27,9 @@ public class Banner {
 	@Column(name="language" , nullable=false)
 	private String language;
 	
+	@Column(name="url" , nullable=false)
+	private String url;
+	
 	@Column(name="image" , nullable=false)
 	private String image;
 	

@@ -63,7 +63,7 @@ public class KeywordController {
 	//http://localhost:8080/yelody/keyword/getKeywordById?id=
     @CrossOrigin(origins = "*")
   	@GetMapping("/getKeywordById")
-    public ResponseEntity<Object> getKeywordById(@RequestParam(name="id") UUID id){
+    public ResponseEntity<Object> getKeywordById(@RequestParam(name="id")@org.hibernate.validator.constraints.UUID UUID id){
     	keywordGet = null;
     	try {
     		keywordGet = keywordService.getKeywordById(id);

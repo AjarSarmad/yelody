@@ -82,18 +82,19 @@ public class ChartController {
   	@PutMapping("/postSongtoChart")
      public ResponseEntity<Object> postSongtoChart( @RequestBody @Valid SongtoChartRequest songtoChartRequest){
 	    	chartGet = null;
-	    	songGet = null;
-	    	songList = null;
+	    	songList = new ArrayList<>();
 	    	try {
-	    		songGet = songService.getSongByName(songtoChartRequest.getSongName());
+	    		List<Song> songList = songService.getSongById(songtoChartRequest.getSongIds());
     			chartGet = chartService.getChartById(songtoChartRequest.getChartId());
 
-	    		if(songGet!=null && chartGet!=null) {
-    				songGet.get().setChart(chartGet.get());
+	    		if(songList!=null && chartGet.isPresent()) {
+	    			for(Song song: songList) {
+	    				song.setChart(chartGet.get());
+	    			}
 				
-    			Song songPost = songService.postSong(songGet.get());
-    			if(songPost!=null)
-    	  			return new ResponseEntity<Object>(songPost, HttpStatus.CREATED);
+    			List<Song> songResponse = songService.postSongs(songList);
+    			if(songResponse!=null)
+    	  			return new ResponseEntity<Object>(songResponse, HttpStatus.CREATED);
     			}
   			return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
 

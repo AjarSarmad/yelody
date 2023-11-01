@@ -12,5 +12,4 @@ public interface AdminService {
 	public abstract ResponseEntity<Object> postAdmin(Admin admin);
 	
 	public abstract void updateAdmin(Admin admin);
-	
 }

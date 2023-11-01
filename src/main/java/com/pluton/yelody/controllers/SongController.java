@@ -20,14 +20,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.pluton.yelody.DTOs.SongConverter;
 import com.pluton.yelody.DTOs.SongCriteriaSearch;
+import com.pluton.yelody.DTOs.SongMapper;
 import com.pluton.yelody.DTOs.SongRequest;
 import com.pluton.yelody.DTOs.SongResponse;
 import com.pluton.yelody.models.AgeGroup;
 import com.pluton.yelody.models.Chart;
 import com.pluton.yelody.models.Genre;
 import com.pluton.yelody.models.Keyword;
-import com.pluton.yelody.models.Playlist;
 import com.pluton.yelody.models.Song;
 import com.pluton.yelody.models.User;
 import com.pluton.yelody.services.AgeGroupService;
@@ -38,8 +39,6 @@ import com.pluton.yelody.services.KeywordService;
 import com.pluton.yelody.services.SongService;
 import com.pluton.yelody.services.UserPreferenceService;
 import com.pluton.yelody.services.UserService;
-import com.pluton.yelody.utilities.ImageUtil;
-import com.pluton.yelody.utilities.SongSpecifications;
 
 import jakarta.validation.Valid;
 
@@ -62,6 +61,10 @@ public class SongController {
 	BackblazeService backblazeService;
 	@Autowired
 	UserPreferenceService userPreferenceService;
+	@Autowired
+	SongMapper songMapper;
+	@Autowired
+	SongConverter songConverter;
 	
 	String imagePath = "ImageResources/SONG";
 	List<Song> songList = null;
@@ -77,106 +80,46 @@ public class SongController {
 	
 	//POST A SONG
 	//http://localhost:8080/yelody/song/postSong
-    @CrossOrigin(origins = "*")
-  	@PostMapping("/postSong")
-    public ResponseEntity<Object> postSong( @ModelAttribute @Valid SongRequest songRequest) throws IOException{
-    	song = null;
-    	genre = null;
-    	keyword = null;
-    	ageGroup = null;
-    	chart = null;
-		String imageResponse = null;
-		
-    	try {
-			genre = genreService.getGenreByType(songRequest.getGenre());
-			keyword = keywordService.getKeywordByName(songRequest.getKeyword());
-//			chart = chartService.getChartByName(songRequest.getChart());
-			ageGroup = ageGroupService.getAgeGroupByName(songRequest.getAgeGroup());
-    			
-			UUID id = UUID.randomUUID();
-			
-			if(!StringUtils.getFilenameExtension(songRequest.getFile().getOriginalFilename()).equalsIgnoreCase("mp3"))
-    			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("SONG FILE FORMAT SHOULD BE .MP3");
-			
-			if(songRequest.getImage()!=null  && !songRequest.getImage().isEmpty())
-				imageResponse = ImageUtil.saveFile(imagePath, id.toString(), songRequest.getImage());
-			else
-				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("IMAGE CANNOT BE NULL");	
-			
-    		if(genre!=null && keyword!=null && ageGroup!=null) {
-  				song = new Song(
-  						id,
-  						songRequest.getSongName(),
-  						songRequest.getDescription(),
-  						songRequest.getRank(),
-  						songRequest.getArtistName(),
-  						songRequest.getLyrics(),
-  						imageResponse, //image
-  						new ArrayList<Keyword>(), //keywords
-  						new ArrayList<User>(), //viewers
-  						genre.get(), //genre
-  						null,
-  						ageGroup.get(),
-  						new ArrayList<User>(),
-  						new ArrayList<Playlist>()
-  						);
-  				song.getKeywordlist().add(keyword.get());
+	@CrossOrigin(origins = "*")
+	@PostMapping("/postSong")
+	public ResponseEntity<Object> postSong(@ModelAttribute @Valid SongRequest songRequest) throws IOException {
+	    
+	    try {
+	        if (!StringUtils.getFilenameExtension(songRequest.getFile().getOriginalFilename()).equalsIgnoreCase("mp3"))
+	            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("SONG FILE FORMAT SHOULD BE .MP3");
+	        if (songRequest.getImage() == null || songRequest.getImage().isEmpty())
+	            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("IMAGE CANNOT BE NULL");
 
-  				Song songPost = songService.postSong(song);
-  				if(songPost!=null) {
-  					backblazeResponse = backblazeService.uploadSong(false, songPost.getSongId().toString(),songRequest.getFile());
-  					if(backblazeResponse) {
-  			  			return new ResponseEntity<Object>(songPost, HttpStatus.CREATED); 
-  					}
-  				}
-    		}
-    	}catch(Exception ex) {
-    		ex.getMessage();
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
-    	}
-		return null;
-    }
+	        Song song = songConverter.convertRequestToEntity(songRequest);
+
+	        if (song == null)
+	            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Missing necessary song data.");
+	        
+	        // Save song and upload to backblaze
+	        Song songPost = songService.postSong(song);
+	        if (songPost != null) {
+	            boolean backblazeResponse = backblazeService.uploadSong(false, songPost.getSongId().toString(), songRequest.getFile());
+	            if (backblazeResponse)
+	                return new ResponseEntity<Object>(songPost, HttpStatus.CREATED); 
+	        }
+	    } catch (Exception ex) {
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
+	    }
+	    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing song.");
+	}
 
     //List of SONGS
   	//http://localhost:8080/yelody/song/listSongs
-  	@CrossOrigin(origins = "*")
-    @GetMapping("/listSongs")
+    @CrossOrigin(origins = "*")
+    @PostMapping("/listSongs")
     public ResponseEntity<Object> listSongs(@RequestBody(required = false) @Valid SongCriteriaSearch songCriteriaSearch) {
         List<SongResponse> songResponseList = new ArrayList<>();
-        List<Song> songList = new ArrayList<>();
-  		try {
-  			if(songCriteriaSearch.hasFilters())
-  				songList = songService.getSongsBySpecifications(songCriteriaSearch);
-  			else
-  				songList = songService.getSongList(SongSpecifications.getSortOrder(songCriteriaSearch.getSortBy(), songCriteriaSearch.getOrder()));
-  			if(songList!=null && !songList.isEmpty()) {
-	            for(Song item: songList) {
-	                int views = songService.getViewCount(item.getSongId());
-//	                String songFile = backblazeService.getSongById(false, item.getSongId().toString());
-	                List<String> keywordNames = new ArrayList<>();
-	                
-	                for (Keyword keyword : item.getKeywordlist()) {
-	                    keywordNames.add(keyword.getName());
-	                }
-	
-	                songResponseList.add(new SongResponse(
-	                    item.getSongId(),
-	                    item.getName(),
-	                    item.getDescription(),
-	                    item.getRank(),
-	                    item.getArtistName(),
-	                    item.getLyrics(),
-	                    views,
-	                    item.getAgeGroup().getName(),
-	                    keywordNames,
-	                    (item.getGenre() != null ? item.getGenre().getType() : "null"),
-	                    (item.getChart() != null ? item.getChart().getName() : "null"),
-	                    item.getImage(),
-//	                    songFile
-	                    null
-	                ));
-	            }
-  			}
+        try {
+            List<Song> songList = songService.getSongsBasedOnCriteria(songCriteriaSearch);
+            
+            for (Song item : songList) {
+                songResponseList.add(songMapper.songToSongResponse(item, false));
+            }
 
             if (songResponseList.isEmpty()) {
                 return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
@@ -231,10 +174,23 @@ public class SongController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
         }
     }
-	//http://localhost:8080/yelody/song/tester
-//	@CrossOrigin(origins = "*")
-//	@PostMapping("/tester")
-//	public String tester() throws IOException {
-//        return ImageUtil.downloadFile(null,null);
-//	}
+    
+	 // GET SONG DETAILS BY ID
+	 // http://localhost:8080/yelody/song/getSongById?id=
+	 @CrossOrigin(origins = "*")
+	 @GetMapping("/getSongById")
+	    public ResponseEntity<Object> getSongById(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID id) {
+	        try {
+	            Optional<Song> optionalSong = songService.getSongById(id);
+	            if (optionalSong.isPresent()) {
+	                Song song = optionalSong.get();
+	                SongResponse songResponse = songMapper.songToSongResponse(song,true);
+	                return new ResponseEntity<>(songResponse, HttpStatus.OK);
+	            } else {
+	                return new ResponseEntity<>("Song not found for ID: " + id, HttpStatus.NOT_FOUND);
+	            }
+	        } catch (Exception ex) {
+	            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
+	        }
+	    }
 }

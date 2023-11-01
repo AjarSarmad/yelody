@@ -56,6 +56,7 @@ public class BannerController {
 	        		id,
 	            bannerRequest.getLocation(),
 	            bannerRequest.getLanguage(),
+	            bannerRequest.getUrl(),
 	            imageResponse
 	        );
 			
@@ -124,6 +125,7 @@ public class BannerController {
         				bannerGet.get().getBannerId(),
     					bannerViewModel.getLocation(),
     					bannerViewModel.getLanguage(),
+    					bannerViewModel.getUrl(),
     					bannerViewModel.getImage()==null?bannerGet.get().getImage():imageResponse
     					);
     			return new ResponseEntity<Object>(bannerService.saveBanner(bannerPost), HttpStatus.OK);

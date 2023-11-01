@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.pluton.yelody.DTOs.AdminCreateRequest;
 import com.pluton.yelody.DTOs.AdminLoginRequest;
+import com.pluton.yelody.DTOs.ChangePasswordRequest;
 import com.pluton.yelody.models.Admin;
 import com.pluton.yelody.services.AdminAuthService;
 import com.pluton.yelody.services.AdminService;
@@ -105,24 +106,34 @@ public class AdminController {
 	    	}
 	    }
 	    
-	  	//OTP VERIFICATION API
-  		//http://localhost:8080/yelody/admin/otpVerification?email=&otp
-	    @CrossOrigin(origins = "*")
-	    @PostMapping("/otpVerification")
-	    public ResponseEntity<Object> otpVerification(@RequestParam(name="email") String email , @RequestParam(name="otp") String OTP){
-				adminGet = null;
-		    	try {
-	    		adminGet = adminService.findByEmail(email);
-	    		if(adminGet.get().getOtp().equalsIgnoreCase(OTP)) {
-		    		return ResponseEntity.status(HttpStatus.OK).body("LOGIN APPROVED");
-	    		}
-	    		else
-		    		return ResponseEntity.status(HttpStatus.NOT_FOUND).body("INCORRECT OTP");
-	    	}
-	    		catch(Exception ex) {
-	        		return ResponseEntity.status(HttpStatus.NOT_FOUND).body("INCORRECT EMAIL");
-	    		}
-	    	
-	    }
+		 // CHANGE PASSWORD
+		 // http://localhost:8080/yelody/admin/changePassword
+		 @CrossOrigin(origins = "*")
+		 @PostMapping("/changePassword")
+		 public ResponseEntity<Object> changePassword(@RequestBody @Valid ChangePasswordRequest changePasswordRequest) {
+		     try {
+		         adminGet = adminService.findByEmail(changePasswordRequest.getEmail());
+	
+		         if (adminGet.isPresent()) {
+		             Admin admin = adminGet.get();
+		             String storedOtp = admin.getOtp();
+	
+		             if (storedOtp != null && storedOtp.equalsIgnoreCase(changePasswordRequest.getOtp())) {
+		                 admin.setPassword(hashingUtility.sha256(changePasswordRequest.getNewPassword()));
+		                 adminService.updateAdmin(admin);
+		                 return ResponseEntity.status(HttpStatus.OK).body("PASSWORD UPDATED SUCCESSFULLY");
+		             } else {
+		                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("INVALID OTP OR EMAIL");
+		             }
+		         } else {
+		             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("EMAIL NOT FOUND");
+		         }
+	
+		     } catch (Exception ex) {
+		         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
+		     }
+		 }
+
+
 	
 }

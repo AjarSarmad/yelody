@@ -17,6 +17,8 @@ public interface SongService {
 	public abstract List<Song> getSongList();
 	
 	public abstract Song postSong(Song song);
+
+	public abstract List<Song> postSongs(List<Song> songList);
 	
 	public abstract ResponseEntity<Object> incrementViewCount(UUID userId, UUID songId);
 	
@@ -31,5 +33,9 @@ public interface SongService {
 	public abstract List<Song> getRecommendedSongsForUser(User user);
 
 	public abstract List<Song> getSongsBySpecifications(SongCriteriaSearch songCriteriaSearch);
+
+	public abstract List<Song> getSongsBasedOnCriteria(SongCriteriaSearch songCriteriaSearch);
+
+	public abstract List<Song> getSongById(List<UUID> songIds);
 	
 }

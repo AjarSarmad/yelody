@@ -65,7 +65,7 @@ public class AgeGroupController {
 	//http://localhost:8080/yelody/ageGroup/getAgeGroupbyId
     @CrossOrigin(origins = "*")
   	@GetMapping("/getAgeGroupbyId")
-    public ResponseEntity<Object> getAgeGroupbyId(@RequestParam(name="id") UUID id){
+    public ResponseEntity<Object> getAgeGroupbyId(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID id){
     	ageGroupGet = null;
     	try {
     		ageGroupGet = ageGroupService.getAgeGroupById(id);

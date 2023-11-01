@@ -189,4 +189,33 @@ public class SongServiceImpl implements SongService{
         return songRepository.findAll(spec, sort);
 	}
 
+	@Override
+	public List<Song> getSongsBasedOnCriteria(SongCriteriaSearch criteria) {
+        if (criteria == null) {
+            return getSongList();
+        }
+
+        if (criteria.hasFilters()) {
+            return getSongsBySpecifications(criteria);
+        } else if (criteria.getSortBy() != null && criteria.getOrder() != null) {
+            return getSongList(SongSpecifications.getSortOrder(criteria.getSortBy(), criteria.getOrder()));
+        } else {
+            return getSongList();
+        }
+    }
+
+	@Override
+	public List<Song> getSongById(List<UUID> songIds) {
+		songList = new ArrayList<>();
+		for(UUID songId: songIds) {
+			songList.add(getSongById(songId).get());
+		}
+		return songList;
+	}
+
+	@Override
+	public List<Song> postSongs(List<Song> songList) {
+		return songRepository.saveAll(songList);
+	}
+
 }

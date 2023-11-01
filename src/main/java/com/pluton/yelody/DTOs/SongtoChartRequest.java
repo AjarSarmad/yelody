@@ -1,5 +1,6 @@
 package com.pluton.yelody.DTOs;
 
+import java.util.List;
 import java.util.UUID;
 
 import jakarta.validation.constraints.NotNull;
@@ -15,5 +16,5 @@ public class SongtoChartRequest {
 	private UUID chartId;
 	
 	@NotNull
-	private String songName;
+	private List<UUID> songIds;
 }

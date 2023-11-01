@@ -44,6 +44,25 @@ public class GenreController {
 	    	}
 	    }
 	    
+		 // GET GENRE DETAILS BY ID
+		 // http://localhost:8080/yelody/genre/getGenreById?id=
+		 @CrossOrigin(origins = "*")
+		 @GetMapping("/getGenreById")
+		 public ResponseEntity<Object> getGenreById(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID id) {
+		     Genre genre = null;
+		     try {
+		         Optional<Genre> optionalGenre = genreService.getGenreByID(id);
+		         if (optionalGenre.isPresent()) {
+		             genre = optionalGenre.get();
+		             return new ResponseEntity<Object>(genre, HttpStatus.OK);
+		         } else {
+		             return new ResponseEntity<Object>("Genre not found for ID: " + id, HttpStatus.NOT_FOUND);
+		         }
+		     } catch (Exception ex) {
+		         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getLocalizedMessage());
+		     }
+		 }
+	    
 	    //GET GENRE LIST
 	    //http://localhost:8080/yelody/genre/listGenre
 	    @CrossOrigin(origins = "*")

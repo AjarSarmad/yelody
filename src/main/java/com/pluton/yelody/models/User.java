@@ -19,6 +19,7 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
@@ -85,5 +86,9 @@ public class User {
 	@JsonManagedReference
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserPreferences> preferences = new ArrayList<>();
+	
+	@OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "song_queue_id")
+    private SongQueue songQueue;
 
 }
