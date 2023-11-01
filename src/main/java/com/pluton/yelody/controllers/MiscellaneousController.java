@@ -11,11 +11,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.pluton.yelody.DTOs.CombinedStatsResponse;
 import com.pluton.yelody.DTOs.MiscellaneousResponse;
 import com.pluton.yelody.models.AgeGroup;
 import com.pluton.yelody.models.Genre;
 import com.pluton.yelody.models.Keyword;
 import com.pluton.yelody.services.AgeGroupService;
+import com.pluton.yelody.services.CombinedStats;
 import com.pluton.yelody.services.GenreService;
 import com.pluton.yelody.services.KeywordService;
 
@@ -28,6 +30,8 @@ public class MiscellaneousController {
 	GenreService genreService;
 	@Autowired
 	KeywordService keywordService;
+	@Autowired
+	CombinedStats combinedStatsService;
 	
 	List<Keyword> keywordList = null;
 	List<AgeGroup> ageGroupList = null;
@@ -57,5 +61,13 @@ public class MiscellaneousController {
 		}catch(Exception ex) {
   			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
 		}
+	}
+	
+	//GET COMBINED STATS
+	//http://localhost:8080/yelody/miscellaneous/combinedStats
+	@CrossOrigin(origins = "*")
+	@GetMapping("/combinedStats")
+    public ResponseEntity<CombinedStatsResponse> getCombinedStats() {
+        return ResponseEntity.ok(combinedStatsService.getCombinedStats());
 	}
 }

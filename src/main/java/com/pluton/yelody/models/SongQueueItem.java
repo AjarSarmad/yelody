@@ -29,7 +29,7 @@ public class SongQueueItem {
     @Column(name="queue_item_id" , nullable=false)
     private UUID songQueueItemId;
 
-    @JsonBackReference
+//    @JsonBackReference
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "song_id", nullable = false)
     private Song song;

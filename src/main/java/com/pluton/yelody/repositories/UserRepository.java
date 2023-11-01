@@ -15,4 +15,5 @@ import com.pluton.yelody.models.User;
 public interface UserRepository extends JpaRepository<User, UUID>, JpaSpecificationExecutor<User>{
 	Optional<User> findByUserName (String userName);
 	List<User> findBySongViews(Song song);
+	Long countBy();
 }

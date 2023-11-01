@@ -1,5 +1,6 @@
 package com.pluton.yelody.serviceImpl;
 
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,19 +31,20 @@ public class SongQueueServiceImpl implements SongQueueService {
     UserService userService;
 
     @Override
-    public SongQueueItem addSongToQueue(UUID userId, Song song) {
+    public SongQueueItem addSongToQueue(UUID userId, Song song) throws Exception {
         SongQueue userQueue = songQueueRepository.findByUserUserId(userId).orElse(null);
         
         if (userQueue == null) {
             userQueue = new SongQueue();
             userQueue.setUser(userService.getUserByID(userId).get());
             userQueue.setItems(new ArrayList<>());
+            userQueue.setCreatedDate(new Date(System.currentTimeMillis()));
             songQueueRepository.save(userQueue);
         }
         
         for (SongQueueItem existingItem : userQueue.getItems()) {
             if (existingItem.getSong().equals(song)) {
-                return null; 
+                throw new Exception("SONG ALREADY EXISTED IN THE GIVEN USER QUEUE"); 
             }
         }
         
@@ -71,18 +73,28 @@ public class SongQueueServiceImpl implements SongQueueService {
 
     @Override
     public boolean reorderSongInQueue(UUID userId, Song reorderedSong, int desiredPosition) {
-        SongQueue userQueue = getUserSongQueue(userId).get();
+        Optional<SongQueue> optionalUserQueue = getUserSongQueue(userId);
+
+        SongQueue userQueue = optionalUserQueue.get();
         List<SongQueueItem> queueItems = userQueue.getItems();
 
+        if (desiredPosition < 1 || desiredPosition > queueItems.size()) {
+            throw new IllegalArgumentException("Invalid desired position. It should be between 1 and " + queueItems.size());
+        }
         Map<UUID, SongQueueItem> songToQueueItemMap = new HashMap<>();
         for (SongQueueItem queueItem : queueItems) {
             songToQueueItemMap.put(queueItem.getSong().getSongId(), queueItem);
         }
-
         SongQueueItem targetItem = songToQueueItemMap.get(reorderedSong.getSongId());
 
+        if (targetItem == null) {
+            throw new IllegalArgumentException("The provided song is not present in the user's song queue.");
+        }
         int currentPosition = targetItem.getPosition();
-
+        if (currentPosition == desiredPosition) {
+            return true;
+        }
+        // Adjust positions of the other songs
         if (currentPosition < desiredPosition) {
             for (SongQueueItem queueItem : queueItems) {
                 int position = queueItem.getPosition();
@@ -100,12 +112,11 @@ public class SongQueueServiceImpl implements SongQueueService {
                 }
             }
         }
-
         targetItem.setPosition(desiredPosition);
         songQueueItemRepository.save(targetItem);
-
-        return true; 
+        return true;
     }
+
 
 
     @Override

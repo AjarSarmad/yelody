@@ -12,4 +12,5 @@ import com.pluton.yelody.models.UserSingHistory;
 @Repository
 public interface UserSingHistoryRepository extends JpaRepository<UserSingHistory, UUID>{
 	List<UserSingHistory> findByUser(User user);
+	Long countBy();
 }

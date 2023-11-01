@@ -16,7 +16,6 @@ public interface SongRepository extends JpaRepository<Song, UUID>, JpaSpecificat
 	Optional<Song> findByName (String name);
 	
 	List<Song> findByKeywordlist(Keyword keyword);
-	
-//	List<Song> find
+	Long countBy();
 
 }

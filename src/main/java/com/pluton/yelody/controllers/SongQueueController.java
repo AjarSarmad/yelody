@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -45,10 +46,10 @@ public class SongQueueController {
     }
 
   	//Remove song from the queue
-    //http://localhost:8080/yelody/queue/deleteSong?id=
+    //http://localhost:8080/yelody/queue/deleteSong
     @CrossOrigin(origins = "*")
   	@DeleteMapping("/deleteSong")
-    public ResponseEntity<?> deleteSong(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID userId,
+    public ResponseEntity<?> deleteSong(@RequestParam(name="userId") @org.hibernate.validator.constraints.UUID UUID userId,
     		@RequestParam(name="songId") @org.hibernate.validator.constraints.UUID UUID songId){
     	try {
     		boolean success = songQueueService.removeSongFromQueue(userId, songService.getSongById(songId).get());
@@ -63,11 +64,11 @@ public class SongQueueController {
     }
 
     // Reorder songs in the queue
-    //http://localhost:8080/yelody/queue/getSongQueue?id=
-    @PostMapping("/reorderSongs")
-    public ResponseEntity<?> reorderSongs(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID userId,
+    //http://localhost:8080/yelody/queue/reorderSongs
+    @PutMapping("/reorderSongs")
+    public ResponseEntity<?> reorderSongs(@RequestParam(name="userId") @org.hibernate.validator.constraints.UUID UUID userId,
     		@RequestParam(name="songId") @org.hibernate.validator.constraints.UUID UUID reorderedSongs,
-    		@RequestParam(name="positition") int position) {
+    		@RequestParam(name="position") int position) {
         try {
 	    	boolean success = songQueueService.reorderSongInQueue(userId, songService.getSongById(reorderedSongs).get(), position);
 	        if (success) {
@@ -83,7 +84,7 @@ public class SongQueueController {
     // Get user's current song queue
     //http://localhost:8080/yelody/queue/getSongQueue?id=
     @GetMapping("/getSongQueue")
-    public ResponseEntity<?> getSongQueue(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID userId) {
+    public ResponseEntity<?> getSongQueue(@RequestParam(name="userId") @org.hibernate.validator.constraints.UUID UUID userId) {
     	try {
 	        SongQueue userQueue = songQueueService.getUserSongQueue(userId).get();
 	        if (userQueue != null) {

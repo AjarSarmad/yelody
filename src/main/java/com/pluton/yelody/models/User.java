@@ -87,8 +87,9 @@ public class User {
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserPreferences> preferences = new ArrayList<>();
 	
-	@OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "song_queue_id")
+	@JsonIgnore
+	@JsonManagedReference
+	@OneToOne(mappedBy="user")
     private SongQueue songQueue;
 
 }

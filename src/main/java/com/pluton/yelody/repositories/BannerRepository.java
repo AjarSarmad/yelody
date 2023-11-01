@@ -9,4 +9,5 @@ import com.pluton.yelody.models.Banner;
 
 @Repository
 public interface BannerRepository extends JpaRepository<Banner , UUID>{
+	Long countBy();
 }

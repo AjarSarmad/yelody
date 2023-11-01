@@ -9,7 +9,7 @@ import com.pluton.yelody.models.SongQueueItem;
 
 public interface SongQueueService {
 
-    public abstract SongQueueItem addSongToQueue(UUID userId, Song song);
+    public abstract SongQueueItem addSongToQueue(UUID userId, Song song) throws Exception;
 
     public abstract boolean removeSongFromQueue(UUID userId, Song song);
 
