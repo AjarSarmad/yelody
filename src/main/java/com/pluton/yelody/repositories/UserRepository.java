@@ -16,4 +16,5 @@ public interface UserRepository extends JpaRepository<User, UUID>, JpaSpecificat
 	Optional<User> findByUserName (String userName);
 	List<User> findBySongViews(Song song);
 	Long countBy();
+	Optional<User> findByEmail(String email);
 }

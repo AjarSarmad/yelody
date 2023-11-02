@@ -42,4 +42,6 @@ public interface UserService {
 
 	public abstract ResponseEntity<?> deleteUser(User user);
 	
+	public abstract Optional<User> findUserByEmail(String email);
+	
 }
