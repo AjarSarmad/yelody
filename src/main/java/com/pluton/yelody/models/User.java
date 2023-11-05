@@ -43,6 +43,15 @@ public class User {
 	@Column(name="email" , nullable=false, unique=true)
 	private String email;
 	
+	@Column(name="password" , nullable=true)
+	private String password;
+	
+	@Column(name="otp" , nullable=true)
+	private String otp;
+
+	@Column(name="otp_requested_time" , nullable=true)
+	private Date otpRequestedTime;
+	
 	@Column(name="phone" , nullable=false)
 	private String phone;
 	

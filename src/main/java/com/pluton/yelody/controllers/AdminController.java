@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.pluton.yelody.DTOs.AdminCreateRequest;
-import com.pluton.yelody.DTOs.AdminLoginRequest;
 import com.pluton.yelody.DTOs.ChangePasswordRequest;
+import com.pluton.yelody.DTOs.LoginRequest;
 import com.pluton.yelody.models.Admin;
 import com.pluton.yelody.services.AdminAuthService;
 import com.pluton.yelody.services.AdminService;
@@ -67,7 +67,7 @@ public class AdminController {
 	  	//http://localhost:8080/yelody/admin/loginAdmin
 		@CrossOrigin(origins = "*")
 	    @PostMapping("/loginAdmin")
-	    public ResponseEntity<Object> loginAdmin(@RequestBody @Valid AdminLoginRequest adminLoginRequest){
+	    public ResponseEntity<Object> loginAdmin(@RequestBody @Valid LoginRequest adminLoginRequest){
 			adminGet = null;
 			String pass;
 	    	try {

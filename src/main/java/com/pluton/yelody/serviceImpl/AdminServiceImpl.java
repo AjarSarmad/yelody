@@ -41,9 +41,6 @@ public class AdminServiceImpl implements AdminService{
 
 	@Override
 	public void updateAdmin(Admin admin) {
-		admin.setOtp(null);
-		admin.setOtpRequestedTime(null);
-		adminRepository.save(admin);
 		adminRepository.save(admin);
 	}
 

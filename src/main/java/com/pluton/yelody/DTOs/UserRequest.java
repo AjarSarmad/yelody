@@ -22,6 +22,8 @@ public class UserRequest {
 	@NotNull(message="Email must not be NULL")
 	private String email;
 	
+	private String password;
+	
 	@Size(min = 10, max=10)
 	@NotNull(message="Phone must not be NULL")
 	private String phone;

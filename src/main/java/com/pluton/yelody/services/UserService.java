@@ -44,4 +44,6 @@ public interface UserService {
 	
 	public abstract Optional<User> findUserByEmail(String email);
 	
+	public abstract void updateUser(User user);
+	
 }

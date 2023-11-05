@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AdminLoginRequest {
+public class LoginRequest {
 	@NotNull(message = "EMAIL SHOULD NOT BE NULL")
 	@Email
 	private String email;

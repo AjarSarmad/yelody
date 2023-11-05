@@ -28,6 +28,7 @@ import com.pluton.yelody.models.Song;
 import com.pluton.yelody.models.User;
 import com.pluton.yelody.services.AgeGroupService;
 import com.pluton.yelody.services.UserService;
+import com.pluton.yelody.utilities.HashingUtility;
 import com.pluton.yelody.utilities.ImageUtil;
 
 import jakarta.validation.Valid;
@@ -40,6 +41,8 @@ public class UserController {
 	UserService userService;
 	@Autowired
 	AgeGroupService ageGroupService;
+	@Autowired
+	HashingUtility hashingUtility;
 	
 	final String imagePath = "ImageResources/USER";
 	List<User> userList = null;
@@ -134,6 +137,9 @@ public class UserController {
 	    					id,
 							userRequest.getUserName(),
 							userRequest.getEmail(),
+							userRequest.getPassword()!=null && !userRequest.getPassword().isBlank() ? hashingUtility.sha256(userRequest.getPassword()):null,
+							null,
+							null,
 							userRequest.getPhone(),
 							 new java.sql.Date(System.currentTimeMillis()),
 							 new java.sql.Date(System.currentTimeMillis()),
@@ -171,6 +177,9 @@ public class UserController {
         				userGet.get().getUserId(),
         				userRequest.getUserName(),
         				userRequest.getEmail(),
+        				userGet.get().getPassword(),
+        				userGet.get().getOtp(),
+        				userGet.get().getOtpRequestedTime(),
         				userRequest.getPhone(),
         				userGet.get().getLastVisitDate(),
         				userGet.get().getRegistrationDate(),
@@ -181,7 +190,8 @@ public class UserController {
     					userRequest.getImage()==null?userGet.get().getImage():imageResponse,
     					userGet.get().getPlaylists(),
     					userGet.get().getPreferences(),
-    					userGet.get().getSongQueue()    					);
+    					userGet.get().getSongQueue()    	
+    					);
     			return new ResponseEntity<Object>(userService.saveUser(userPost), HttpStatus.OK);
     			}
     		else
