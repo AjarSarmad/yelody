@@ -80,24 +80,9 @@ public class ChartController {
     //http://localhost:8080/yelody/chart/postSongtoChart
     @CrossOrigin(origins = "*")
   	@PutMapping("/postSongtoChart")
-     public ResponseEntity<Object> postSongtoChart( @RequestBody @Valid SongtoChartRequest songtoChartRequest){
-	    	chartGet = null;
-	    	songList = new ArrayList<>();
+     public ResponseEntity<?> postSongtoChart( @RequestBody @Valid SongtoChartRequest songtoChartRequest){
 	    	try {
-	    		List<Song> songList = songService.getSongById(songtoChartRequest.getSongIds());
-    			chartGet = chartService.getChartById(songtoChartRequest.getChartId());
-
-	    		if(songList!=null && chartGet.isPresent()) {
-	    			for(Song song: songList) {
-	    				song.setChart(chartGet.get());
-	    			}
-				
-    			List<Song> songResponse = songService.postSongs(songList);
-    			if(songResponse!=null)
-    	  			return new ResponseEntity<Object>(songResponse, HttpStatus.CREATED);
-    			}
-  			return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
-
+	    		return songService.postSongToChart(songtoChartRequest);
 	    	}catch(Exception ex) {
 	  			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getLocalizedMessage());
 	    	}
