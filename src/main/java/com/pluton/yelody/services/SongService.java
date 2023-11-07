@@ -8,6 +8,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 
 import com.pluton.yelody.DTOs.SongCriteriaSearch;
+import com.pluton.yelody.DTOs.SongtoChartRequest;
 import com.pluton.yelody.models.Song;
 import com.pluton.yelody.models.User;
 
@@ -37,5 +38,7 @@ public interface SongService {
 	public abstract List<Song> getSongsBasedOnCriteria(SongCriteriaSearch songCriteriaSearch);
 
 	public abstract List<Song> getSongById(List<UUID> songIds);
+
+	public abstract ResponseEntity<?> postSongToChart(SongtoChartRequest songtoChartRequest);
 	
 }
