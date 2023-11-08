@@ -7,6 +7,7 @@ import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import com.pluton.yelody.DTOs.ChartResponse;
 import com.pluton.yelody.models.Chart;
 
 public interface ChartService {
@@ -14,7 +15,7 @@ public interface ChartService {
 	
 	public abstract Optional<Chart> getChartById(UUID id);
 	
-	public abstract List<Chart> getChartList();
+	public abstract List<ChartResponse> getChartList();
 	
 	public abstract Optional<Chart> getChartByName(String name);
 

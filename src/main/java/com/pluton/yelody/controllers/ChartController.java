@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.pluton.yelody.DTOs.ChartRequest;
+import com.pluton.yelody.DTOs.ChartResponse;
 import com.pluton.yelody.DTOs.SongtoChartRequest;
 import com.pluton.yelody.models.Chart;
 import com.pluton.yelody.models.Song;
@@ -131,11 +132,11 @@ public class ChartController {
 	@CrossOrigin(origins = "*")
 	@GetMapping("/listCharts")
 	public ResponseEntity<Object> listCharts() {
-		chartList = new ArrayList<>();
+		List<ChartResponse> chartResponseList = new ArrayList<>();
 		try {
-			chartList = chartService.getChartList();
-			if(!(chartList.isEmpty()))
-				return new ResponseEntity<Object>(chartList , HttpStatus.OK);
+			chartResponseList = chartService.getChartList();
+			if(!(chartResponseList.isEmpty()))
+				return new ResponseEntity<Object>(chartResponseList , HttpStatus.OK);
 			
   			return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
 
