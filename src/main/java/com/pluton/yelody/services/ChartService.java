@@ -21,4 +21,6 @@ public interface ChartService {
 
 	public abstract HttpStatus deleteChart(Chart chart);
 	
+	public abstract Optional<Chart> getChartByRank(int rank); 
+	
 }

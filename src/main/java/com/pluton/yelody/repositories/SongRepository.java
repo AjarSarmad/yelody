@@ -20,5 +20,7 @@ public interface SongRepository extends JpaRepository<Song, UUID>, JpaSpecificat
 	Long countBy();
 
 	List<Song> findByChart(Chart chart);
+	
+	Optional<Song> findByRank(int rank);
 
 }

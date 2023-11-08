@@ -12,4 +12,5 @@ import com.pluton.yelody.models.Chart;
 public interface ChartRepository extends JpaRepository<Chart , UUID>{
 	Optional<Chart> findChartByName(String name);
 	Long countBy();
+	Optional<Chart> findByRank(int rank);
 }

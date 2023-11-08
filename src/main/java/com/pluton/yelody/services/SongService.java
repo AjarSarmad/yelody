@@ -41,4 +41,6 @@ public interface SongService {
 
 	public abstract ResponseEntity<?> postSongToChart(SongtoChartRequest songtoChartRequest);
 	
+	public abstract Optional<Song> getSongByRank(int rank);
+	
 }
