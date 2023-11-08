@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
+import com.pluton.yelody.models.Chart;
 import com.pluton.yelody.models.Keyword;
 import com.pluton.yelody.models.Song;
 
@@ -17,5 +18,7 @@ public interface SongRepository extends JpaRepository<Song, UUID>, JpaSpecificat
 	
 	List<Song> findByKeywordlist(Keyword keyword);
 	Long countBy();
+
+	List<Song> findByChart(Chart chart);
 
 }

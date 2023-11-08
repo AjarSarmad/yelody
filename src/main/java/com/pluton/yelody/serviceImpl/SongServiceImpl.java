@@ -225,26 +225,36 @@ public class SongServiceImpl implements SongService{
 
 	@Override
 	public ResponseEntity<?> postSongToChart(SongtoChartRequest songtoChartRequest) {
-		Optional<Chart> chartGet = null;
-    	songList = new ArrayList<>();
-    	try {
-    		List<Song> songList = getSongById(songtoChartRequest.getSongIds());
-			chartGet = chartService.getChartById(songtoChartRequest.getChartId());
+	    try {
+	        Optional<Chart> chartOptional = chartService.getChartById(songtoChartRequest.getChartId());
+	        List<Song> newSongList = getSongById(songtoChartRequest.getSongIds());
 
-    		if(!songList.isEmpty() && chartGet.isPresent()) {
-    			for(Song song: songList) {
-    				if(song.getChart()!=null && song.getChart().equals(chartGet.get()))
-    					song.setChart(null);
-    				else if(song.getChart()!=null)
-    					return ResponseEntity.status(HttpStatus.CONFLICT).body("THIS SONG IS ALREADY IN CHART : " + song.getChart().getChartId()); 
-    				else
-    					song.setChart(chartGet.get());
-    			}
-			}
-			return new ResponseEntity<Object>(songRepository.saveAll(songList), HttpStatus.OK);
-    	}catch(Exception ex) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
-    	}
+	        if(chartOptional.isPresent() && !newSongList.isEmpty()) {
+	            Chart chart = chartOptional.get();
+	            for (Song song : newSongList) {
+	                Chart currentChart = song.getChart();
+	                if (currentChart != null && !currentChart.equals(chart)) {
+	                    return ResponseEntity
+	                            .status(HttpStatus.CONFLICT)
+	                            .body("Song with ID " + song.getSongId() + " is already in chart: " + currentChart.getChartId());
+	                }
+	            }
+
+	            List<Song> currentlyAssignedSongs = songRepository.findByChart(chart);
+	            currentlyAssignedSongs.forEach(song -> song.setChart(null));
+	            songRepository.saveAll(currentlyAssignedSongs);
+
+	            newSongList.forEach(song -> song.setChart(chart));
+	            songRepository.saveAll(newSongList);
+
+	            return ResponseEntity.ok("Chart updated with new songs.");
+	        } else {
+	            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Chart or Songs not found");
+	        }
+	    } catch(Exception ex) {
+	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
+	    }
 	}
+
 
 }
