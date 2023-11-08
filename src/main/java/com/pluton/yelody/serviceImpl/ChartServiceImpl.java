@@ -104,5 +104,10 @@ public class ChartServiceImpl implements ChartService {
 		}
 		return null;
 	}
+
+	@Override
+	public Optional<Chart> getChartByRank(int rank) {
+		return chartRepository.findByRank(rank);
+	}
 	
 }

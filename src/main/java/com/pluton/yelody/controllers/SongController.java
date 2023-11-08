@@ -89,7 +89,9 @@ public class SongController {
 	            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("SONG FILE FORMAT SHOULD BE .MP3");
 	        if (songRequest.getImage() == null || songRequest.getImage().isEmpty())
 	            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("IMAGE CANNOT BE NULL");
-
+	        if(songService.getSongByRank(songRequest.getRank()).isPresent())
+		        return ResponseEntity.status(HttpStatus.CONFLICT).body("RANK ALREADY EXIST");
+	        
 	        Song song = songConverter.convertRequestToEntity(songRequest);
 
 	        if (song == null)
@@ -122,7 +124,7 @@ public class SongController {
             }
 
             if (songResponseList.isEmpty()) {
-                return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("NO SONG EXISTS");
             } else {
                 return new ResponseEntity<Object>(songResponseList, HttpStatus.OK);
             }

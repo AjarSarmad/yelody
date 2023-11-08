@@ -2,8 +2,6 @@ package com.pluton.yelody.DTOs;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,8 +18,7 @@ public class SongRequest {
 	@NotNull(message = "Description not be NULL")
 	private String description;
 	
-	@Max(10)
-	@Min(1)
+	@NotNull
 	private int rank;
 	
 	@NotNull(message = "ArtistName not be NULL")
