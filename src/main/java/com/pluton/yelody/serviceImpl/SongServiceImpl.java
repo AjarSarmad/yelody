@@ -16,8 +16,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.pluton.yelody.DTOs.SongCriteriaSearch;
+import com.pluton.yelody.DTOs.SongtoChartRequest;
 import com.pluton.yelody.exceptions.EntityNotFoundException;
 import com.pluton.yelody.exceptions.UniqueEntityException;
+import com.pluton.yelody.models.Chart;
 import com.pluton.yelody.models.Genre;
 import com.pluton.yelody.models.Keyword;
 import com.pluton.yelody.models.Song;
@@ -26,6 +28,7 @@ import com.pluton.yelody.models.UserPreferences;
 import com.pluton.yelody.repositories.SongRepository;
 import com.pluton.yelody.repositories.UserRepository;
 import com.pluton.yelody.services.BackblazeService;
+import com.pluton.yelody.services.ChartService;
 import com.pluton.yelody.services.SongService;
 import com.pluton.yelody.services.UserPreferenceService;
 import com.pluton.yelody.services.UserService;
@@ -44,6 +47,8 @@ public class SongServiceImpl implements SongService{
 	UserService userService;
 	@Autowired
 	UserPreferenceService userPreferenceService;
+	@Autowired
+	ChartService chartService;
 	
 	List<Song> songList = null;
 	Optional<Song> song = null;
@@ -216,6 +221,30 @@ public class SongServiceImpl implements SongService{
 	@Override
 	public List<Song> postSongs(List<Song> songList) {
 		return songRepository.saveAll(songList);
+	}
+
+	@Override
+	public ResponseEntity<?> postSongToChart(SongtoChartRequest songtoChartRequest) {
+		Optional<Chart> chartGet = null;
+    	songList = new ArrayList<>();
+    	try {
+    		List<Song> songList = getSongById(songtoChartRequest.getSongIds());
+			chartGet = chartService.getChartById(songtoChartRequest.getChartId());
+
+    		if(!songList.isEmpty() && chartGet.isPresent()) {
+    			for(Song song: songList) {
+    				if(song.getChart()!=null && song.getChart().equals(chartGet.get()))
+    					song.setChart(null);
+    				else if(song.getChart()!=null)
+    					return ResponseEntity.status(HttpStatus.CONFLICT).body("THIS SONG IS ALREADY IN CHART : " + song.getChart().getChartId()); 
+    				else
+    					song.setChart(chartGet.get());
+    			}
+			}
+			return new ResponseEntity<Object>(songRepository.saveAll(songList), HttpStatus.OK);
+    	}catch(Exception ex) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
+    	}
 	}
 
 }
