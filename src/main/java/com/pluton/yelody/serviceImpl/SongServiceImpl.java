@@ -256,5 +256,10 @@ public class SongServiceImpl implements SongService{
 	    }
 	}
 
+	@Override
+	public Optional<Song> getSongByRank(int rank) {
+		return songRepository.findByRank(rank);
+	}
+
 
 }

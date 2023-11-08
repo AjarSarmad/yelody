@@ -59,6 +59,9 @@ public class ChartController {
 				else
 					return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("IMAGE CANNOT BE NULL");
 				
+				if(chartService.getChartByRank(chartRequest.getRank()).isPresent())
+					return ResponseEntity.status(HttpStatus.CONFLICT).body("RANK ALREADY EXISTED");
+					
 	    		chartPost = new Chart(
 	    				id,
 	    				chartRequest.getName(),
