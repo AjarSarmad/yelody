@@ -40,5 +40,6 @@ public class UserSingHistory {
 	@Column(name="score" , nullable=false, unique=false)
 	private long score;
 	
-	
+	@Column(name="lyrics" ,columnDefinition = "LONGTEXT", nullable=false)
+	private String lyrics;
 }
