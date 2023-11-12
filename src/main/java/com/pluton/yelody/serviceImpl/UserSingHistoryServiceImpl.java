@@ -16,6 +16,7 @@ import com.pluton.yelody.models.UserSingHistory;
 import com.pluton.yelody.repositories.UserSingHistoryRepository;
 import com.pluton.yelody.services.BackblazeService;
 import com.pluton.yelody.services.UserSingHistoryService;
+import com.pluton.yelody.utilities.ScoringAlgorithm;
 
 @Service
 public class UserSingHistoryServiceImpl implements UserSingHistoryService{
@@ -36,6 +37,8 @@ public class UserSingHistoryServiceImpl implements UserSingHistoryService{
 	@Override
 	public UserSingHistory postSingHistory(UserSingHistory userSingHistory) {
 		try {
+			long score = ScoringAlgorithm.compareLyrics(userSingHistory.getSong().getLyrics(), userSingHistory.getLyrics());
+			userSingHistory.setScore(score);
 			return userSingHistoryRepo.save(userSingHistory);
 		}catch(Exception e) {
 			 if (e.getCause() instanceof ConstraintViolationException) {

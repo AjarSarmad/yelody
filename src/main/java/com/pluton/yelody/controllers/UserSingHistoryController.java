@@ -64,7 +64,8 @@ public class UserSingHistoryController {
     				userService.getUserByID(userSingHistoryRequest.getUserId()).get(),
     				songService.getSongById(userSingHistoryRequest.getSongId()).get(),
     				new java.sql.Date(System.currentTimeMillis()),
-    				0L
+    				0L,
+    				userSingHistoryRequest.getLyrics()
     				);
     		
     		UserSingHistory response = userSingHistoryService.postSingHistory(userSingHistoryPost);
