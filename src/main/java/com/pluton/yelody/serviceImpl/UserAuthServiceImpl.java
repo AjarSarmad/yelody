@@ -61,27 +61,22 @@ public class UserAuthServiceImpl implements UserAuthService{
     private static final String APPLE_PUBLIC_KEYS_URL = "https://appleid.apple.com/auth/keys";
     
     public ResponseEntity<?> verifyAndFetchUserGoogle(String tokenValue) throws IOException {
-        GoogleIdToken idToken;
-        HttpTransport transport = new NetHttpTransport();
-        JsonFactory jsonFactory = new JacksonFactory();
+    	RestTemplate restTemplate = new RestTemplate();
+    	String googleApiUrl = "https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=" + tokenValue;
         try {
-            GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(transport, jsonFactory)
-                .setAudience(Collections.singletonList(clientId))
-                .build();
-
-            idToken = verifier.verify(tokenValue);
-
-            if (idToken != null) {
-                Payload payload = idToken.getPayload();
-                String email = payload.getEmail();
+        	@SuppressWarnings("unchecked")
+			Map<String, String> response = restTemplate.getForObject(googleApiUrl, Map.class);
+        	
+            if (response != null) {
+                String email = response.get("email");
                 return userService.findUserByEmail(email)
                         .<ResponseEntity<?>>map(user -> ResponseEntity.ok(user)) 
                         .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.singletonMap("email", email)));
             } else {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid ID token.");
             }
-        } catch (GeneralSecurityException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getLocalizedMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid ID token.");
         }
     }
 
