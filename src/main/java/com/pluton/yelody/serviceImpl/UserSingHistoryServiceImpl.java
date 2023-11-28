@@ -37,7 +37,8 @@ public class UserSingHistoryServiceImpl implements UserSingHistoryService{
 	@Override
 	public UserSingHistory postSingHistory(UserSingHistory userSingHistory) {
 		try {
-			long score = ScoringAlgorithm.compareLyrics(userSingHistory.getSong().getLyrics(), userSingHistory.getLyrics());
+			//NEED FIXING FOR TXT FILE
+			long score = ScoringAlgorithm.compareLyrics(null, userSingHistory.getLyrics());
 			userSingHistory.setScore(score);
 			return userSingHistoryRepo.save(userSingHistory);
 		}catch(Exception e) {

@@ -17,6 +17,7 @@ import com.pluton.yelody.services.AgeGroupService;
 import com.pluton.yelody.services.GenreService;
 import com.pluton.yelody.services.KeywordService;
 import com.pluton.yelody.utilities.ImageUtil;
+import com.pluton.yelody.utilities.LyricsFileUtil;
 
 @Component
 public class SongConverter {
@@ -27,7 +28,9 @@ public class SongConverter {
     @Autowired
     private AgeGroupService ageGroupService;
     
-	String imagePath = "ImageResources/SONG";
+	String imagePath = "Resources/IMAGE/SONG";
+	String lyricsTxtPath = "Resources/LyricsTxt/SONG";
+	String lyricsXmlPath = "Resources/LyricsXml/SONG";
 
     public Song convertRequestToEntity(SongRequest songRequest) throws IOException{
     	 Optional<Genre> genre = genreService.getGenreByType(songRequest.getGenre());
@@ -40,6 +43,8 @@ public class SongConverter {
 
     	    UUID id = UUID.randomUUID();
     	    String imageResponse = ImageUtil.saveFile(imagePath, id.toString(), songRequest.getImage());
+    	    String lyricsTxt = LyricsFileUtil.saveTxtFile(lyricsTxtPath, id.toString(), songRequest.getLyrics_txt());
+    	    String lyricsXml = LyricsFileUtil.saveXmlFile(lyricsXmlPath, id.toString(), songRequest.getLyrics_xml());
 
     	    Song song = new Song(
     	            id,
@@ -47,7 +52,8 @@ public class SongConverter {
     	            songRequest.getDescription(),
     	            songRequest.getRank(),
     	            songRequest.getArtistName(),
-    	            songRequest.getLyrics(),
+    	            lyricsTxt,
+    	            lyricsXml,
     	            imageResponse,
     	            Arrays.asList(keyword.get()),
     	            new ArrayList<>(),

@@ -66,7 +66,7 @@ public class SongController {
 	@Autowired
 	SongConverter songConverter;
 	
-	String imagePath = "ImageResources/SONG";
+	String imagePath = "Resources/IMAGE/SONG";
 	List<Song> songList = null;
 	Song song = null;
 	Optional<Song> songGet = null;
@@ -85,12 +85,7 @@ public class SongController {
 	public ResponseEntity<Object> postSong(@ModelAttribute @Valid SongRequest songRequest) throws IOException {
 	    
 	    try {
-	        if (!StringUtils.getFilenameExtension(songRequest.getFile().getOriginalFilename()).equalsIgnoreCase("mp3"))
-	            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("SONG FILE FORMAT SHOULD BE .MP3");
-	        if (songRequest.getImage() == null || songRequest.getImage().isEmpty())
-	            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("IMAGE CANNOT BE NULL");
-	        if(songService.getSongByRank(songRequest.getRank()).isPresent())
-		        return ResponseEntity.status(HttpStatus.CONFLICT).body("RANK ALREADY EXIST");
+	    	if(songService.validateSongRequest(songRequest)) {
 	        
 	        Song song = songConverter.convertRequestToEntity(songRequest);
 
@@ -104,6 +99,7 @@ public class SongController {
 	            if (backblazeResponse)
 	                return new ResponseEntity<Object>(songPost, HttpStatus.CREATED); 
 	        }
+    	}
 	    } catch (Exception ex) {
 	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
 	    }
