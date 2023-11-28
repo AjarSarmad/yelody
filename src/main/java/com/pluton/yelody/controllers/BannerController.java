@@ -33,7 +33,7 @@ public class BannerController {
 	@Autowired
 	BannerService bannerService;
 	
-	final String imagePath = "ImageResources/BANNER";
+	final String imagePath = "Resources/IMAGE/BANNER";
 	Optional<Banner> bannerGet = null;
 	Banner bannerPost = null;
 	List<Banner> bannerList = null;
