@@ -44,7 +44,7 @@ public class UserController {
 	@Autowired
 	HashingUtility hashingUtility;
 	
-	final String imagePath = "ImageResources/USER";
+	final String imagePath = "Resources/IMAGE/USER";
 	List<User> userList = null;
 	Optional<User> userGet = null;
 	User userPost = null;

@@ -17,6 +17,8 @@ public class UserSingHistoryRequest {
 	private UUID userId;
 	@NotNull(message = "SONG ID MUST NOT BE NULL")
 	private UUID songId;
+	@NotNull(message = "LYRICS MUST NOT BE NULL")
+	private String lyrics;
 	@NotNull(message = ".MP3 FILE MUST NOT BE NULL")
 	private MultipartFile file;
 }

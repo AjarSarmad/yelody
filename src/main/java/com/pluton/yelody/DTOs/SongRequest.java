@@ -24,9 +24,6 @@ public class SongRequest {
 	@NotNull(message = "ArtistName not be NULL")
 	private String artistName;
 	
-	@NotNull(message = "Lyrics not be NULL")
-	private String lyrics;
-	
 	@NotNull(message = "Genre not be NULL")
 	private String genre;
 	
@@ -38,6 +35,12 @@ public class SongRequest {
 	
 	@NotNull(message = "keyword not be NULL")
 	private String keyword;
+	
+	@NotNull(message = "lyrics_txt not be NULL")
+	private MultipartFile lyrics_txt;
+	
+	@NotNull(message = "lyrics_xml not be NULL")
+	private MultipartFile lyrics_xml;
 	
 	@NotNull(message = "Mp3 File not be NULL")
 	private MultipartFile file;

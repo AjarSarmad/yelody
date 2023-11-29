@@ -14,8 +14,10 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import com.pluton.yelody.DTOs.SongCriteriaSearch;
+import com.pluton.yelody.DTOs.SongRequest;
 import com.pluton.yelody.DTOs.SongtoChartRequest;
 import com.pluton.yelody.exceptions.EntityNotFoundException;
 import com.pluton.yelody.exceptions.UniqueEntityException;
@@ -33,6 +35,8 @@ import com.pluton.yelody.services.SongService;
 import com.pluton.yelody.services.UserPreferenceService;
 import com.pluton.yelody.services.UserService;
 import com.pluton.yelody.utilities.SongSpecifications;
+
+import jakarta.validation.Valid;
 
 @Service
 public class SongServiceImpl implements SongService{
@@ -259,6 +263,23 @@ public class SongServiceImpl implements SongService{
 	@Override
 	public Optional<Song> getSongByRank(int rank) {
 		return songRepository.findByRank(rank);
+	}
+
+	@Override
+	public boolean validateSongRequest(@Valid SongRequest songRequest) throws Exception {
+		boolean isValid = true;
+		if (!StringUtils.getFilenameExtension(songRequest.getFile().getOriginalFilename()).equalsIgnoreCase("mp3"))
+            throw new Exception("SONG FILE FORMAT SHOULD BE .MP3");
+        if (songRequest.getImage() == null || songRequest.getImage().isEmpty())
+        	throw new Exception("IMAGE CANNOT BE NULL");
+        if (songRequest.getLyrics_txt() == null || songRequest.getLyrics_txt().isEmpty())
+        	throw new Exception("LYRICS .TXT CANNOT BE NULL");
+        if (songRequest.getLyrics_xml() == null || songRequest.getLyrics_xml().isEmpty())
+        	throw new Exception("LYRICS .XML CANNOT BE NULL");
+        if(getSongByRank(songRequest.getRank()).isPresent())
+        	throw new Exception("RANK ALREADY EXIST");
+        
+        return isValid;
 	}
 
 

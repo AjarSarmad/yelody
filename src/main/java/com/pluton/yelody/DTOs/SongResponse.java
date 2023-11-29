@@ -17,7 +17,8 @@ public class SongResponse {
 	private String description;
 	private int rank;
 	private String artistName;
-	private String lyrics;
+	private String lyricsTxt;
+	private String lyricsXml;
 	private int viewCount;
 	private String ageGroup;
     private List<String> keywords = new ArrayList<>();

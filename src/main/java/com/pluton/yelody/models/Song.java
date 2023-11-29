@@ -44,8 +44,11 @@ public class Song {
 	@Column(name="artist_name" , nullable=false)
 	private String artistName;
 
-	@Column(name="lyrics" ,columnDefinition = "LONGTEXT", nullable=false)
-	private String lyrics;
+	@Column(name="lyrics_txt" , nullable=false)
+	private String lyrics_txt;
+	
+	@Column(name="lyrics_xml" , nullable=false)
+	private String lyrics_xml;
 	
 	@Column(name="image" , nullable=false)
 	private String image;

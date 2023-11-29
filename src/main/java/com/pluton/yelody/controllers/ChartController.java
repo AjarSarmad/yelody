@@ -38,7 +38,7 @@ public class ChartController {
 	@Autowired
 	SongService songService;
 	
-	final String imagePath = "ImageResources/CHART";
+	final String imagePath = "Resources/IMAGE/CHART";
 	List<Chart> chartList = null;
 	Chart chartPost = null;
 	Optional<Chart> chartGet = null;

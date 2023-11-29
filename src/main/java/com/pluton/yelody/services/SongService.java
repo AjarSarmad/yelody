@@ -8,9 +8,12 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 
 import com.pluton.yelody.DTOs.SongCriteriaSearch;
+import com.pluton.yelody.DTOs.SongRequest;
 import com.pluton.yelody.DTOs.SongtoChartRequest;
 import com.pluton.yelody.models.Song;
 import com.pluton.yelody.models.User;
+
+import jakarta.validation.Valid;
 
 public interface SongService {
 	public abstract List<Song> getSongList(Sort sort);
@@ -42,5 +45,7 @@ public interface SongService {
 	public abstract ResponseEntity<?> postSongToChart(SongtoChartRequest songtoChartRequest);
 	
 	public abstract Optional<Song> getSongByRank(int rank);
+
+	public abstract boolean validateSongRequest(@Valid SongRequest songRequest) throws Exception;
 	
 }
