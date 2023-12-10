@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.pluton.yelody.DTOs.CombinedStatsResponse;
+import com.pluton.yelody.DTOs.GenericResponse;
 import com.pluton.yelody.DTOs.MiscellaneousResponse;
 import com.pluton.yelody.models.AgeGroup;
 import com.pluton.yelody.models.Genre;
@@ -41,7 +42,7 @@ public class MiscellaneousController {
 	//http://localhost:8080/yelody/miscellaneous/age_key_genre
 	@CrossOrigin(origins = "*")
 	@GetMapping("/age_key_genre")
-	public ResponseEntity<Object> age_key_genre() {
+	public GenericResponse<MiscellaneousResponse> age_key_genre() {
 		keywordList = new ArrayList<>();
 		ageGroupList = new ArrayList<>();
 		genreList = new ArrayList<>();
@@ -50,16 +51,15 @@ public class MiscellaneousController {
 			ageGroupList = ageGroupService.getAgeGroupList();
 			genreList = genreService.getGenreList();
 			
-			return new ResponseEntity<Object>(
+			return GenericResponse.success(
 					new MiscellaneousResponse(
 							ageGroupList,
 							keywordList,
 							genreList
-							),
-					HttpStatus.OK
+							)
 					);
 		}catch(Exception ex) {
-  			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
+			return GenericResponse.error(ex.getLocalizedMessage());
 		}
 	}
 	
@@ -68,6 +68,6 @@ public class MiscellaneousController {
 	@CrossOrigin(origins = "*")
 	@GetMapping("/combinedStats")
     public ResponseEntity<CombinedStatsResponse> getCombinedStats() {
-        return ResponseEntity.ok(combinedStatsService.getCombinedStats());
+        return new ResponseEntity<CombinedStatsResponse>(combinedStatsService.getCombinedStats(), HttpStatus.OK);
 	}
 }

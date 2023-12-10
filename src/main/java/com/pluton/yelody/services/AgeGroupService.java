@@ -5,13 +5,13 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
+import com.pluton.yelody.DTOs.GenericResponse;
 import com.pluton.yelody.exceptions.ConstraintViolationHandler;
 import com.pluton.yelody.models.AgeGroup;
 
 public interface AgeGroupService {
-	public abstract ResponseEntity<Object> saveAgeGroup(AgeGroup ageGroup);
+	public abstract GenericResponse<AgeGroup> saveAgeGroup(AgeGroup ageGroup);
 	
 	public abstract Optional<AgeGroup> getAgeGroupById(UUID id);
 	

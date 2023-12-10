@@ -6,8 +6,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.pluton.yelody.DTOs.GenericResponse;
 import com.pluton.yelody.models.Keyword;
 import com.pluton.yelody.models.Song;
 import com.pluton.yelody.services.KeywordService;
@@ -38,13 +37,13 @@ public class KeywordController {
 	//http://localhost:8080/yelody/keyword/addKeyword
 	@CrossOrigin(origins = "*")
 	@PostMapping("/addKeyword")
-	public ResponseEntity<Object> addKeyword(@RequestParam(name="keyword")
+	public GenericResponse<Keyword> addKeyword(@RequestParam(name="keyword")
 	@NotNull(message = "Keyword must not be null") 
 	@NotBlank
 	String keyword){
 		keywordPost = null;
 		if(keyword.isEmpty())
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("KEYWORD MUST NOT BE EMPTY");
+			return GenericResponse.error("KEYWORD MUST NOT BE EMPTY");
 		try {
 				keywordPost = new Keyword(
 	            UUID.randomUUID(),
@@ -55,7 +54,7 @@ public class KeywordController {
 			
 			return keywordService.saveKeyword(keywordPost);
 		}catch(Exception ex) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
+			return GenericResponse.error(ex.getLocalizedMessage());
 		}
 	}
 	
@@ -63,17 +62,17 @@ public class KeywordController {
 	//http://localhost:8080/yelody/keyword/getKeywordById?id=
     @CrossOrigin(origins = "*")
   	@GetMapping("/getKeywordById")
-    public ResponseEntity<Object> getKeywordById(@RequestParam(name="id")@org.hibernate.validator.constraints.UUID UUID id){
+    public GenericResponse<Keyword> getKeywordById(@RequestParam(name="id")@org.hibernate.validator.constraints.UUID UUID id){
     	keywordGet = null;
     	try {
     		keywordGet = keywordService.getKeywordById(id);
     		if(keywordGet!=null)
-    			return new ResponseEntity<Object>(keywordGet.get(), HttpStatus.OK);
+    			return GenericResponse.success(keywordGet.get());
     		else
-      			return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
+    			return GenericResponse.error("NOT FOUND");
 
     	}catch(Exception ex) {
-  			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
+    		return GenericResponse.error(ex.getLocalizedMessage());
     	}
     }
     
@@ -82,17 +81,17 @@ public class KeywordController {
 	  //http://localhost:8080/yelody/keyword/getKeywordList
       @CrossOrigin(origins = "*")
 	  @GetMapping("/getKeywordList")
-	  public ResponseEntity<Object> getKeywordList(){
+	  public GenericResponse<List<Keyword>> getKeywordList(){
     	  keywordList = null;
 	  	try {
 	  		keywordList = new ArrayList<>(keywordService.getKeywordList());
 	  		if(keywordList!=null)
-	  			return new ResponseEntity<Object>(keywordList, HttpStatus.OK);
+	  			return GenericResponse.success(keywordList);
 	  		else
-	    			return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
+    			return GenericResponse.error("NOT FOUND");
 	
 	  	}catch(Exception ex) {
-  			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
+    		return GenericResponse.error(ex.getLocalizedMessage());
 	  	}
 	  }
       
@@ -101,7 +100,7 @@ public class KeywordController {
 	  //http://localhost:8080/yelody/keyword/updateKeyword?id=&keyword=
       @CrossOrigin(origins = "*")
       @PutMapping("/updateKeyword")
-      public ResponseEntity<Object> updateKeyword(@RequestParam(name="id")
+      public GenericResponse<Keyword> updateKeyword(@RequestParam(name="id")
       @org.hibernate.validator.constraints.UUID UUID id,
       @RequestParam(name="keyword") 
       @NotNull(message = "Keyword must not be null") 
@@ -118,12 +117,12 @@ public class KeywordController {
       	  				keywordGet.get().getSongs(),
       	  				keywordGet.get().getUserPreferences()
       					);
-      			return new ResponseEntity<Object>(keywordService.saveKeyword(keywordPost), HttpStatus.OK);
+      			return keywordService.saveKeyword(keywordPost);
       			}
       		else
-      			return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
+    			return GenericResponse.error("NOT FOUND");
       	}catch(Exception ex) {
-  			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
+      		return GenericResponse.error(ex.getLocalizedMessage());
       	}
       }
     
@@ -132,18 +131,18 @@ public class KeywordController {
 	  //http://localhost:8080/yelody/keyword/deleteKeyword?id=
       @CrossOrigin(origins = "*")
       @DeleteMapping("/deleteKeyword")
-      public ResponseEntity<Object> deleteKeyword(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID id){
+      public GenericResponse deleteKeyword(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID id){
     	  keywordGet = null;
       	try {
       		keywordGet = keywordService.getKeywordById(id);
       		if(keywordGet!=null) {
       			keywordService.deleteKeyword(keywordGet.get());
-    			return ResponseEntity.status(HttpStatus.OK).body("KEYWORD Id: " + id + " deleted Successfully");
+      			return GenericResponse.success("KEYWORD Id: " + id + " deleted Successfully");
       		}
       		else
-      			return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
+    			return GenericResponse.error("NOT FOUND.");
       	}catch(Exception ex) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
+    		return GenericResponse.error(ex.getLocalizedMessage());
       	}
       }
 }

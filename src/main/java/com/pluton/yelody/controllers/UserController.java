@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.pluton.yelody.DTOs.GenericResponse;
 import com.pluton.yelody.DTOs.UserCriteriaSearch;
 import com.pluton.yelody.DTOs.UserRequest;
 import com.pluton.yelody.models.AgeGroup;
@@ -54,7 +55,7 @@ public class UserController {
 	//http://localhost:8080/yelody/user/listUsers
 	@CrossOrigin(origins = "*")
 	@GetMapping("/listUsers")
-	public ResponseEntity<Object> listUsers( @RequestBody(required = false) @Valid UserCriteriaSearch userCriteriaModel) {
+	public GenericResponse<List<User>> listUsers( @RequestBody(required = false) @Valid UserCriteriaSearch userCriteriaModel) {
 	    try {
 	        userList = new ArrayList<>(); 
 	        
@@ -76,21 +77,16 @@ public class UserController {
 	                    userList = userService.getUserByRegistrationDate(userCriteriaModel.getFilter(), userCriteriaModel.getSortBy());
 	                    break;
 	                default:
-	                    return new ResponseEntity<>("Invalid filterBy value", HttpStatus.BAD_REQUEST);
+	                    return GenericResponse.error("Invalid filterBy value");
 	            }
 	        } else if(userCriteriaModel!=null && userCriteriaModel.getSortBy() != null)
 	        	userList = userService.getUserList(userCriteriaModel.getSortBy());
 	        
 	        if (userCriteriaModel == null)
 	        	userList = userService.getUserList();
-
-	        if (userList.isEmpty()) {
-	            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-	        } else {
-	            return new ResponseEntity<>(userList, HttpStatus.OK);
-	        }
+            return GenericResponse.success(userList);
 	    } catch (Exception ex) {
-  			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
+  			return GenericResponse.error(ex.getLocalizedMessage());
 	    }
 	}
 
@@ -99,17 +95,17 @@ public class UserController {
   	//http://localhost:8080/yelody/user/getUserDetails?id=
     @CrossOrigin(origins = "*")
   	@GetMapping("/getUserDetails")
-    public ResponseEntity<Object> getUserDetails(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID userId){
+    public GenericResponse<User> getUserDetails(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID userId){
     	userGet = null;
     	try {
     		userGet = userService.getUserByID(userId);
     		if(userGet!=null || !(userGet.isEmpty()))
-    			return new ResponseEntity<Object>(userGet, HttpStatus.FOUND);
+    			return GenericResponse.success(userGet.get());
     		else
-      			return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
+    			return GenericResponse.error("User Not Found!");
 
     	}catch(Exception ex) {
-  			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
+    		return GenericResponse.error(ex.getLocalizedMessage());
     	}
     }
 	
@@ -117,7 +113,7 @@ public class UserController {
   	//http://localhost:8080/yelody/user/postUser
     @CrossOrigin(origins = "*")
   	@PostMapping("/postUser")
-    public ResponseEntity<Object> postUser(@ModelAttribute @Valid UserRequest userRequest){
+    public GenericResponse<User> postUser(@ModelAttribute @Valid UserRequest userRequest){
     	userPost = null;
     	Optional<AgeGroup> ageGroup = null;
 		String imageResponse = null;
@@ -131,7 +127,7 @@ public class UserController {
     			if(userRequest.getImage()!=null  && !userRequest.getImage().isEmpty())
     				imageResponse = ImageUtil.saveFile(imagePath, id.toString(), userRequest.getImage());
     			else
-    				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("IMAGE CANNOT BE NULL");
+    				return GenericResponse.error("IMAGE CANNOT BE NULL");
     			
 	    		userPost = new User(
 	    					id,
@@ -155,7 +151,7 @@ public class UserController {
     		}
   			return userService.saveUser(userPost);
     	}catch(Exception ex) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
+    		return GenericResponse.error(ex.getLocalizedMessage());
     	}
     }
 	
@@ -163,7 +159,7 @@ public class UserController {
   	//http://localhost:8080/yelody/user/updateUser?id=
     @CrossOrigin(origins = "*")
   	@PutMapping("/updateUser")
-    public ResponseEntity<Object> updateUser(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID id, @ModelAttribute @Valid UserRequest userRequest){
+    public GenericResponse<User> updateUser(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID id, @ModelAttribute @Valid UserRequest userRequest){
     	userGet = null;
     	userPost = null;
     	String imageResponse = null;
@@ -192,14 +188,14 @@ public class UserController {
     					userGet.get().getPreferences(),
     					userGet.get().getSongQueue()    	
     					);
-    			return new ResponseEntity<Object>(userService.saveUser(userPost), HttpStatus.OK);
+    			return userService.updateUser(userPost);
     			}
     		else
-    			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("USER NOT FOUND");
+    			return GenericResponse.error("USER NOT FOUND");
 
     	}catch(Exception ex) {
 			ex.printStackTrace();
-  			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
+			return GenericResponse.error(ex.getLocalizedMessage());
     	}
     }
     
@@ -207,17 +203,17 @@ public class UserController {
     //http://localhost:8080/yelody/user/deleteUser?id=
     @CrossOrigin(origins = "*")
   	@DeleteMapping("/deleteUser")
-    public ResponseEntity<?> deleteUser(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID id){
+    public GenericResponse deleteUser(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID id){
     	userGet = null;
     	try {
     		userGet = userService.getUserByID(id);
     		if(userGet!=null) {
     			userService.deleteUser(userGet.get());
-    			return ResponseEntity.status(HttpStatus.OK).body("USER ID:" + id + " Deleted Successfully");
+    			return GenericResponse.success("USER ID:" + id + " Deleted Successfully");
     		}
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("USER ID: " + id + " NOT FOUND");
+			return GenericResponse.error("USER ID: " + id + " NOT FOUND");
     	}catch(Exception ex) {
-  			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
+			return GenericResponse.error(ex.getLocalizedMessage());
     	}
     }
     

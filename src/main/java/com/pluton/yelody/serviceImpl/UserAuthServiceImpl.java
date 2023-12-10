@@ -26,6 +26,7 @@ import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.pluton.yelody.DTOs.Email;
 import com.pluton.yelody.DTOs.FacebookUserDTO;
+import com.pluton.yelody.DTOs.GenericResponse;
 import com.pluton.yelody.DTOs.LoginRequest;
 import com.pluton.yelody.models.User;
 import com.pluton.yelody.repositories.UserRepository;
@@ -60,7 +61,7 @@ public class UserAuthServiceImpl implements UserAuthService{
     
     private static final String APPLE_PUBLIC_KEYS_URL = "https://appleid.apple.com/auth/keys";
     
-    public ResponseEntity<?> verifyAndFetchUserGoogle(String tokenValue) throws IOException {
+    public GenericResponse verifyAndFetchUserGoogle(String tokenValue) throws IOException {
     	RestTemplate restTemplate = new RestTemplate();
     	String googleApiUrl = "https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=" + tokenValue;
         try {
@@ -70,17 +71,17 @@ public class UserAuthServiceImpl implements UserAuthService{
             if (response != null) {
                 String email = response.get("email");
                 return userService.findUserByEmail(email)
-                        .<ResponseEntity<?>>map(user -> ResponseEntity.ok(user)) 
-                        .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.singletonMap("email", email)));
+                        .<GenericResponse>map(user -> GenericResponse.success(user)) 
+                        .orElseGet(() -> GenericResponse.success(Collections.singletonMap("email", email), "NEW USER"));
             } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid ID token.");
+            	return GenericResponse.error("Invalid ID token.");
             }
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid ID token.");
+        	return GenericResponse.error("Invalid ID token.");
         }
     }
 
-    public ResponseEntity<?> verifyAndFetchUserFacebook(String tokenValue) {
+    public GenericResponse verifyAndFetchUserFacebook(String tokenValue) {
         RestTemplate restTemplate = new RestTemplate();
         String facebookApiUrl = "https://graph.facebook.com/me?fields=id,name,email&access_token=" + tokenValue;
 
@@ -89,13 +90,13 @@ public class UserAuthServiceImpl implements UserAuthService{
 
             if (userInfo != null && userInfo.getEmail() != null) {
                 return userRepository.findByEmail(userInfo.getEmail())
-                        .<ResponseEntity<?>>map(user -> ResponseEntity.ok(user))
-                        .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.singletonMap("email", userInfo.getEmail())));
+                        .<GenericResponse>map(user -> GenericResponse.success(user))
+                        .orElseGet(() -> GenericResponse.success(Collections.singletonMap("email", userInfo.getEmail()), "NEW USER"));
             } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid Facebook token or no email found.");
+            	return GenericResponse.error("Invalid Facebook token or no email found.");
             }
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getLocalizedMessage());
+        	return GenericResponse.error(e.getLocalizedMessage());
         }
     }
     
