@@ -6,9 +6,9 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.pluton.yelody.DTOs.GenericResponse;
 import com.pluton.yelody.exceptions.ConstraintViolationHandler;
 import com.pluton.yelody.exceptions.EntityNotFoundException;
 import com.pluton.yelody.models.AgeGroup;
@@ -21,11 +21,11 @@ public class AgeGroupServiceImpl implements AgeGroupService {
 	AgeGroupRepository ageGroupRepository;
 	
 	@Override
-	public ResponseEntity<Object> saveAgeGroup(AgeGroup ageGroup) {
+	public GenericResponse<AgeGroup> saveAgeGroup(AgeGroup ageGroup) {
 		try {
-			return new ResponseEntity<Object>(ageGroupRepository.save(ageGroup),HttpStatus.CREATED);
+			return GenericResponse.success(ageGroupRepository.save(ageGroup));
 		}catch(Exception e) {
-  			return new ResponseEntity<Object>(HttpStatus.BAD_REQUEST);
+			return GenericResponse.error(e.getLocalizedMessage());
 		}
 	}
 

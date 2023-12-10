@@ -6,8 +6,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.pluton.yelody.DTOs.AgeGroupUpdateRequest;
+import com.pluton.yelody.DTOs.GenericResponse;
 import com.pluton.yelody.models.AgeGroup;
 import com.pluton.yelody.services.AgeGroupService;
 
@@ -38,12 +37,12 @@ public class AgeGroupController {
 	//http://localhost:8080/yelody/ageGroup/addAgeGroup
 	@CrossOrigin(origins = "*")
 	@PostMapping("/addAgeGroup")
-	public ResponseEntity<Object> addAgeGroup(
+	public GenericResponse<AgeGroup> addAgeGroup(
 			@RequestParam(name="ageGroup")
 			final String ageGroup){
 		ageGroupPost = null;
 		if(!ageGroup.matches("^[0-9]+-[0-9]+$"))
-  			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("INVALID AGE GROUP PATTERN");
+			return GenericResponse.error("INVALID AGE GROUP PATTERN");
  
 		if(!ageGroupService.existsByName(ageGroup)) {
 		try {
@@ -56,7 +55,7 @@ public class AgeGroupController {
 			
 			return ageGroupService.saveAgeGroup(ageGroupPost);
 		}catch(Exception ex) {
-  			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
+			return GenericResponse.error(ex.getLocalizedMessage());
 		}}
 		return null;
 	}
@@ -65,17 +64,17 @@ public class AgeGroupController {
 	//http://localhost:8080/yelody/ageGroup/getAgeGroupbyId
     @CrossOrigin(origins = "*")
   	@GetMapping("/getAgeGroupbyId")
-    public ResponseEntity<Object> getAgeGroupbyId(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID id){
+    public GenericResponse<AgeGroup> getAgeGroupbyId(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID id){
     	ageGroupGet = null;
     	try {
     		ageGroupGet = ageGroupService.getAgeGroupById(id);
     		if(ageGroupGet!=null)
-    			return new ResponseEntity<Object>(ageGroupGet.get(), HttpStatus.OK);
+    			return GenericResponse.success(ageGroupGet.get());
     		else
-      			return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
+    			return GenericResponse.error("NOT FOUND");
 
     	}catch(Exception ex) {
-  			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getLocalizedMessage());
+    		return GenericResponse.error(ex.getLocalizedMessage());
     	}
     }
     
@@ -84,17 +83,17 @@ public class AgeGroupController {
 	//http://localhost:8080/yelody/ageGroup/getAgeGroupList
     @CrossOrigin(origins = "*")
   	@GetMapping("/getAgeGroupList")
-    public ResponseEntity<Object> getAgeGroupList(){
+    public GenericResponse<List<AgeGroup>> getAgeGroupList(){
     	ageGroupList = null;
     	try {
     		ageGroupList = new ArrayList<>(ageGroupService.getAgeGroupList());
     		if(ageGroupList!=null)
-    			return new ResponseEntity<Object>(ageGroupList, HttpStatus.OK);
+    			return GenericResponse.success(ageGroupList);
     		else
-      			return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
+    			return GenericResponse.error("NOT FOUND.");
 
     	}catch(Exception ex) {
-  			return new ResponseEntity<Object>(HttpStatus.BAD_REQUEST);
+    		return GenericResponse.error(ex.getLocalizedMessage());
     	}
     }
     
@@ -102,7 +101,7 @@ public class AgeGroupController {
 	//http://localhost:8080/yelody/ageGroup/updateAgeGroup?
     @CrossOrigin(origins = "*")
   	@PutMapping("/updateAgeGroup")
-    public ResponseEntity<Object> updateAgeGroup(@RequestBody @Valid AgeGroupUpdateRequest ageGroupUpdateRequest){
+    public GenericResponse<AgeGroup> updateAgeGroup(@RequestBody @Valid AgeGroupUpdateRequest ageGroupUpdateRequest){
     	ageGroupGet = null;
     	ageGroupPost = null;
     	try {
@@ -114,14 +113,14 @@ public class AgeGroupController {
     	  				ageGroupGet.get().getSongs(),
     	  				ageGroupGet.get().getUsers()
     					);
-    			return new ResponseEntity<Object>(ageGroupService.saveAgeGroup(ageGroupPost), HttpStatus.OK);
+    			return ageGroupService.saveAgeGroup(ageGroupPost);
     			}
     		else
-    			return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
+    			return GenericResponse.error("NOT FOUND.");
 
     	}catch(Exception ex) {
 			ex.printStackTrace();
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getLocalizedMessage());
+			return GenericResponse.error(ex.getLocalizedMessage());
     	}
     }
     
@@ -129,18 +128,18 @@ public class AgeGroupController {
 	//http://localhost:8080/yelody/ageGroup/deleteAgeGroup?id=
     @CrossOrigin(origins = "*")
   	@DeleteMapping("/deleteAgeGroup")
-    public ResponseEntity<?> deleteAgeGroup(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID id){
+    public GenericResponse deleteAgeGroup(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID id){
     	ageGroupGet = null;
     	try {
     		ageGroupGet = ageGroupService.getAgeGroupById(id);
     		if(ageGroupGet!=null) {
     			ageGroupService.deleteAgeGroup(ageGroupGet.get());
-    			return ResponseEntity.status(HttpStatus.OK).body("Age Group deleted Successfully");
+    			return GenericResponse.success("Age Group deleted Successfully");
     		}
     		else
-    			return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
+    			return GenericResponse.error("NOT FOUND.");
     	}catch(Exception ex) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getLocalizedMessage());
+    		return GenericResponse.error(ex.getLocalizedMessage());
     	}
     }
     

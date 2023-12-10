@@ -8,6 +8,7 @@ import java.util.UUID;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.ResponseEntity;
 
+import com.pluton.yelody.DTOs.GenericResponse;
 import com.pluton.yelody.models.User;
 
 public interface UserService {
@@ -38,12 +39,12 @@ public interface UserService {
 	
 	public abstract Specification<User> filterByPhone(String phone);
 	
-	public abstract ResponseEntity<Object> saveUser(User  user);
+	public abstract GenericResponse<User> saveUser(User user);
+	
+	public abstract GenericResponse<User> updateUser(User user);
 
 	public abstract ResponseEntity<?> deleteUser(User user);
 	
 	public abstract Optional<User> findUserByEmail(String email);
-	
-	public abstract void updateUser(User user);
 	
 }

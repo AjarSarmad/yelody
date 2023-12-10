@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.pluton.yelody.DTOs.GenericResponse;
 import com.pluton.yelody.exceptions.ConstraintViolationHandler;
 import com.pluton.yelody.exceptions.EntityNotFoundException;
 import com.pluton.yelody.exceptions.UniqueEntityException;
@@ -127,9 +128,15 @@ public class UserServiceImpl implements UserService{
 	
 	
 	@Override
-	public ResponseEntity<Object> saveUser(User  user){
+	public GenericResponse<User> saveUser(User  user){
 		try {
-			return new ResponseEntity<Object>(userRepository.save(user),HttpStatus.CREATED);
+			if(userRepository.findByEmail(user.getEmail()).isPresent())
+				return GenericResponse.error("User already existed.");
+			if(userRepository.findByUserName(user.getUserName()).isPresent())
+				return GenericResponse.error("Username is already used.");
+
+			return GenericResponse.success(userRepository.save(user), "User has been created.");
+
 		}catch(Exception e) {
 			 if (e.getCause() instanceof ConstraintViolationException) {
 		            ConstraintViolationException constraintViolationException = (ConstraintViolationException) e.getCause();
@@ -178,8 +185,22 @@ public class UserServiceImpl implements UserService{
 	}
 
 	@Override
-	public void updateUser(User user) {
-		userRepository.save(user);
-	}
+	public GenericResponse<User> updateUser(User user) {
+		try {
+			if(userRepository.findByEmail(user.getEmail()).isPresent())
+				return GenericResponse.success(userRepository.save(user), "User has been updated.");
+			else
+				return GenericResponse.error("User not found");
+
+		}catch(Exception e) {
+			 if (e.getCause() instanceof ConstraintViolationException) {
+		            ConstraintViolationException constraintViolationException = (ConstraintViolationException) e.getCause();
+		            String duplicateValue = constraintViolationException.getSQLException().getMessage();
+		            throw new UniqueEntityException(duplicateValue);
+		        } else {
+		            throw new UniqueEntityException(e.getMessage());
+		        }
+			}
+		}
 
 }

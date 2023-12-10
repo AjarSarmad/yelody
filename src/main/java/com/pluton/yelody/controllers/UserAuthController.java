@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.pluton.yelody.DTOs.ChangePasswordRequest;
+import com.pluton.yelody.DTOs.GenericResponse;
 import com.pluton.yelody.DTOs.LoginRequest;
 import com.pluton.yelody.models.User;
 import com.pluton.yelody.services.UserAuthService;
@@ -34,22 +35,22 @@ public class UserAuthController {
     //http://localhost:8080/yelody/login/google
 	@CrossOrigin(origins = "*")
 	@PostMapping("/google")
-    public ResponseEntity<?> handleToken(@RequestParam(name = "token") String tokenValue) {
+    public GenericResponse handleToken(@RequestParam(name = "token") String tokenValue) {
 		try {
 	        return authService.verifyAndFetchUserGoogle(tokenValue);
 		}catch(Exception ex) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
+			return GenericResponse.error(ex.getLocalizedMessage());
 		}
     }
 	
     //http://localhost:8080/yelody/login/facebook
 	@CrossOrigin(origins = "*")
 	@PostMapping("/facebook")
-    public ResponseEntity<?> facebook(@RequestParam(name = "token") String tokenValue) {
+    public GenericResponse facebook(@RequestParam(name = "token") String tokenValue) {
         try {
         	return authService.verifyAndFetchUserFacebook(tokenValue);
 		}catch(Exception ex) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
+			return GenericResponse.error(ex.getLocalizedMessage());
 		}
     }
 	
