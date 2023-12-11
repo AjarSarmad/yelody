@@ -1,0 +1,116 @@
+<VirtualHost *:80>
+    ServerName tradepedia.io
+    Redirect permanent / https://tradepedia.io/
+</VirtualHost>
+
+<VirtualHost *:443>
+    ServerName tradepedia.io
+
+    DocumentRoot /home/tradepedia_home/tradepedia_landing
+
+    SSLEngine On
+    SSLCertificateFile /etc/letsencrypt/live/tradepedia.io/fullchain.pem
+    SSLCertificateKeyFile /etc/letsencrypt/live/tradepedia.io/privkey.pem
+
+    <Directory /home/tradepedia_home/tradepedia_landing>
+        Options Indexes FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
+
+    ProxyPass / http://137.184.27.94:5173/
+    ProxyPassReverse / http://137.184.27.94:5173/
+</VirtualHost>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<VirtualHost *:80>
+    ServerName guitarfling.io
+
+    DocumentRoot /home/botPeg/frontend
+
+    <Directory /home/botPeg/frontend>
+        Options Indexes FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
+
+    ProxyPass / http://3.91.102.234:3000/
+    ProxyPassReverse / http://3.91.102.234:3000/
+</VirtualHost>
+
+
+<VirtualHost *:80>
+    ServerName app.tradepedia.io
+    Redirect permanent / https://app.tradepedia.io/
+</VirtualHost>
+
+
+
+<VirtualHost *:443>
+    ServerName app.tradepedia.io
+
+    DocumentRoot /home/webapp/tradepedia-frontend
+
+    SSLEngine On
+    SSLCertificateFile /etc/letsencrypt/live/tradepedia.io/fullchain.pem
+    SSLCertificateKeyFile /etc/letsencrypt/live/tradepedia.io/privkey.pem
+
+    <Directory /home/webapp/tradepedia-frontend>
+        Options Indexes FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
+
+    ProxyPass / http://137.184.27.94:4200/
+    ProxyPassReverse / http://137.184.27.94:4200/
+
+
+     # WebSocket proxy configuration
+    ProxyPass /ws/ wss://admin.tradepedia.io:8282/
+    ProxyPassReverse /ws/ wss://admin.tradepedia.io:8282/
+</VirtualHost>
+
+
+
+
+
+
+
+<VirtualHost *:80>
+    ServerName admin.tradepedia.io
+    Redirect permanent / https://admin.tradepedia.io/
+
+</VirtualHost>
+
+
+
+<VirtualHost *:443>
+    ServerName admin.tradepedia.io
+
+    DocumentRoot /home/code/Tradepedia-AdminPanel
+
+    SSLEngine On
+    SSLCertificateFile /etc/letsencrypt/live/tradepedia.io/fullchain.pem
+    SSLCertificateKeyFile /etc/letsencrypt/live/tradepedia.io/privkey.pem
+
+    <Directory /home/code/Tradepedia-AdminPanel>
+        Options Indexes FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
+</VirtualHost>

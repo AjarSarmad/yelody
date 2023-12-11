@@ -1,0 +1,284 @@
+import historyProvider from "./historyProvider";
+import stream from "./stream";
+import {
+  widget,
+  IChartingLibraryWidget,
+  ChartingLibraryWidgetOptions,
+  LanguageCode,
+  Timezone,
+  IBasicDataFeed,
+  ResolutionString,
+} from '../../../public/static/charting_library';
+
+import TimezoneSelect from 'react-timezone-select';
+const supportedResolutions = [
+  "1",
+  "3",
+  "5",
+  "15",
+  "30",
+  "60",
+  "120",
+  "240",
+  "360",
+  "D",
+  "W",
+  "M",
+];
+
+const config = {
+  supported_resolutions: supportedResolutions,
+};
+export default {
+  onReady: (cb: any) => {
+    cb(config);
+  },
+  searchSymbols: (
+    userInput: any,
+    exchange: any,
+    symbolType: any,
+    onResultReadyCallback: any
+  ) => {},
+  resolveSymbol: (
+    symbolName: any,
+    onSymbolResolvedCallback: any,
+    onResolveErrorCallback: any
+  ) => {
+    // expects a symbolInfo object in response
+    
+    var split_data = symbolName.split(/[:/]/);
+    var symbol_stub = {
+      name: symbolName,
+      description: "",
+      type: "crypto",
+      session: "24x7",
+      timezone: "Etc/UTC",
+      ticker: symbolName,
+      exchange: split_data[0],
+      minmov: 1,
+      pricescale: 100000000,
+      has_intraday: true,
+      intraday_multipliers: ["1", "60"],
+      supported_resolution: supportedResolutions,
+      volume_precision: 8,
+      data_status: "streaming",
+    };
+
+    // if (split_data[2].match(/USD|EUR|JPY|AUD|GBP|KRW|CNY/)) {
+    //   symbol_stub.pricescale = 100;
+    // }
+    setTimeout(function () {
+      onSymbolResolvedCallback(symbol_stub);
+    }, 0);
+
+    // onResolveErrorCallback('Not feeling it today')
+  },
+
+  getBars: function (
+    symbolInfo: any,
+    resolution: any,
+    periodParams: any,
+    onHistoryCallback: any,
+    onError: any,
+    interval: any
+  ) {
+    const { from, to } = periodParams;
+    const countBack = periodParams.countBack;
+    const countForward = periodParams.countForward;
+    
+    
+    //@ts-ignore
+    historyProvider
+      .getBars(
+        symbolInfo,
+        resolution,
+        from * 1000,
+        to * 1000,
+        countBack,
+        countForward
+      )
+      //@ts-ignore
+      .then((bars: any) => {
+        if (bars.length > 0) {
+          onHistoryCallback(bars, { noData: false });
+        } else {
+          onHistoryCallback([], { noData: true });
+        }
+      })
+      .catch((err: any) => {
+        onError(err);
+      });
+  },
+
+  subscribeBars: (
+    symbolInfo: any,
+    resolution: any,
+    onTick:any,
+    subscribeUID: any,
+    onResetCacheNeededCallback: any
+  ) => {
+    const updateInterval = 5000; // Update interval in milliseconds
+    const fetchData = async () => {
+      try {
+        const bars = await historyProvider.getBars(
+          symbolInfo,
+          resolution,
+          Math.floor(Date.now() / 1000) - updateInterval,
+          Math.floor(Date.now() / 1000),
+          0,
+          0
+        );
+       
+        if (bars.length > 0) {
+          const lastBar = bars[bars.length - 1]
+          const latestBar = bars[0];
+        
+          onTick(lastBar)
+          onResetCacheNeededCallback()
+          return lastBar 
+        }
+      } catch (error) {
+        console.error("Error fetching real-time data:", error);
+      }
+    };
+
+  
+    let intervalId :any = setInterval(async () => {
+      //await fetchData();
+    }, updateInterval);
+  
+    
+     // Cleanup function to clear the interval on component unmount
+     return () => {
+       clearInterval(intervalId);
+     };
+  },
+  unsubscribeBars: (subscriberUID: any) => {
+    stream.unsubscribeBars(subscriberUID);
+  },
+
+  calculateHistoryDepth: (
+    resolution: any,
+    resolutionBack: any,
+    intervalBack: any
+  ) => {
+    //optional
+
+    // while optional, this makes sure we request 24 hours of minute data at a time
+    // CryptoCompare's minute data endpoint will throw an error if we request data beyond 7 days in the past, and return no data
+    return resolution < 60
+      ? { resolutionBack: "D", intervalBack: "1" }
+      : undefined;
+  },
+  getMarks: (
+    symbolInfo: any,
+    startDate: any,
+    endDate: any,
+    onDataCallback: any,
+    resolution: any
+  ) => {
+    //optional
+  },
+  getTimeScaleMarks: (
+    symbolInfo: any,
+    startDate: any,
+    endDate: any,
+    onDataCallback: any,
+    resolution: any
+  ) => {
+    //optional
+  },
+  getServerTime: (cb: any) => {},
+};
+
+
+
+
+
+
+
+
+
+import { getChartData, getChartDataWithoutTime } from "service/trading-chart";
+const history: any = {};
+
+export default {
+  history: history,
+  hitted: false,
+
+  //@ts-ignore
+  getBars: function (symbolInfo, resolution, from, to, first, limit) {
+    const  callApi =  localStorage.getItem("callAPISpot") || 'false'
+    
+    const pair = localStorage.getItem("current_pair");
+
+    if (callApi === 'false') {
+    if (this.hitted === false) {
+      this.hitted = true;
+      localStorage.setItem("callAPI","true")
+      return getChartData(resolution, from, to, pair).then((data: any) => {
+        if (data.data.data.length > 0) {
+          const myBars = data.data.data;
+          let klines4800 = [...myBars, ...myBars];
+          const bars = klines4800.map((el: any) => ({
+            // time: el.time * 1000,
+            // low: parseFloat(el.low),
+            // high: parseFloat(el.high),
+            // open: parseFloat(el.open),
+            // close: parseFloat(el.close),
+            // volume: parseFloat(el.volume),
+            time: el[0] * 1000,
+            open: parseFloat(el[1]),
+            high: parseFloat(el[2]),
+            low: parseFloat(el[3]),
+            close: parseFloat(el[4]),
+            volume: parseFloat(el[5]),
+          }));
+          if (first) {
+            const lastBar = bars[bars.length - 1];
+            history[symbolInfo.name] = { lastBar };
+          }
+          return bars;
+        }
+        return [];
+      });
+    } else {
+      return getChartDataWithoutTime(resolution, from, to, pair).then(
+        (data: any) => {
+        console.log('history without',history)
+          if (data.data.data.length > 0) {
+            const myBars = data.data.data;
+            let klines4800 = [...myBars, ...myBars];
+            // if (klines4800.length < 320) {
+            //   for (let i = 0; i < 320; i++) {
+            //     klines4800 = [...klines4800, ...myBars];
+            //   }
+            // }
+            const bars = klines4800.map((el: any) => ({
+              // time: el.time * 1000,
+              // low: parseFloat(el.low),
+              // high: parseFloat(el.high),
+              // open: parseFloat(el.open),
+              // close: parseFloat(el.close),
+              // volume: parseFloat(el.volume),
+              time: el[0] / 1000,
+              open: parseFloat(el[1]),
+              high: parseFloat(el[2]),
+              low: parseFloat(el[3]),
+              close: parseFloat(el[4]),
+              volume: parseFloat(el[5]),
+            }));
+            if (first) {
+              const lastBar = bars[bars.length - 1];
+              history[symbolInfo.name] = { lastBar };
+            }
+            return bars;
+          }
+          this.hitted = false;
+          return [];
+        }
+      );
+    }
+  }
+  },
+};
