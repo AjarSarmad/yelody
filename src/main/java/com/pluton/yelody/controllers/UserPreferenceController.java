@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.pluton.yelody.DTOs.GenericResponse;
 import com.pluton.yelody.models.User;
 import com.pluton.yelody.models.UserPreferences;
 import com.pluton.yelody.services.GenreService;
@@ -44,7 +45,7 @@ public class UserPreferenceController {
 	// http://localhost:8080/yelody/userpreferences/postUserPreference?userId=xxx&genreId=yyy&keywordId=zzz
 	@CrossOrigin(origins = "*")
 	@PostMapping("/postUserPreference")
-	public ResponseEntity<Object> postUserPreference(
+	public GenericResponse<UserPreferences> postUserPreference(
 			@org.hibernate.validator.constraints.UUID @RequestParam(name="userId") UUID userId,
 			@org.hibernate.validator.constraints.UUID @RequestParam(name="genreId", required=false) UUID genreId,
 			@org.hibernate.validator.constraints.UUID @RequestParam(name="keywordId", required=false) UUID keywordId)
@@ -52,7 +53,7 @@ public class UserPreferenceController {
 		userPreferencesPost = null;
 		
 		if (genreId == null && keywordId == null) {
-	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Either genreId or keywordId must be provided.");
+			return GenericResponse.error("Either genreId or keywordId must be provided.");
 	    }
 		
 		try {
@@ -66,7 +67,7 @@ public class UserPreferenceController {
 			}
 				return userPreferencesService.createUserPreference(userPreferencesPost);
 		} catch (Exception ex) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
+			return GenericResponse.error(ex.getLocalizedMessage());
 		}
 	}
 
@@ -74,17 +75,17 @@ public class UserPreferenceController {
 	// http://localhost:8080/yelody/userpreferences/listPreferencesByUserId?userId=xxx
 	@CrossOrigin(origins = "*")
 	@GetMapping("/listPreferencesByUserId")
-	public ResponseEntity<Object> listPreferencesByUserId(@RequestParam(name="userId") @org.hibernate.validator.constraints.UUID UUID userId) {
+	public GenericResponse<List<UserPreferences>> listPreferencesByUserId(@RequestParam(name="userId") @org.hibernate.validator.constraints.UUID UUID userId) {
 		userPreferencesList = new ArrayList<>();
 	    try {
 	    	userPreferencesList = userPreferencesService.getUserPreferencesByUserId(userService.getUserByID(userId).get());
 	        if (userPreferencesList != null && !userPreferencesList.isEmpty()) {
-	            return new ResponseEntity<Object>(userPreferencesList, HttpStatus.OK);
+	        	return GenericResponse.success(userPreferencesList);
 	        } else {
-	            return new ResponseEntity<Object>("No preferences found for the given user ID.", HttpStatus.NOT_FOUND);
+	        	return GenericResponse.error("No preferences found for the given user ID.");
 	        }
 	    } catch (Exception ex) {
-	        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getLocalizedMessage());
+	    	return GenericResponse.error(ex.getLocalizedMessage());
 	    }
 	}
 
@@ -93,7 +94,7 @@ public class UserPreferenceController {
 	// http://localhost:8080/yelody/userpreferences/updatePreference?id=xxx&userId=yyy&genreId=zzz&keywordId=aaaa
 	@CrossOrigin(origins = "*")
 	@PutMapping("/updatePreference")
-	public ResponseEntity<Object> updatePreference(
+	public GenericResponse<UserPreferences> updatePreference(
 		@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID id,
 		@RequestParam(name="genreId", required=false) @org.hibernate.validator.constraints.UUID UUID genreId,
 		@RequestParam(name="keywordId", required=false) @org.hibernate.validator.constraints.UUID UUID keywordId)
@@ -101,7 +102,7 @@ public class UserPreferenceController {
 		userPreferencesGet = null;
 		
 		if (genreId == null && keywordId == null) {
-	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Either genreId or keywordId must be provided.");
+			return GenericResponse.error("Either genreId or keywordId must be provided.");
 	    }
 		
 		try {
@@ -112,11 +113,11 @@ public class UserPreferenceController {
 				existingPreference.setKeyword(keywordId!=null? keywordService.getKeywordById(keywordId).get(): null);
 				return userPreferencesService.createUserPreference(existingPreference);
 			} else {
-				return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
+				return GenericResponse.error("NOT FOUND!");
 			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getLocalizedMessage());
+			return GenericResponse.error(ex.getLocalizedMessage());
 		}
 	}
 
@@ -124,18 +125,18 @@ public class UserPreferenceController {
 	// http://localhost:8080/yelody/userpreferences/deletePreference?id=xxx
 	@CrossOrigin(origins = "*")
 	@DeleteMapping("/deletePreference")
-	public ResponseEntity<Object> deletePreference(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID id) {
+	public GenericResponse deletePreference(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID id) {
 		userPreferencesGet = null;
 		try {
 			userPreferencesGet = userPreferencesService.getUserPreferencesByID(id);
 			if (userPreferencesGet.isPresent()) {
 				userPreferencesService.deleteUserPreferences(userPreferencesGet.get());
-				return ResponseEntity.status(HttpStatus.OK).body("User Preference ID:" + id + " Deleted Successfully");
+				return GenericResponse.success("User Preference ID:" + id + " Deleted Successfully");
 			} else {
-				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User Preference ID: " + id + " NOT FOUND");
+				return GenericResponse.error("User Preference ID: " + id + " NOT FOUND");
 			}
 		} catch (Exception ex) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
+			return GenericResponse.error(ex.getLocalizedMessage());
 		}
 	}
 

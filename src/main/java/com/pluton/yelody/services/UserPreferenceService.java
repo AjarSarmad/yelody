@@ -4,13 +4,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.http.ResponseEntity;
-
+import com.pluton.yelody.DTOs.GenericResponse;
 import com.pluton.yelody.models.User;
 import com.pluton.yelody.models.UserPreferences;
 
 public interface UserPreferenceService {
-	public abstract ResponseEntity<Object> createUserPreference(UserPreferences userPreferences);
+	public abstract GenericResponse<UserPreferences> createUserPreference(UserPreferences userPreferences);
 	
 	public abstract List<UserPreferences> getUserPreferencesByUserId(User user);
 	

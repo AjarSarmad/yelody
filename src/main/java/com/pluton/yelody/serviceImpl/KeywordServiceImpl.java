@@ -7,9 +7,9 @@ import java.util.UUID;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.pluton.yelody.DTOs.GenericResponse;
 import com.pluton.yelody.exceptions.ConstraintViolationHandler;
 import com.pluton.yelody.exceptions.EntityNotFoundException;
 import com.pluton.yelody.exceptions.UniqueEntityException;
@@ -23,9 +23,9 @@ public class KeywordServiceImpl implements KeywordService{
 	KeywordRepository keywordRepository;
 	
 	@Override
-	public ResponseEntity<Object> saveKeyword(Keyword keyword) {
+	public GenericResponse<Keyword> saveKeyword(Keyword keyword) {
 		try {
-			return new ResponseEntity<Object>(keywordRepository.save(keyword),HttpStatus.CREATED);
+			return GenericResponse.success(keywordRepository.save(keyword));
 		}catch(Exception e) {
 			 if (e.getCause() instanceof ConstraintViolationException) {
 		            ConstraintViolationException constraintViolationException = (ConstraintViolationException) e.getCause();

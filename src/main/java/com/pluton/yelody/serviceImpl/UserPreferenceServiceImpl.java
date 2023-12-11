@@ -6,10 +6,9 @@ import java.util.UUID;
 
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.pluton.yelody.DTOs.GenericResponse;
 import com.pluton.yelody.exceptions.EntityNotFoundException;
 import com.pluton.yelody.exceptions.UniqueEntityException;
 import com.pluton.yelody.models.User;
@@ -26,9 +25,9 @@ public class UserPreferenceServiceImpl implements UserPreferenceService {
 	UserService userService;
 	
 	@Override
-	public ResponseEntity<Object> createUserPreference(UserPreferences userPreferences) {
+	public GenericResponse<UserPreferences> createUserPreference(UserPreferences userPreferences) {
 		try {
-			return new ResponseEntity<Object>(userPreferenceRepository.save(userPreferences),HttpStatus.CREATED);
+			return GenericResponse.success(userPreferenceRepository.save(userPreferences),"User Preference saved successfully.");
 		}catch(Exception e) {
 			 if (e.getCause() instanceof ConstraintViolationException) {
 		            ConstraintViolationException constraintViolationException = (ConstraintViolationException) e.getCause();

@@ -5,8 +5,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
+import com.pluton.yelody.DTOs.GenericResponse;
 import com.pluton.yelody.models.Genre;
 
 public interface GenreService {
@@ -16,7 +16,7 @@ public interface GenreService {
 
 	public abstract HttpStatus deleteGenre(Genre genre);
 
-	public abstract ResponseEntity<Object> createGenre(Genre genre);
+	public abstract GenericResponse<Genre> createGenre(Genre genre);
 	
 	public abstract Optional<Genre> getGenreByType(String type);
 }
