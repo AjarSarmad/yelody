@@ -37,5 +37,9 @@ public class UserPreferences {
     @ManyToOne
     @JoinColumn(name="keyword_id", nullable=true)
     private Keyword keyword;
+    
+    @ManyToOne
+    @JoinColumn(name="age_group", nullable=true)
+    private AgeGroup ageGroup;
 
 }

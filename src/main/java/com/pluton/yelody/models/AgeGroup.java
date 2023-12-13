@@ -44,4 +44,9 @@ public class AgeGroup {
 	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, mappedBy = "ageGroup")
     @JsonIgnore
 	private List<User> users = new ArrayList<>();
+	
+	@JsonIgnore
+	@JsonManagedReference
+    @OneToMany(mappedBy = "ageGroup", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserPreferences> userPreferences = new ArrayList<>();
 }
