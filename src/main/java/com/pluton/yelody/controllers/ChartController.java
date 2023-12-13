@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.pluton.yelody.DTOs.ChartRequest;
 import com.pluton.yelody.DTOs.ChartResponse;
+import com.pluton.yelody.DTOs.GenericResponse;
 import com.pluton.yelody.DTOs.SongtoChartRequest;
 import com.pluton.yelody.models.Chart;
 import com.pluton.yelody.models.Song;
@@ -49,7 +50,7 @@ public class ChartController {
 	//http://localhost:8080/yelody/chart/postChart
     @CrossOrigin(origins = "*")
   	@PostMapping("/postChart")
-     public ResponseEntity<Object> postChart( @ModelAttribute @Valid ChartRequest chartRequest){
+     public GenericResponse<Chart> postChart( @ModelAttribute @Valid ChartRequest chartRequest){
 	    	chartPost = null;
 			String imageResponse = null;
 	    	try {
@@ -57,10 +58,10 @@ public class ChartController {
 				if(chartRequest.getImage()!=null  && !chartRequest.getImage().isEmpty())
 					imageResponse = ImageUtil.saveFile(imagePath, id.toString(), chartRequest.getImage());
 				else
-					return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("IMAGE CANNOT BE NULL");
+					return GenericResponse.error("IMAGE CANNOT BE NULL");
 				
 				if(chartService.getChartByRank(chartRequest.getRank()).isPresent())
-					return ResponseEntity.status(HttpStatus.CONFLICT).body("RANK ALREADY EXISTED");
+					return GenericResponse.error("RANK ALREADY EXISTED");
 					
 	    		chartPost = new Chart(
 	    				id,
@@ -76,7 +77,7 @@ public class ChartController {
 	    				);
 	    		return chartService.postChart(chartPost);
 	    	}catch(Exception ex) {
-				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
+	    		return GenericResponse.error(ex.getLocalizedMessage());
 	    	}
     }
     
@@ -84,11 +85,11 @@ public class ChartController {
     //http://localhost:8080/yelody/chart/postSongtoChart
     @CrossOrigin(origins = "*")
   	@PutMapping("/postSongtoChart")
-     public ResponseEntity<?> postSongtoChart( @RequestBody @Valid SongtoChartRequest songtoChartRequest){
+     public GenericResponse postSongtoChart( @RequestBody @Valid SongtoChartRequest songtoChartRequest){
 	    	try {
 	    		return songService.postSongToChart(songtoChartRequest);
 	    	}catch(Exception ex) {
-	  			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getLocalizedMessage());
+	    		return GenericResponse.error(ex.getLocalizedMessage());
 	    	}
     }
     
@@ -96,7 +97,7 @@ public class ChartController {
    	//http://localhost:8080/yelody/chart/updateChart?id=
     @CrossOrigin(origins = "*")
    	@PutMapping("/updateChart")
-     public ResponseEntity<Object> updateChart(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID id, @ModelAttribute @Valid ChartRequest chartRequest){
+     public GenericResponse<Chart> updateChart(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID id, @ModelAttribute @Valid ChartRequest chartRequest){
      	chartGet = null;
      	chartPost = null;
     	String imageResponse = null;
@@ -118,14 +119,14 @@ public class ChartController {
      				chartGet.get().getSongs()
  					);
      		if(chartGet!=null) {
-     			return new ResponseEntity<Object>(chartService.postChart(chartPost), HttpStatus.OK);
+     			return chartService.postChart(chartPost);
      			}
      		else
-    			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("CHART NOT FOUND");
+     			return GenericResponse.error("CHART NOT FOUND");
 
      	}catch(Exception ex) {
  			ex.printStackTrace();
- 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
+ 			return GenericResponse.error(ex.getLocalizedMessage());
      	}
      }
      
@@ -134,17 +135,17 @@ public class ChartController {
 	//http://localhost:8080/yelody/chart/listCharts
 	@CrossOrigin(origins = "*")
 	@GetMapping("/listCharts")
-	public ResponseEntity<Object> listCharts() {
+	public GenericResponse<List<ChartResponse>> listCharts() {
 		List<ChartResponse> chartResponseList = new ArrayList<>();
 		try {
 			chartResponseList = chartService.getChartList();
 			if(!(chartResponseList.isEmpty()))
-				return new ResponseEntity<Object>(chartResponseList , HttpStatus.OK);
+				return GenericResponse.success(chartResponseList);
 			
-  			return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
+ 			return GenericResponse.error("EMPTY LIST");
 
 		}catch(Exception ex) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
+ 			return GenericResponse.error(ex.getLocalizedMessage());
     	}
 	}
 	
@@ -152,17 +153,17 @@ public class ChartController {
   	//http://localhost:8080/yelody/chart/getChartById?id=
     @CrossOrigin(origins = "*")
   	@GetMapping("/getChartById")
-    public ResponseEntity<Object> getChartById(@RequestParam(name="id") UUID id){
+    public GenericResponse<Chart> getChartById(@RequestParam(name="id") UUID id){
     	chartGet = null;
     	try {
     		chartGet = chartService.getChartById(id);
     		if(chartGet!=null)
-    			return new ResponseEntity<Object>(chartGet.get(), HttpStatus.OK);
+    			return GenericResponse.success(chartGet.get());
     		else
-      			return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
+     			return GenericResponse.error("CHART NOT FOUND");
 
     	}catch(Exception ex) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
+ 			return GenericResponse.error(ex.getLocalizedMessage());
     	}
     }
     
@@ -170,17 +171,17 @@ public class ChartController {
     //http://localhost:8080/yelody/chart/deleteChart?id=
     @CrossOrigin(origins = "*")
   	@DeleteMapping("/deleteChart")
-    public ResponseEntity<?> deleteChart(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID id){
+    public GenericResponse deleteChart(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID id){
     	chartGet = null;
     	try {
     		chartGet = chartService.getChartById(id);
     		if(chartGet!=null) {
     			chartService.deleteChart(chartGet.get());
-				return ResponseEntity.status(HttpStatus.OK).body("CHART ID:" + id + " Deleted Successfully");
+    			return GenericResponse.success("CHART ID:" + id + " Deleted Successfully");
     		}else
-    			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("CHART ID: " + id + " NOT FOUND");
+    			return GenericResponse.error("CHART ID: " + id + " NOT FOUND");
     	}catch(Exception ex) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getLocalizedMessage());
+    		return GenericResponse.error(ex.getLocalizedMessage());
     	}
     }
     

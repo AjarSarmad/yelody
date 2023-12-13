@@ -7,8 +7,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.pluton.yelody.DTOs.BannerRequest;
+import com.pluton.yelody.DTOs.GenericResponse;
 import com.pluton.yelody.exceptions.EntityNotFoundException;
 import com.pluton.yelody.models.Banner;
 import com.pluton.yelody.services.BannerService;
@@ -42,7 +41,7 @@ public class BannerController {
 	//http://localhost:8080/yelody/banner/addBanner
 	@CrossOrigin(origins = "*")
 	@PostMapping("/addBanner")
-	public ResponseEntity<Object> addBanner(@ModelAttribute @Valid BannerRequest bannerRequest) throws IOException{
+	public GenericResponse<Banner> addBanner(@ModelAttribute @Valid BannerRequest bannerRequest) throws IOException{
 		bannerPost = null;
 		String imageResponse = null;
 		try {
@@ -50,7 +49,7 @@ public class BannerController {
 			if(bannerRequest.getImage()!=null  && !bannerRequest.getImage().isEmpty())
 				imageResponse = ImageUtil.saveFile(imagePath, id.toString(), bannerRequest.getImage());
 			else
-				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("IMAGE CANNOT BE NULL");
+				return GenericResponse.error("IMAGE CANNOT BE NULL");
 			
 	        bannerPost = new Banner(
 	        		id,
@@ -62,12 +61,12 @@ public class BannerController {
 			
 			Banner response = bannerService.saveBanner(bannerPost);
 			if(response!=null ) {
-				return new ResponseEntity<Object>(response, HttpStatus.CREATED);
+				return GenericResponse.success(response, "BANNER CREATED SUCCESSFULLY");
 			}else{
-				return ResponseEntity.status(HttpStatus.FOUND).body("BANNER ALREADY EXISTS");
+				return GenericResponse.error("BANNER ALREADY EXISTS");
 			}
 		}catch(Exception ex) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
+			return GenericResponse.error(ex.getLocalizedMessage());
 		}
 	}
     
@@ -75,17 +74,17 @@ public class BannerController {
   	//http://localhost:8080/yelody/banner/getBannerById?id=
     @CrossOrigin(origins = "*")
   	@GetMapping("/getBannerById")
-    public ResponseEntity<Object> getBannerById(@RequestParam(name="id") UUID id){
+    public GenericResponse<Banner> getBannerById(@RequestParam(name="id") UUID id){
     	bannerGet = null;
     	try {
     		bannerGet = bannerService.getBannerByID(id);
     		if(bannerGet!=null)
-    			return new ResponseEntity<Object>(bannerGet.get(), HttpStatus.OK);
+    			return GenericResponse.success(bannerGet.get());
     		else
-      			return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
+    			return GenericResponse.error("BANNER NOT FOUND");
 
     	}catch(Exception ex) {
-  			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
+    		return GenericResponse.error(ex.getLocalizedMessage());
     	}
     }
     	
@@ -93,17 +92,17 @@ public class BannerController {
   	//http://localhost:8080/yelody/banner/getBannerList
     @CrossOrigin(origins = "*")
   	@GetMapping("/getBannerList")
-    public ResponseEntity<Object> getBannerList(){
+    public GenericResponse<List<Banner>> getBannerList(){
     	bannerList = null;
     	try {
     		bannerList = new ArrayList<>(bannerService.getBannerList());
     		if(bannerList!=null)
-    			return new ResponseEntity<Object>(bannerList, HttpStatus.OK);
+    			return GenericResponse.success(bannerList);
     		else
-      			return new ResponseEntity<Object>(HttpStatus.NOT_FOUND);
+    			return GenericResponse.error("BANNER NOT FOUND");
 
     	}catch(Exception ex) {
-  			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
+    		return GenericResponse.error(ex.getLocalizedMessage());
     	}
     }
     
@@ -111,7 +110,7 @@ public class BannerController {
   	//http://localhost:8080/yelody/banner/updateBanner?id=
     @CrossOrigin(origins = "*")
   	@PutMapping("/updateBanner")
-    public ResponseEntity<Object> updateBanner(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID id, @ModelAttribute @Valid BannerRequest bannerViewModel){
+    public GenericResponse<Banner> updateBanner(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID id, @ModelAttribute @Valid BannerRequest bannerViewModel){
     	bannerGet = null;
     	bannerPost = null;
     	String imageResponse = null;
@@ -128,14 +127,14 @@ public class BannerController {
     					bannerViewModel.getUrl(),
     					bannerViewModel.getImage()==null?bannerGet.get().getImage():imageResponse
     					);
-    			return new ResponseEntity<Object>(bannerService.saveBanner(bannerPost), HttpStatus.OK);
+    	  		return GenericResponse.success(bannerService.saveBanner(bannerPost));
     			}
     		else
-    			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("BANNER NOT FOUND");
+    			return GenericResponse.error("BANNER NOT FOUND");
 
     	}catch(Exception ex) {
 			ex.printStackTrace();
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getLocalizedMessage());
+    		return GenericResponse.error(ex.getLocalizedMessage());
     	}
     }
     
@@ -143,19 +142,19 @@ public class BannerController {
   	//http://localhost:8080/yelody/banner/deleteBanner?id=
     @CrossOrigin(origins = "*")
   	@DeleteMapping("/deleteBanner")
-    public ResponseEntity<Object> deleteBanner(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID id) throws EntityNotFoundException {
+    public GenericResponse deleteBanner(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID id) throws EntityNotFoundException {
     	bannerGet = null;
     	try {
         	bannerGet = bannerService.getBannerByID(id);
     		if(bannerGet!=null) {
     			bannerService.deleteBanner(bannerGet.get());
-    			return ResponseEntity.status(HttpStatus.OK).body("Banner ID:" + id + " Deleted Successfully");
+    			return GenericResponse.success("Banner ID:" + id + " Deleted Successfully");
     		}
     		else
-    			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Banner ID:" + id + " NOT FOUND");
+    			return GenericResponse.error("Banner ID:" + id + " NOT FOUND");
 
     	}catch(Exception ex) {
-  			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
+    		return GenericResponse.error(ex.getLocalizedMessage());
     	}
     }
     
