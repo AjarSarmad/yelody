@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import com.pluton.yelody.DTOs.GenericResponse;
 import com.pluton.yelody.DTOs.SongCriteriaSearch;
 import com.pluton.yelody.DTOs.SongRequest;
 import com.pluton.yelody.DTOs.SongtoChartRequest;
@@ -86,19 +87,18 @@ public class SongServiceImpl implements SongService{
 	
 
 	@Override
-	public ResponseEntity<Object> incrementViewCount(UUID userId, UUID songId) {
+	public GenericResponse incrementViewCount(UUID userId, UUID songId) {
 		try {
 			if(songRepository.existsById(songId) && userRepository.existsById(userId)) {
 				song = songRepository.findById(songId);
 				song.get().getViewers().add(userRepository.findById(userId).get());
 				songRepository.save(song.get());
-				 ResponseEntity.status(HttpStatus.OK).body("CREATED");
+				return GenericResponse.success("CREATED");
 			}else
-				 ResponseEntity.status(HttpStatus.NOT_FOUND).body("NOT_FOUND");
+				return GenericResponse.error("NOT_FOUND");
 		}catch(Exception ex) {
-			return ResponseEntity.status(HttpStatus.FOUND).body("VIEW ALREADY EXISTS");
+			return GenericResponse.error("VIEW ALREADY EXISTS");
 		}
-		return null;
 	}
 	
 	@Override
@@ -129,14 +129,14 @@ public class SongServiceImpl implements SongService{
 	}
 
 	@Override
-	public ResponseEntity<?> deleteSong(Song song) {
+	public GenericResponse deleteSong(Song song) {
 		try {
 			songRepository.delete(song);
 			backblazeService.deleteSongById(false, song.getSongId().toString());
 //			ImageUtil.deleteFile(song.getImage());
-			return ResponseEntity.status(HttpStatus.OK).body("SONG " + song.getName() + " HAS BEEN DELETED SUCCESSFULLY");
+			return GenericResponse.success("SONG " + song.getName() + " HAS BEEN DELETED SUCCESSFULLY");
 		}catch(Exception ex){
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("");
+			return GenericResponse.error(ex.getLocalizedMessage());
 		}
 	}
 	
@@ -228,7 +228,7 @@ public class SongServiceImpl implements SongService{
 	}
 
 	@Override
-	public ResponseEntity<?> postSongToChart(SongtoChartRequest songtoChartRequest) {
+	public GenericResponse postSongToChart(SongtoChartRequest songtoChartRequest) {
 	    try {
 	        Optional<Chart> chartOptional = chartService.getChartById(songtoChartRequest.getChartId());
 	        List<Song> newSongList = getSongById(songtoChartRequest.getSongIds());
@@ -238,9 +238,7 @@ public class SongServiceImpl implements SongService{
 	            for (Song song : newSongList) {
 	                Chart currentChart = song.getChart();
 	                if (currentChart != null && !currentChart.equals(chart)) {
-	                    return ResponseEntity
-	                            .status(HttpStatus.CONFLICT)
-	                            .body("Song with ID " + song.getSongId() + " is already in chart: " + currentChart.getChartId());
+	                    return GenericResponse.error("Song with ID " + song.getSongId() + " is already in chart: " + currentChart.getChartId());
 	                }
 	            }
 
@@ -251,12 +249,12 @@ public class SongServiceImpl implements SongService{
 	            newSongList.forEach(song -> song.setChart(chart));
 	            songRepository.saveAll(newSongList);
 
-	            return ResponseEntity.ok("Chart updated with new songs.");
+	            return GenericResponse.success("Chart updated with new songs.");
 	        } else {
-	            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Chart or Songs not found");
+	        	return GenericResponse.error("Chart or Songs not found");
 	        }
 	    } catch(Exception ex) {
-	        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
+	    	return GenericResponse.error(ex.getLocalizedMessage());
 	    }
 	}
 

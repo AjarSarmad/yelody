@@ -50,6 +50,7 @@ public class AgeGroupController {
 	            UUID.randomUUID(),
 	            ageGroup,
 	            null,
+	            null,
 	            null
 	        );
 			
@@ -111,7 +112,8 @@ public class AgeGroupController {
     	  				ageGroupGet.get().getAgeGroupId(),
     	  				ageGroupUpdateRequest.getAgeGroup(),
     	  				ageGroupGet.get().getSongs(),
-    	  				ageGroupGet.get().getUsers()
+    	  				ageGroupGet.get().getUsers(),
+    	  				ageGroupGet.get().getUserPreferences()
     					);
     			return ageGroupService.saveAgeGroup(ageGroupPost);
     			}

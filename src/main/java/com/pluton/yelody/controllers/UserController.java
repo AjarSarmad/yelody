@@ -67,9 +67,6 @@ public class UserController {
 	                case "email":
 	                    userList = userService.getUserByEmail(userCriteriaModel.getFilter(), userCriteriaModel.getSortBy() );
 	                    break;
-	                case "phone":
-	                    userList = userService.getUserByPhone(userCriteriaModel.getFilter(), userCriteriaModel.getSortBy());
-	                    break;
 	                case "lastvisitdate":
 	                    userList = userService.getUserByLastVisitDate(userCriteriaModel.getFilter(), userCriteriaModel.getSortBy());
 	                    break;
@@ -136,7 +133,7 @@ public class UserController {
 							userRequest.getPassword()!=null && !userRequest.getPassword().isBlank() ? hashingUtility.sha256(userRequest.getPassword()):null,
 							null,
 							null,
-							userRequest.getPhone(),
+							userRequest.getDescription()!=null? userRequest.getDescription(): "" ,
 							 new java.sql.Date(System.currentTimeMillis()),
 							 new java.sql.Date(System.currentTimeMillis()),
 							0,
@@ -176,7 +173,7 @@ public class UserController {
         				userGet.get().getPassword(),
         				userGet.get().getOtp(),
         				userGet.get().getOtpRequestedTime(),
-        				userRequest.getPhone(),
+        				userRequest.getDescription(),
         				userGet.get().getLastVisitDate(),
         				userGet.get().getRegistrationDate(),
         				userGet.get().getYeloPoints(),

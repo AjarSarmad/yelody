@@ -59,10 +59,7 @@ public class AgeGroupServiceImpl implements AgeGroupService {
 
 	@Override
 	public boolean existsByName(String name) {
-		if(ageGroupRepository.existsByName(name))
-			return true;
-		else
-			return false;
+		return ageGroupRepository.existsByName(name);
 	}
 
 }

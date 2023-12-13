@@ -24,11 +24,8 @@ public class UserRequest {
 	
 	private String password;
 	
-	@Size(min = 10, max=10)
-	@NotNull(message="Phone must not be NULL")
-	private String phone;
+	private String description;
 	
-//	@NotNull(message="ageGroup must not be NULL")
 	private String ageGroup;
 	
 	private MultipartFile image;
