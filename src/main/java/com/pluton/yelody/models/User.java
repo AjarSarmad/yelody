@@ -52,8 +52,8 @@ public class User {
 	@Column(name="otp_requested_time" , nullable=true)
 	private Date otpRequestedTime;
 	
-	@Column(name="phone" , nullable=false)
-	private String phone;
+	@Column(name="description" , nullable=true)
+	private String description;
 	
 	@Column(name="last_visit_date" , nullable=false)
 	private Date lastVisitDate;
