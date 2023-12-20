@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.pluton.yelody.DTOs.GenericResponse;
 import com.pluton.yelody.models.SongQueue;
 import com.pluton.yelody.models.SongQueueItem;
 import com.pluton.yelody.services.SongQueueService;
@@ -32,16 +33,16 @@ public class SongQueueController {
     //http://localhost:8080/yelody/queue/addSongToQueue
   	@CrossOrigin(origins = "*")
   	@PostMapping("/addSongToQueue")
-    public ResponseEntity<?> addSongToQueue(@RequestParam(name="userId") @org.hibernate.validator.constraints.UUID UUID userId,
+    public GenericResponse<SongQueueItem> addSongToQueue(@RequestParam(name="userId") @org.hibernate.validator.constraints.UUID UUID userId,
 			@RequestParam(name="songId") @org.hibernate.validator.constraints.UUID UUID songId) {
         try {
 	  		SongQueueItem addedItem = songQueueService.addSongToQueue(userId, songService.getSongById(songId).get());
 	        if (addedItem != null) 
-	            return ResponseEntity.ok(addedItem);
-	        return ResponseEntity.badRequest().body("Failed to add song to queue because it is already existed");
+	        	return GenericResponse.success(addedItem);
+	        return GenericResponse.error("Failed to add song to queue because it is already existed");
         }catch(Exception ex) {
         	ex.printStackTrace();
-  			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getLocalizedMessage());
+    		return GenericResponse.error(ex.getLocalizedMessage());
         }
     }
 
@@ -49,51 +50,51 @@ public class SongQueueController {
     //http://localhost:8080/yelody/queue/deleteSong
     @CrossOrigin(origins = "*")
   	@DeleteMapping("/deleteSong")
-    public ResponseEntity<?> deleteSong(@RequestParam(name="userId") @org.hibernate.validator.constraints.UUID UUID userId,
+    public GenericResponse deleteSong(@RequestParam(name="userId") @org.hibernate.validator.constraints.UUID UUID userId,
     		@RequestParam(name="songId") @org.hibernate.validator.constraints.UUID UUID songId){
     	try {
     		boolean success = songQueueService.removeSongFromQueue(userId, songService.getSongById(songId).get());
             if (success) {
-                return ResponseEntity.ok("Song removed from queue");
+            	return GenericResponse.success("Song removed from queue");
             } else {
-                return ResponseEntity.badRequest().body("Failed to remove song from queue");
+            	return GenericResponse.error("Failed to remove song from queue");
             }
     	}catch(Exception ex) {
-  			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getLocalizedMessage());
+    		return GenericResponse.error(ex.getLocalizedMessage());
     	}
     }
 
     // Reorder songs in the queue
     //http://localhost:8080/yelody/queue/reorderSongs
     @PutMapping("/reorderSongs")
-    public ResponseEntity<?> reorderSongs(@RequestParam(name="userId") @org.hibernate.validator.constraints.UUID UUID userId,
+    public GenericResponse reorderSongs(@RequestParam(name="userId") @org.hibernate.validator.constraints.UUID UUID userId,
     		@RequestParam(name="songId") @org.hibernate.validator.constraints.UUID UUID reorderedSongs,
     		@RequestParam(name="position") int position) {
         try {
 	    	boolean success = songQueueService.reorderSongInQueue(userId, songService.getSongById(reorderedSongs).get(), position);
 	        if (success) {
-	            return ResponseEntity.ok("Songs reordered successfully");
+	        	return GenericResponse.success("Songs reordered successfully");
 	        } else {
-	            return ResponseEntity.badRequest().body("Failed to reorder songs");
+	        	return GenericResponse.error("Failed to reorder songs");
 	        }
         } catch (Exception ex) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getLocalizedMessage());
+    		return GenericResponse.error(ex.getLocalizedMessage());
         } 
     }
 
     // Get user's current song queue
     //http://localhost:8080/yelody/queue/getSongQueue?id=
     @GetMapping("/getSongQueue")
-    public ResponseEntity<?> getSongQueue(@RequestParam(name="userId") @org.hibernate.validator.constraints.UUID UUID userId) {
+    public GenericResponse<SongQueue> getSongQueue(@RequestParam(name="userId") @org.hibernate.validator.constraints.UUID UUID userId) {
     	try {
 	        SongQueue userQueue = songQueueService.getUserSongQueue(userId).get();
 	        if (userQueue != null) {
-	            return ResponseEntity.ok(userQueue);
+	        	return GenericResponse.success(userQueue);
 	        } else {
-	            return ResponseEntity.notFound().build();
+	        	return GenericResponse.error("NOT FOUND");
 	        }
     	}catch (Exception ex) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getLocalizedMessage());
+    		return GenericResponse.error(ex.getLocalizedMessage());
         }
     }
 }

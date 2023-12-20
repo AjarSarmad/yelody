@@ -6,8 +6,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.pluton.yelody.DTOs.AddSongsToPlaylistRequest;
 import com.pluton.yelody.DTOs.DeleteSongsFromPlaylistRequest;
+import com.pluton.yelody.DTOs.GenericResponse;
 import com.pluton.yelody.DTOs.PlaylistPostRequest;
 import com.pluton.yelody.models.Playlist;
 import com.pluton.yelody.models.Song;
@@ -48,7 +47,7 @@ public class PlaylistController {
 	//http://localhost:8080/yelody/playlist/postPlaylist
 	@CrossOrigin(origins = "*")
   	@PostMapping("/postPlaylist")
-    public ResponseEntity<Object> postPlaylist( @RequestBody @Valid PlaylistPostRequest playlistPostRequest)throws IllegalArgumentException {
+    public GenericResponse<Playlist> postPlaylist( @RequestBody @Valid PlaylistPostRequest playlistPostRequest)throws IllegalArgumentException {
 		playlistPost = null;
 		songList = new ArrayList<>();
     	try {
@@ -68,12 +67,12 @@ public class PlaylistController {
     		
     		Playlist response = playlistService.postPlaylist(playlistPost);
     		if(response!=null) {
-    				return new ResponseEntity<>(response, HttpStatus.CREATED);
+            	return GenericResponse.success(response, "PLAYLIST CREATED SUCCESSFULLY"); 
     		}
     		return null;
     	}catch(Exception ex) {
     		ex.printStackTrace();
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
+    		return GenericResponse.error(ex.getLocalizedMessage());
     	}
 	}
 	
@@ -81,15 +80,15 @@ public class PlaylistController {
 	//http://localhost:8080/yelody/playlist/postSongsToPlaylist
 	@CrossOrigin(origins = "*")
   	@PutMapping("/postSongsToPlaylist")
-    public ResponseEntity<Object> postSongsToPlaylist( @RequestBody @Valid AddSongsToPlaylistRequest addSongsToPlaylistRequest){
+    public GenericResponse postSongsToPlaylist( @RequestBody @Valid AddSongsToPlaylistRequest addSongsToPlaylistRequest){
 		playlistGet = null;
 		songList = new ArrayList<>();
     	try {
 			playlistGet = playlistService.getPlaylistById(addSongsToPlaylistRequest.getPlaylistId());
 			playlistService.addSongsToPlaylist(playlistGet.get(), addSongsToPlaylistRequest.getSongIds());
-			return ResponseEntity.status(HttpStatus.CREATED).body("SONGS HAVE SUCCESSFULLY ADDED TO THE PLAYLIST ID: " + addSongsToPlaylistRequest.getPlaylistId());
+			return GenericResponse.success("SONGS HAVE SUCCESSFULLY ADDED TO THE PLAYLIST ID: " + addSongsToPlaylistRequest.getPlaylistId());
     	}catch(Exception ex) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getLocalizedMessage());
+    		return GenericResponse.error(ex.getLocalizedMessage());
     	}
 	}
 	
@@ -98,15 +97,15 @@ public class PlaylistController {
 	//http://localhost:8080/yelody/playlist/getAllPlaylists
 	@CrossOrigin(origins = "*")
   	@GetMapping("/getAllPlaylists")
-    public ResponseEntity<Object> getAllPlaylists() {
+    public GenericResponse<List<Playlist>> getAllPlaylists() {
 		playlist = new ArrayList<>();
 		try {
 			playlist = playlistService.getAllPlaylist();
 			if(playlist!=null)
-				return new ResponseEntity<Object>(playlist, HttpStatus.OK);
+            	return GenericResponse.success(playlist); 
 			return null;
 		}catch(Exception ex) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
+    		return GenericResponse.error(ex.getLocalizedMessage());
 		}
 	}
 
@@ -114,7 +113,7 @@ public class PlaylistController {
 	//http://localhost:8080/yelody/playlist/getPlaylistByUserId?id=
 	@CrossOrigin(origins = "*")
   	@GetMapping("/getPlaylistByUserId")
-    public ResponseEntity<Object> getPlaylistByUserId(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID id,@RequestParam(required = false, name = "isFavourite") boolean isFavourite) {
+    public GenericResponse<List<Playlist>> getPlaylistByUserId(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID id,@RequestParam(required = false, name = "isFavourite") boolean isFavourite) {
 		playlist = new ArrayList<>();
 		try {
 			if(userService.getUserByID(id)!=null) {
@@ -123,11 +122,11 @@ public class PlaylistController {
 				else
 					playlist = playlistService.getPlaylistByUserId(id);
 			if(playlist!=null)
-				return new ResponseEntity<Object>(playlist, HttpStatus.OK);
+            	return GenericResponse.success(playlist); 
 			}
 			return null;
 		}catch(Exception ex) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
+    		return GenericResponse.error(ex.getLocalizedMessage());
 		}
 	}
 	
@@ -135,15 +134,15 @@ public class PlaylistController {
 	//http://localhost:8080/yelody/playlist/getPlaylistById?id=
 	@CrossOrigin(origins = "*")
   	@GetMapping("/getPlaylistById")
-    public ResponseEntity<Object> getPlaylistById(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID id) {
+    public GenericResponse<Playlist> getPlaylistById(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID id) {
 		playlistGet = null;
 		try {
 			playlistGet = playlistService.getPlaylistById(id);
 			if(playlistGet!=null)
-				return new ResponseEntity<Object>(playlistGet.get(), HttpStatus.OK);
+            	return GenericResponse.success(playlistGet.get()); 
 			return null;
 		}catch(Exception ex) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
+    		return GenericResponse.error(ex.getLocalizedMessage());
 		}
 	}
 	
@@ -151,7 +150,7 @@ public class PlaylistController {
 	//http://localhost:8080/yelody/playlist/deleteSongsFromPlaylist
 	@CrossOrigin(origins = "*")
   	@DeleteMapping("/deleteSongsFromPlaylist")
-    public ResponseEntity<Object> deleteSongsFromPlaylist(@RequestBody @Valid DeleteSongsFromPlaylistRequest deleteSongsFromPlaylistRequest) {
+    public GenericResponse deleteSongsFromPlaylist(@RequestBody @Valid DeleteSongsFromPlaylistRequest deleteSongsFromPlaylistRequest) {
 		songList = new ArrayList<>();
 		playlistGet = null;
 		try{
@@ -159,10 +158,10 @@ public class PlaylistController {
 			if(playlistGet!=null)
 				playlistService.deleteSongsFromPlayList(playlistGet.get(), deleteSongsFromPlaylistRequest.getSongIds());
 
-			return ResponseEntity.status(HttpStatus.OK).body("SONGS DELETION IS SUCCESSFUL");
+			return GenericResponse.success("SONGS DELETION IS SUCCESSFUL");
 
 		}catch(Exception ex) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getLocalizedMessage());
+    		return GenericResponse.error(ex.getLocalizedMessage());
 		}
 	}
 	
@@ -170,18 +169,18 @@ public class PlaylistController {
 	//http://localhost:8080/yelody/playlist/deletePlaylistById?id=
 	@CrossOrigin(origins = "*")
 	@DeleteMapping("/deletePlaylistById")
-    public ResponseEntity<Object> deletePlaylistById(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID id) {
+    public GenericResponse deletePlaylistById(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID id) {
 		playlistGet = null;
 		try {
 			playlistGet = playlistService.getPlaylistById(id);
 			if(playlistGet!=null) {
 				playlistService.deletePlaylist(playlistGet.get());
-				return ResponseEntity.status(HttpStatus.OK).body("PLAYLIST ID:" + id + " Deleted Successfully");
+				return GenericResponse.success("PLAYLIST ID:" + id + " Deleted Successfully");
 			}
 			else
-				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("PLAYLIST ID: " + id + " NOT FOUND");
+				return GenericResponse.success("PLAYLIST ID: " + id + " NOT FOUND");
 		}catch(Exception ex) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getLocalizedMessage());
+    		return GenericResponse.error(ex.getLocalizedMessage());
 		}
 	}
 	
@@ -189,15 +188,15 @@ public class PlaylistController {
 	//http://localhost:8080/yelody/playlist/addRemoveFavourite?id=
 	@CrossOrigin(origins = "*")
   	@PutMapping("/addRemoveFavourite")
-    public ResponseEntity<Object> addRemoveFavourite(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID playlistId){
+    public GenericResponse addRemoveFavourite(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID playlistId){
 		playlistGet = null;
     	try {
 			playlistGet = playlistService.getPlaylistById(playlistId);
 			if(playlistGet!=null)
 				playlistService.addRemoveFavourite(playlistGet.get());
-			return ResponseEntity.status(HttpStatus.CREATED).body("PLAYLIST HAS BEEN " + (playlistGet.get().isFavourite() ? "MARKED" : "REMOVED") + " FAVORITE");
+			return GenericResponse.success("PLAYLIST HAS BEEN " + (playlistGet.get().isFavourite() ? "MARKED" : "REMOVED") + " FAVORITE");
     	}catch(Exception ex) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getLocalizedMessage());
+    		return GenericResponse.error(ex.getLocalizedMessage());
     	}
 	}
 	
