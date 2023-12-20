@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.pluton.yelody.DTOs.DeleteUserSingHistoryRequest;
+import com.pluton.yelody.DTOs.GenericResponse;
 import com.pluton.yelody.DTOs.UserSingHistoryRequest;
 import com.pluton.yelody.models.User;
 import com.pluton.yelody.models.UserSingHistory;
@@ -51,13 +52,13 @@ public class UserSingHistoryController {
 	//http://localhost:8080/yelody/singHistory/postSingHistory
 	@CrossOrigin(origins = "*")
   	@PostMapping("/postSingHistory")
-    public ResponseEntity<Object> postSingHistory( @ModelAttribute @Valid UserSingHistoryRequest userSingHistoryRequest){
+    public GenericResponse<UserSingHistory> postSingHistory( @ModelAttribute @Valid UserSingHistoryRequest userSingHistoryRequest){
 		userSingHistoryPost = null;
 		boolean backblazeResponse = false;
 
     	try {
     		if(!StringUtils.getFilenameExtension(userSingHistoryRequest.getFile().getOriginalFilename()).equalsIgnoreCase("mp3"))
-    			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("SONG FILE FORMAT SHOULD BE .MP3");
+    			return GenericResponse.error("SONG FILE FORMAT SHOULD BE .MP3");
 
     		userSingHistoryPost = new UserSingHistory(
     				UUID.randomUUID(),
@@ -72,11 +73,10 @@ public class UserSingHistoryController {
     		if(response!=null) {
     			backblazeResponse = backblazeService.uploadSong(true, response.getSingHistoryId().toString(), userSingHistoryRequest.getFile());
     			if(backblazeResponse)
-    				return new ResponseEntity<>(response, HttpStatus.CREATED);
-    		}
+    				return GenericResponse.success(response, "SING HISTORY CREATED SUCCESSFULLY");    		}
     	}catch(Exception ex) {
     		ex.printStackTrace();
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
+    		return GenericResponse.error(ex.getLocalizedMessage());
     	}
     	return null;
 	}
@@ -85,29 +85,29 @@ public class UserSingHistoryController {
     //http://localhost:8080/yelody/singHistory/deleteSingHistory
     @CrossOrigin(origins = "*")
   	@DeleteMapping("/deleteSingHistory")
-    public ResponseEntity<?> deleteSingHistory(@RequestBody DeleteUserSingHistoryRequest deleteUserSingHistoryRequest){
+    public GenericResponse deleteSingHistory(@RequestBody DeleteUserSingHistoryRequest deleteUserSingHistoryRequest){
     	try {
     		if(deleteUserSingHistoryRequest!=null)
     			userSingHistoryService.deleteSingHistory(deleteUserSingHistoryRequest.getSingHistoryIds());
-			return ResponseEntity.status(HttpStatus.OK).body("SING HISTORY HAS BEEN DELETED SUCCESSFULLY");
+    		return GenericResponse.success("SING HISTORY HAS BEEN DELETED SUCCESSFULLY");
     	}catch(Exception ex) {
-		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getLocalizedMessage());
+    		return GenericResponse.error(ex.getLocalizedMessage());
     	}
     }
     
     //GET LIST OF SING HISTORY
 	//http://localhost:8080/yelody/singHistory/getAllSingHistories
 	@CrossOrigin(origins = "*")
-		@GetMapping("/getAllSingHistories")
-	  public ResponseEntity<Object> getAllSingHistories() {
+	@GetMapping("/getAllSingHistories")
+	public GenericResponse<List<UserSingHistory>> getAllSingHistories() {
 		userSingHistoryList = new ArrayList<>();
 		try {
 			userSingHistoryList = userSingHistoryService.getSingHistoryList();
 			if(userSingHistoryList!=null)
-				return new ResponseEntity<Object>(userSingHistoryList, HttpStatus.OK);
+				return GenericResponse.success(userSingHistoryList);
 			return null;
 		}catch(Exception ex) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
+    		return GenericResponse.error(ex.getLocalizedMessage());
 		}
 	}
 	
@@ -115,16 +115,16 @@ public class UserSingHistoryController {
 	//http://localhost:8080/yelody/singHistory/getUserSingHistories?id=
 	@CrossOrigin(origins = "*")
 	@GetMapping("/getUserSingHistories")
-    public ResponseEntity<Object> getUserSingHistories(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID userId) {
+    public GenericResponse<List<UserSingHistory>> getUserSingHistories(@RequestParam(name="id") @org.hibernate.validator.constraints.UUID UUID userId) {
 		userSingHistoryList = new ArrayList<>();
 		Optional<User> userGet = null;
 		try {
 			userGet = userService.getUserByID(userId);
 			if(userGet!=null)
 				userSingHistoryList = userSingHistoryService.getUserSingHistories(userGet.get());
-			return new ResponseEntity<Object>(userSingHistoryList, HttpStatus.OK);
+			return GenericResponse.success(userSingHistoryList);
 		}catch(Exception ex) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getLocalizedMessage());
+    		return GenericResponse.error(ex.getLocalizedMessage());
 		}
 	}
 	

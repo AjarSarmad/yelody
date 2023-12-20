@@ -7,8 +7,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -75,7 +73,6 @@ public class SongController {
 	Optional<Chart> chart = null;
 	Optional<User> user = null;
 	Optional<AgeGroup> ageGroup = null;
-	List<SongResponse> songResponseList = null;
 	boolean backblazeResponse = false;
 	
 	//POST A SONG
@@ -159,15 +156,21 @@ public class SongController {
     // http://localhost:8080/yelody/song/getRecommendedSongs?userId=xxx
     @CrossOrigin(origins = "*")
     @GetMapping("/getRecommendedSongs")
-    public GenericResponse<List<Song>> getRecommendedSongs(@RequestParam(name="userId") @org.hibernate.validator.constraints.UUID UUID userId) {
+    public GenericResponse<List<SongResponse>> getRecommendedSongs(@RequestParam(name="userId") @org.hibernate.validator.constraints.UUID UUID userId) {
+        List<SongResponse> songResponseList = new ArrayList<>();
     	try {
             User user = userService.getUserByID(userId).get();
             List<Song> recommendedSongs = songService.getRecommendedSongsForUser(user);
-            if (!recommendedSongs.isEmpty()) {
-            	return GenericResponse.success(recommendedSongs);
-            } else {
-            	return GenericResponse.error("No songs found based on user preferences.");
+            for (Song item : recommendedSongs) {
+                songResponseList.add(songMapper.songToSongResponse(item, false));
             }
+
+            if (songResponseList.isEmpty()) {
+            	return GenericResponse.error("No songs found based on user preferences.");
+            } else {
+            	return GenericResponse.success(songResponseList);
+            }
+           
         } catch (Exception ex) {
     		return GenericResponse.error(ex.getLocalizedMessage());
         }
