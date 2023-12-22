@@ -1,0 +1,56 @@
+<VirtualHost *:80>
+    ServerName exchange-dao.com
+    Redirect permanent / https://exchange-dao.com/
+</VirtualHost>
+
+
+# <VirtualHost *:443>
+#     ServerName exchange-dao.com
+
+#     DocumentRoot /home/bimix/frontend
+
+#     SSLEngine On
+#     SSLCertificateFile /etc/letsencrypt/live/exchange-dao.com/fullchain.pem
+#     SSLCertificateKeyFile /etc/letsencrypt/live/exchange-dao.com/privkey.pem
+
+#     <Directory /home/bimix/frontend>
+#         Options Indexes FollowSymLinks
+#         AllowOverride All
+#         Require all granted
+#     </Directory>
+
+#     ProxyPass / http://http://139.59.79.52:3000/
+#     ProxyPassReverse / http://139.59.79.52:3000/
+
+
+#     #  # WebSocket proxy configuration
+#     # ProxyPass /ws/ wss://admin.tradepedia.io:8282/
+#     # ProxyPassReverse /ws/ wss://admin.tradepedia.io:8282/
+
+
+# </VirtualHost>
+
+
+<VirtualHost *:80>
+    ServerName api.exchange-dao.com
+    Redirect permanent / https://api.exchange-dao.com/
+
+</VirtualHost>
+
+
+
+# <VirtualHost *:443>
+#     ServerName api.exchange-dao.com
+
+#     DocumentRoot /home/bimix/backend
+
+#     SSLEngine On
+#     SSLCertificateFile /etc/letsencrypt/live/exchange-dao.com/fullchain.pem
+#     SSLCertificateKeyFile /etc/letsencrypt/live/exchange-dao.com/privkey.pem
+
+#     <Directory /home/bimix/backend>
+#         Options Indexes FollowSymLinks
+#         AllowOverride All
+#         Require all granted
+#     </Directory>
+# </VirtualHost>
